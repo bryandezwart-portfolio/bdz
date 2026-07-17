@@ -1,20 +1,11 @@
-// ============================================================================
-// SITE-INHOUD — pas hier tekst, links en instellingen aan.
-// Je hoeft NERGENS anders in de code iets te wijzigen om teksten of
-// links te updaten. Sla dit bestand op, commit + push (of upload opnieuw
-// naar Vercel) en de site wordt automatisch bijgewerkt.
-// ============================================================================
-
 export const site = {
   name: "Bryan de Zwart",
   titles: ["Radio-DJ bij Radio Muziekstad", "Eigenaar van Bryan de Zwart Music"],
 
-  // Korte zin die bovenaan de pagina (in de browser-tab) verschijnt
   metaTitle: "Bryan de Zwart — Radio-DJ & Label Owner",
   metaDescription:
     "Bryan de Zwart — presentator van De Wakker & Wel Show bij Radio Muziekstad en eigenaar van platenmaatschappij Bryan de Zwart Music.",
 
-  // Bio-tekst, mag uit meerdere alinea's bestaan
   bio: [
     "Hey hallo! Ik ben Bryan de Zwart, eigenaar van platenmaatschappij Bryan de Zwart Music en radio-DJ bij Radio Muziekstad.",
     "Elke ochtend presenteer ik De Wakker & Wel Show — de show die je wakker maakt en je dag goed op gang helpt.",
@@ -25,7 +16,11 @@ export const site = {
     alt: "Portret van Bryan de Zwart met koptelefoon om zijn nek",
   },
 
-  // De twee 'projecten' van Bryan
+  logo: {
+    src: "/bryan-logo.png",
+    alt: "Bryan de Zwart logo",
+  },
+
   radio: {
     label: "Op de radio",
     name: "Radio Muziekstad",
@@ -45,7 +40,6 @@ export const site = {
     cta: "Bekijk Bryan de Zwart Music",
   },
 
-  // Social links. Laat 'url' leeg ("") om een icoon als "binnenkort" te tonen.
   socials: [
     {
       label: "Facebook — Bryan de Zwart Music",
@@ -74,8 +68,6 @@ export const site = {
     {
       label: "LinkedIn",
       handle: "Bryan de Zwart",
-      // Let op: controleer deze URL zelf even in je browser — LinkedIn
-      // profiel-links hebben meestal het formaat /in/gebruikersnaam.
       url: "https://www.linkedin.com/in/bryandezwart/",
       icon: "linkedin",
     },
