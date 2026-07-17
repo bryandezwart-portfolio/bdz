@@ -7,7 +7,7 @@ export default function Nav() {
       <div className="mx-auto max-w-5xl px-6">
         <div className="mt-4 flex items-center justify-between gap-6">
           <a href="#top" aria-label="Naar boven" className="shrink-0">
-            <Image src={site.logo.src} alt={site.logo.alt} width={440} height={184} priority className="h-40 sm:h-52 w-auto animate-blur-breathe" />
+            <Image src={site.logo.src} alt={site.logo.alt} width={540} height={226} priority className="h-48 sm:h-64 w-auto animate-blur-breathe" />
           </a>
           <div className="flex items-center gap-3 rounded-full glass px-5 py-3">
             <nav className="hidden sm:flex items-center gap-7 text-sm text-muted">
