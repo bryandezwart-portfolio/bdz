@@ -35,9 +35,21 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(14px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "blur-up": {
+          "0%": { opacity: "0", transform: "translateY(18px) scale(0.98)", filter: "blur(14px)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)", filter: "blur(0px)" },
+        },
         "pulse-dot": {
           "0%,100%": { opacity: "1" },
           "50%": { opacity: "0.35" },
+        },
+        "blur-breathe": {
+          "0%,100%": { filter: "blur(0px)", opacity: "1" },
+          "50%": { filter: "blur(3px)", opacity: "0.75" },
+        },
+        "glow-pulse": {
+          "0%,100%": { opacity: "0.15", transform: "scale(0.92)" },
+          "50%": { opacity: "0.4", transform: "scale(1.08)" },
         },
       },
       animation: {
@@ -47,7 +59,10 @@ const config: Config = {
         eq4: "eq4 1.0s ease-in-out infinite",
         eq5: "eq5 1.2s ease-in-out infinite",
         "fade-up": "fade-up 0.8s cubic-bezier(0.16,1,0.3,1) both",
+        "blur-up": "blur-up 1.1s cubic-bezier(0.16,1,0.3,1) both",
         "pulse-dot": "pulse-dot 1.6s ease-in-out infinite",
+        "blur-breathe": "blur-breathe 4s cubic-bezier(0.45,0,0.55,1) infinite",
+        "glow-pulse": "glow-pulse 4s cubic-bezier(0.45,0,0.55,1) infinite",
       },
     },
   },
