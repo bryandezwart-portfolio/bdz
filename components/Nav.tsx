@@ -3,9 +3,9 @@ import { site } from "@/lib/content";
 
 export default function Nav() {
   return (
-    <header className="relative z-50">
-      <div className="mx-auto max-w-5xl px-6">
-        <div className="mt-4 flex items-center justify-between gap-6">
+    <header className="fixed top-0 inset-x-0 z-50 bg-bg/90 backdrop-blur-xl border-b border-line">
+      <div className="mx-auto max-w-5xl px-6 py-4">
+        <div className="flex items-center justify-between gap-6">
           <a href="#top" aria-label="Naar boven" className="shrink-0">
             <Image src={site.logo.src} alt={site.logo.alt} width={540} height={226} priority className="h-48 sm:h-64 w-auto animate-blur-breathe" />
           </a>
