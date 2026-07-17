@@ -5,7 +5,7 @@ export default function Nav() {
   return (
     <header className="fixed top-0 inset-x-0 z-50">
       <div className="mx-auto max-w-5xl px-6 pt-4">
-        <div className="flex items-center justify-between gap-6 rounded-3xl bg-bg/95 backdrop-blur-xl border border-line px-6 py-4">
+        <div className="flex items-center justify-between gap-6 rounded-3xl bg-bg/95 backdrop-blur-xl border border-line px-3 py-2">
           <a href="#top" aria-label="Naar boven" className="shrink-0">
             <Image src={site.logo.src} alt={site.logo.alt} width={540} height={226} priority className="h-40 sm:h-48 w-auto animate-blur-breathe" />
           </a>
