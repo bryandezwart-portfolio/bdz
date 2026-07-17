@@ -6,7 +6,7 @@ export default function Hero() {
   return (
     <section
       id="top"
-      className="relative overflow-hidden pt-72 pb-24 sm:pt-96 sm:pb-32"
+      className="relative overflow-hidden pt-64 pb-24 sm:pt-80 sm:pb-32"
     >
       <div className="absolute inset-0 bg-studio-glow" aria-hidden="true" />
 
