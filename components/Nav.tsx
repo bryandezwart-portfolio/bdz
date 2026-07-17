@@ -5,9 +5,9 @@ export default function Nav() {
   return (
     <header className="fixed top-0 inset-x-0 z-50">
       <div className="mx-auto max-w-5xl px-6">
-        <div className="mt-4 flex items-center justify-between rounded-full glass px-5 py-3">
+        <div className="mt-4 flex items-center justify-between rounded-full glass px-5 py-2">
           <a href="#top" className="flex items-center" aria-label="Naar boven">
-            <Image src={site.logo.src} alt={site.logo.alt} width={125} height={52} priority className="h-7 w-auto animate-blur-breathe" />
+            <Image src={site.logo.src} alt={site.logo.alt} width={220} height={92} priority className="h-16 w-auto animate-blur-breathe" />
           </a>
           <nav className="hidden sm:flex items-center gap-7 text-sm text-muted">
             <a href="#over-mij" className="hover:text-ink transition-colors">Over mij</a>
