@@ -76,7 +76,7 @@ export const site = {
       handle: "Bryan de Zwart",
       // Let op: controleer deze URL zelf even in je browser — LinkedIn
       // profiel-links hebben meestal het formaat /in/gebruikersnaam.
-      url: "https://www.linkedin.com/in/bryandezwart/,
+      url: "https://www.linkedin.com/in/bryandezwart/",
       icon: "linkedin",
     },
   ],
