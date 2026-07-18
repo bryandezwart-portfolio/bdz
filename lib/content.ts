@@ -56,7 +56,7 @@ export const site = {
     {
       label: "Instagram — Bryan de Zwart Music",
       handle: "@bryandezwartmusic.nl",
-      url: "https://www.instagram.com/bryandezwartmusic.nl",
+      url: "https://www.instagram.com/bdzmusic.nl",
       icon: "instagram",
     },
     {
