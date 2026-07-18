@@ -26,7 +26,7 @@ export const site = {
     name: "Radio Muziekstad",
     show: "De Wakker & Wel Show",
     description:
-      "Elke ochtend zet ik de toon: goede muziek, een vrolijk praatje en de perfecte start van je dag. Luister live mee.",
+      "Elke ochtend van 8 tot 10 zet ik de toon: goede muziek, een vrolijk praatje en de perfecte start van je dag. Luister live mee.",
     url: "https://muziekstad.nl",
     cta: "Beluister Radio Muziekstad",
   },
