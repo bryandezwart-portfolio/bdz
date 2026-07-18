@@ -73,7 +73,7 @@ export const site = {
     },
   ],
 
-  footerNote: "Radio-DJ · Label owner · Ochtendmens",
+  footerNote: "Radio-DJ · Label owner · Muziekliefhebber met hart voor het vak",
 };
 
 export type Site = typeof site;
