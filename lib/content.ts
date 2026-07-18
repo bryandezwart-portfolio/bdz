@@ -7,8 +7,8 @@ export const site = {
     "Bryan de Zwart — presentator van De Wakker & Wel Show bij Radio Muziekstad en eigenaar van platenmaatschappij Bryan de Zwart Music.",
 
   bio: [
-    "Hey hallo! Ik ben Bryan de Zwart, eigenaar van platenmaatschappij Bryan de Zwart Music en radio-DJ bij Radio Muziekstad.",
-    "Elke ochtend presenteer ik De Wakker & Wel Show — de show die je wakker maakt en je dag goed op gang helpt.",
+   "Hey hallo! Ik ben Bryan de Zwart, oprichter van platenlabel Bryan de Zwart Music. Via het label breng ik muziek en artiesten naar buiten die er wat mij betreft nog te weinig gehoord worden.",
+"Naast het label sta ik elke ochtend achter de knoppen bij Radio Muziekstad, waar ik De Wakker & Wel Show presenteer — de show die je wakker maakt en je dag goed op gang helpt.",
   ],
 
   photo: {
