@@ -90,6 +90,8 @@ export default function About() {
         position: "relative",
         zIndex: 1,
         padding: "2rem 2.5rem 8rem",
+        scrollMarginTop: "64px",
+        scrollMarginTop: "64px",
         maxWidth: "1200px",
         margin: "0 auto",
       }}
