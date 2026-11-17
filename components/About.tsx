@@ -89,7 +89,7 @@ export default function About() {
       style={{
         position: "relative",
         zIndex: 1,
-        padding: "6rem 2.5rem 8rem",
+        padding: "2rem 2.5rem 8rem",
         maxWidth: "1200px",
         margin: "0 auto",
       }}
