@@ -156,7 +156,7 @@ export default function About() {
             }}
             onMouseEnter={(e) => {
               (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(-6px)";
-              (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 20px 40px ${card.accent}33`;
+              (e.currentTarget as HTMLAnchorElement).style.boxShadow = `0 20px 40px #e6394633`;
             }}
             onMouseLeave={(e) => {
               (e.currentTarget as HTMLAnchorElement).style.transform = "translateY(0)";
