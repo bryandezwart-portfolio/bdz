@@ -1,45 +1,8 @@
 {
-  "seo": {
-    "title": "Bryan de Zwart — Radio DJ · Label Owner · Bookings · Tech",
-    "description": "Bryan de Zwart: Radio DJ bij Radio Muziekstad, eigenaar van Bryan de Zwart Bookings en Bryan de Zwart Music. Narrowcasting via BDZScreens.",
-    "keywords": "Bryan de Zwart, Radio DJ, Muziekstad, BDZ Bookings, artiestenbureau, platenlabel, BDZScreens, narrowcasting"
-  },
+  "seo": {},
   "texts": {
-    "heroSubtitle": "RADIO DJ · LABEL OWNER · BOOKINGS · TECH",
-    "aboutTitle": "Muziek is mijn leven",
-    "aboutIntro": "Begonnen als DJ op mijn vijftiende — sindsdien nooit meer gestopt. Van schoolfeesten tot radio, label en tech: ik bouw aan iets groots, stap voor stap.",
-    "card1Title": "Radio DJ",
-    "card1Sub": "Radio Muziekstad",
-    "card1Desc": "Elke week op de radio — live sets, ochtendshows en eigen mixes.",
-    "card1Link": "https://radiomuziekstad.nl",
-    "card2Title": "Label Owner",
-    "card2Sub": "Bryan de Zwart Music",
-    "card2Desc": "Eigen releases en distributie voor artiesten in Nederpop, NL Urban & House.",
-    "card2Link": "https://bdzmusic.nl",
-    "card3Title": "Bookings",
-    "card3Sub": "BDZ Bookings",
-    "card3Desc": "Artiestenbureau — van contact tot optreden, alles geregeld.",
-    "card3Link": "https://bdzbookings.nl",
-    "card4Title": "Tech",
-    "card4Sub": "BDZScreens",
-    "card4Desc": "Infoschermen voor salons, scholen, horeca, praktijken en winkels",
-    "card4Link": "https://bdzscreens.nl",
-    "bookingsText": "Een jong en groeiend artiestenbureau. Van Nederpop tot NL Urban — ik regel alles van het eerste telefoontje tot het laatste nummer. Persoonlijk, snel en professioneel.",
-    "radioText": "7 dagen per week op de radio met De Wakker & Wel Show. Studioopnames 's avonds voor het ochtendprogramma — altijd die perfecte mix klaar voor je ochtend.",
-    "musicText": "Mijn platenlabel. Ik distribueer House Muziek, Nederpop en NL Urban artiesten via Boep.nl en breng zelf techno releases uit. Klaar om jouw muziek de wereld in te sturen? Neem een kijkje.",
-    "textBlock": "",
-    "screensText": "Digitale schermen voor salons, scholen, horecabedrijven, praktijken en winkels. Beheer al je schermen vanuit één dashboard. Simpel, modern en effectief."
+    "heroNames": "test"
   },
-  "media": {
-    "spotifyPlaylistId": "37i9dQZF1DXcBWIGoYBM5M",
-    "videoUrl": "/bdz-nov.mp4"
-  },
-  "extraCards": [
-    {
-      "title": "Tech",
-      "sub": "Planning Totaal",
-      "desc": "Binnenkort meer hierover",
-      "link": ""
-    }
-  ]
+  "media": {},
+  "extraCards": []
 }
