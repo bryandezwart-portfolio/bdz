@@ -131,6 +131,7 @@ export default function About() {
           gap: "1.5rem",
           justifyContent: "center",
           transitionDelay: "0.3s",
+          scrollMarginTop: "80px",
         }}
       >
         {allCards.map((card, i) => (
