@@ -166,7 +166,7 @@ export default function PhotoSlider() {
               onContextMenu={(e) => e.preventDefault()}
             />
             <Image
-              src="/Bryan.png"
+              src="/bryandezwart-official.avif"
               alt="Bryan de Zwart"
               fill
               style={{
