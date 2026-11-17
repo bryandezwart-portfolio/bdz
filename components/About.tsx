@@ -20,7 +20,6 @@ export default function About() {
   const [cards, setCards] = useState(DEFAULT_CARDS);
   const [extraCards, setExtraCards] = useState<{ role: string; sub: string; desc: string; link: string }[]>([]);
 
-  // Laad teksten uit site-content.json (gesaved via admin panel)
   useEffect(() => {
     fetch("/site-content.json")
       .then((r) => r.json())
@@ -115,12 +114,56 @@ export default function About() {
         style={{
           textAlign: "center",
           maxWidth: 620,
-          margin: "0 auto 3.5rem",
+          margin: "0 auto 2.5rem",
           transitionDelay: "0.2s",
         }}
       >
         {intro}
       </p>
+
+      {/* Profielfoto */}
+      <div
+        className="fade-up"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginBottom: "3.5rem",
+          transitionDelay: "0.25s",
+        }}
+      >
+        <div
+          style={{
+            position: "relative",
+            width: 160,
+            height: 160,
+          }}
+        >
+          {/* Glow achter foto */}
+          <div
+            style={{
+              position: "absolute",
+              inset: -8,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, #e6394640 0%, transparent 70%)",
+              filter: "blur(12px)",
+            }}
+          />
+          <img
+            src="/bryandezwart-official.avif"
+            alt="Bryan de Zwart"
+            style={{
+              position: "relative",
+              width: 160,
+              height: 160,
+              borderRadius: "50%",
+              objectFit: "cover",
+              objectPosition: "top",
+              border: "2px solid rgba(230,57,70,0.4)",
+              display: "block",
+            }}
+          />
+        </div>
+      </div>
 
       {/* Cards grid */}
       <div

@@ -74,8 +74,8 @@ export default function Nav() {
           padding: 0,
         }}
       >
-        <NavLink label="OVER" href="#over" />
-        <NavLink label="WAT IK DOE" href="#watikdoe" />
+        <NavLink label="WIE IS BRYAN" href="#over" />
+        <NavLink label="WAT IK DOE" href="#over" />
         <NavLink label="MUZIEK" href="#muziek" />
       </ul>
     </nav>
