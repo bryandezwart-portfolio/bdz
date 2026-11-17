@@ -47,7 +47,6 @@ export default function TextBlock() {
           fontSize: "1.25rem",
           lineHeight: 1.8,
           color: "rgba(240,240,240,0.75)",
-          textAlign: "center",
           fontStyle: "italic",
           borderLeft: "3px solid var(--neon)",
           paddingLeft: "2rem",
