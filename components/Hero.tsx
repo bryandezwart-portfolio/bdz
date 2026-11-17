@@ -1,12 +1,37 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+const DEFAULT_NAMES = ["Bryan de Zwart", "Radio DJ", "Label Owner", "BDZ Bookings", "Development"];
+const DEFAULT_SUBTITLE = "Radio DJ · Label Owner · Bookings · Tech · Development";
+const DEFAULT_TAGS = ["Radio Muziekstad", "Bryan de Zwart Music", "BDZ Bookings", "BDZScreens", "Development"];
 
 export default function Hero() {
   const elRef = useRef<HTMLHeadingElement>(null);
+  const [names, setNames] = useState<string[]>(DEFAULT_NAMES);
+  const [subtitle, setSubtitle] = useState(DEFAULT_SUBTITLE);
+  const [tags, setTags] = useState<string[]>(DEFAULT_TAGS);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const names = ["Bryan de Zwart", "Radio DJ", "Label Owner", "BDZ Bookings", "Development"];
+    fetch("/site-content.json")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.texts?.heroNames) {
+          setNames(data.texts.heroNames.split(",").map((s: string) => s.trim()).filter(Boolean));
+        }
+        if (data.texts?.heroSubtitle) setSubtitle(data.texts.heroSubtitle);
+        if (data.texts?.heroTags) {
+          setTags(data.texts.heroTags.split(",").map((s: string) => s.trim()).filter(Boolean));
+        }
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  }, []);
+
+  useEffect(() => {
+    if (!loaded) return;
     let ni = 0, ci = 0, deleting = false;
+    let timer: ReturnType<typeof setTimeout>;
 
     function type() {
       if (!elRef.current) return;
@@ -15,23 +40,24 @@ export default function Hero() {
         elRef.current.textContent = current.slice(0, ++ci);
         if (ci === current.length) {
           deleting = true;
-          setTimeout(type, ni === 0 ? 3000 : 1800);
+          timer = setTimeout(type, ni === 0 ? 3000 : 1800);
           return;
         }
-        setTimeout(type, 80);
+        timer = setTimeout(type, 80);
       } else {
         elRef.current.textContent = current.slice(0, --ci);
         if (ci === 0) {
           deleting = false;
           ni = (ni + 1) % names.length;
-          setTimeout(type, 400);
+          timer = setTimeout(type, 400);
           return;
         }
-        setTimeout(type, 40);
+        timer = setTimeout(type, 40);
       }
     }
-    setTimeout(type, 800);
-  }, []);
+    timer = setTimeout(type, 800);
+    return () => clearTimeout(timer);
+  }, [loaded, names]);
 
   return (
     <section style={{ position: "relative", height: "100vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -76,11 +102,13 @@ export default function Hero() {
           marginTop: 20, fontSize: 16, color: "rgba(240,240,240,0.5)",
           letterSpacing: 2, textTransform: "uppercase", fontWeight: 300,
         }}>
-          Radio DJ &nbsp;·&nbsp; Label Owner &nbsp;·&nbsp; Bookings &nbsp;·&nbsp; Tech &nbsp;·&nbsp; Development
+          {subtitle.split("·").map((s, i, arr) => (
+            <span key={i}>{s.trim()}{i < arr.length - 1 ? <>&nbsp;·&nbsp;</> : null}</span>
+          ))}
         </p>
 
         <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          {["Radio Muziekstad", "Bryan de Zwart Music", "BDZ Bookings", "BDZScreens", "Development"].map(tag => (
+          {tags.map(tag => (
             <span key={tag} style={{
               padding: "8px 20px",
               border: "1px solid rgba(255,255,255,0.08)",

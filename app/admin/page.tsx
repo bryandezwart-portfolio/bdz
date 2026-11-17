@@ -9,7 +9,10 @@ const defaultSEO = {
 };
 
 const defaultTexts = {
-  heroSubtitle: "RADIO DJ · LABEL OWNER · BOOKINGS · TECH",
+  // Hero sectie
+  heroNames: "Bryan de Zwart, Radio DJ, Label Owner, BDZ Bookings, Development",
+  heroSubtitle: "Radio DJ · Label Owner · Bookings · Tech · Development",
+  heroTags: "Radio Muziekstad, Bryan de Zwart Music, BDZ Bookings, BDZScreens, Development",
   // Over mij sectie
   aboutTitle: "Muziek is mijn leven",
   aboutIntro: "Begonnen als DJ op mijn vijftiende — sindsdien nooit meer gestopt. Van schoolfeesten tot radio, label en tech: ik bouw aan iets groots, stap voor stap.",
@@ -220,6 +223,27 @@ export default function AdminPage() {
 
         {activeTab === "teksten" && (
           <>
+            <Section title="Hero — Typemachine & ondertitel">
+              <Field
+                label="TYPEMACHINE WOORDEN (komma-gescheiden)"
+                value={texts.heroNames}
+                onChange={(v) => updateText("heroNames", v)}
+                hint='Bijv. "Bryan de Zwart, Radio DJ, Label Owner" — roteert automatisch'
+              />
+              <Field
+                label="ONDERTITEL (de rij onder de typemachine)"
+                value={texts.heroSubtitle}
+                onChange={(v) => updateText("heroSubtitle", v)}
+                hint='Bijv. "Radio DJ · Label Owner · Bookings · Tech"'
+              />
+              <Field
+                label="TAGS (komma-gescheiden)"
+                value={texts.heroTags}
+                onChange={(v) => updateText("heroTags", v)}
+                hint='Bijv. "Radio Muziekstad, BDZ Bookings" — de knopjes onderaan de hero'
+              />
+            </Section>
+
             <Section title="Over mij — Titel & intro">
               <Field label="HOOFDTITEL (groot)" value={texts.aboutTitle} onChange={(v) => updateText("aboutTitle", v)} hint='Bijv. "Muziek is mijn leven" — het rode woord is het laatste woord' />
               <Field label="INTRO TEKST" value={texts.aboutIntro} onChange={(v) => updateText("aboutIntro", v)} multiline />
