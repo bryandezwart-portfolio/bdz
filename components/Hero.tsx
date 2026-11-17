@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 
 const DEFAULT_NAMES = ["Bryan de Zwart", "Radio DJ", "Label Owner", "BDZ Bookings", "Development"];
-const DEFAULT_SUBTITLE = "Radio DJ · Label Owner · Bookings · Tech · Development";
+const DEFAULT_SUBTITLE = "Radio DJ · Label Owner · Bookings · Development";
 const DEFAULT_TAGS = ["Radio Muziekstad", "Bryan de Zwart Music", "BDZ Bookings", "BDZScreens", "Development"];
 
 export default function Hero() {
@@ -90,7 +90,7 @@ export default function Hero() {
 
         <h1 ref={elRef} style={{
           fontFamily: "'Orbitron', sans-serif",
-          fontSize: "clamp(40px, 9vw, 110px)",
+          fontSize: "clamp(24px, 8vw, 110px)",
           fontWeight: 900, lineHeight: 1,
           color: "white",
           textShadow: "0 0 60px rgba(230,57,70,0.3)",
@@ -99,8 +99,11 @@ export default function Hero() {
         }} />
 
         <p style={{
-          marginTop: 20, fontSize: 16, color: "rgba(240,240,240,0.5)",
+          marginTop: 20,
+          fontSize: "clamp(10px, 3vw, 16px)",
+          color: "rgba(240,240,240,0.5)",
           letterSpacing: 2, textTransform: "uppercase", fontWeight: 300,
+          display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "4px 0",
         }}>
           {subtitle.split("·").map((s, i, arr) => (
             <span key={i}>{s.trim()}{i < arr.length - 1 ? <>&nbsp;·&nbsp;</> : null}</span>
