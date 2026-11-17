@@ -36,5 +36,11 @@
     "spotifyPlaylistId": "7odOEMWo2Aj4eftHhixnnJ",
     "videoUrl": "/bdz-nov.mp4"
   },
-  "extraCards": []
+  "extraCards": [],
+  "live": {
+    "enabled": true,
+    "vacation": false,
+    "startHour": 8,
+    "endHour": 18
+  }
 }
