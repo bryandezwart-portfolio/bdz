@@ -12,8 +12,8 @@ function NavLink({ label, href }: { label: string; href: string }) {
         style={{
           color: hovered ? "white" : "rgba(240,240,240,0.5)",
           textDecoration: "none",
-          fontSize: "0.75rem",
-          letterSpacing: "0.12em",
+          fontSize: "0.65rem",
+          letterSpacing: "0.06em",
           fontWeight: 600,
           transition: "color 0.2s",
         }}
@@ -44,7 +44,7 @@ export default function Nav() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 2.5rem",
+        padding: "0 1rem",
         height: "64px",
         background: scrolled
           ? "rgba(3,5,7,0.95)"
@@ -61,14 +61,14 @@ export default function Nav() {
         <img
           src="/Bryan-de-Zwart-nl-logo.png"
           alt="Bryan de Zwart"
-          style={{ height: "36px", width: "auto", objectFit: "contain" }}
+          style={{ height: "28px", width: "auto", objectFit: "contain" }}
         />
       </a>
 
       <ul
         style={{
           display: "flex",
-          gap: "2.5rem",
+          gap: "1.2rem",
           listStyle: "none",
           margin: 0,
           padding: 0,
