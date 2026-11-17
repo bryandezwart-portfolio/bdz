@@ -59,7 +59,7 @@ export default function PhotoSlider() {
   const currentColor = COLORS[colorIndex];
 
   return (
-    <section style={{
+    <section id="over" style={{
       padding: "100px 24px",
       textAlign: "center",
       position: "relative",
