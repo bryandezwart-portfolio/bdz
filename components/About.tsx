@@ -21,7 +21,7 @@ const DEFAULT_LIVE = {
   days: [1, 2, 3, 4, 5], // 0=zo, 1=ma … 6=za
 };
 
-function useLiveStatus(enabled: boolean, vacation: boolean, startHour: number, endHour: number) {
+function useLiveStatus(enabled: boolean, vacation: boolean, startHour: number, endHour: number, days: number[]) {
   const [isLive, setIsLive] = useState(false);
 
   useEffect(() => {
@@ -29,12 +29,13 @@ function useLiveStatus(enabled: boolean, vacation: boolean, startHour: number, e
       if (!enabled || vacation) { setIsLive(false); return; }
       const now = new Date();
       const h = now.getHours();
-      setIsLive(h >= startHour && h < endHour);
+      const d = now.getDay();
+      setIsLive(h >= startHour && h < endHour && days.includes(d));
     }
     check();
     const timer = setInterval(check, 60000);
     return () => clearInterval(timer);
-  }, [enabled, vacation, startHour, endHour]);
+  }, [enabled, vacation, startHour, endHour, days]);
 
   return isLive;
 }
@@ -85,18 +86,20 @@ export default function About() {
           })));
         }
         if (data.live) {
-          setLiveConfig({
+          setLiveConfig((prev) => ({
+            ...prev,
             enabled: data.live.enabled ?? DEFAULT_LIVE.enabled,
             vacation: data.live.vacation ?? DEFAULT_LIVE.vacation,
             startHour: data.live.startHour ?? DEFAULT_LIVE.startHour,
             endHour: data.live.endHour ?? DEFAULT_LIVE.endHour,
-          });
+            days: data.live.days ?? DEFAULT_LIVE.days,
+          }));
         }
       })
       .catch(() => {/* geen bestand, gebruik defaults */});
   }, []);
 
-  const isLive = useLiveStatus(liveConfig.enabled, liveConfig.vacation, liveConfig.startHour, liveConfig.endHour);
+  const isLive = useLiveStatus(liveConfig.enabled, liveConfig.vacation, liveConfig.startHour, liveConfig.endHour, liveConfig.days);
 
   const allCards = [
     ...cards,
