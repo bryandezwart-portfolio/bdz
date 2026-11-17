@@ -5,7 +5,7 @@ export default function Hero() {
   const elRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
-    const names = ["Bryan de Zwart", "Radio DJ", "Label Owner", "BDZ Bookings"];
+    const names = ["Bryan de Zwart", "Radio DJ", "Label Owner", "BDZ Bookings", "Development"];
     let ni = 0, ci = 0, deleting = false;
 
     function type() {
@@ -76,11 +76,11 @@ export default function Hero() {
           marginTop: 20, fontSize: 16, color: "rgba(240,240,240,0.5)",
           letterSpacing: 2, textTransform: "uppercase", fontWeight: 300,
         }}>
-          Radio DJ &nbsp;·&nbsp; Label Owner &nbsp;·&nbsp; Bookings &nbsp;·&nbsp; Tech
+          Radio DJ &nbsp;·&nbsp; Label Owner &nbsp;·&nbsp; Bookings &nbsp;·&nbsp; Tech &nbsp;·&nbsp; Development
         </p>
 
         <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
-          {["Radio Muziekstad", "Bryan de Zwart Music", "BDZ Bookings", "BDZScreens"].map(tag => (
+          {["Radio Muziekstad", "Bryan de Zwart Music", "BDZ Bookings", "BDZScreens", "Development"].map(tag => (
             <span key={tag} style={{
               padding: "8px 20px",
               border: "1px solid rgba(255,255,255,0.08)",
