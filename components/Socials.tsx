@@ -1,12 +1,23 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-// Video en Spotify ID — later via admin/site-content.json instelbaar
 const VIDEO_URL = "/bdz-nov.mp4";
-const SPOTIFY_PLAYLIST_ID = "37i9dQZF1DXcBWIGoYBM5M";
+const DEFAULT_PLAYLIST_ID = "37i9dQZF1DXcBWIGoYBM5M";
 
 export default function Socials() {
   const ref = useRef<HTMLDivElement>(null);
+  const [playlistId, setPlaylistId] = useState(DEFAULT_PLAYLIST_ID);
+
+  useEffect(() => {
+    fetch("/site-content.json")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.media?.spotifyPlaylistId) {
+          setPlaylistId(data.media.spotifyPlaylistId);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -92,7 +103,7 @@ export default function Socials() {
                 height: "380px",
                 border: "none",
               }}
-              src={`https://open.spotify.com/embed/playlist/${SPOTIFY_PLAYLIST_ID}?utm_source=generator&theme=0`}
+              src={`https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`}
               allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
               loading="lazy"
             />
