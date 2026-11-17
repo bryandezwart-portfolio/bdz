@@ -48,6 +48,13 @@ const defaultMedia = {
   videoUrl: "/bdz-nov.mp4",
 };
 
+const defaultLive = {
+  enabled: true,
+  vacation: false,
+  startHour: 8,
+  endHour: 10,
+};
+
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "16px", padding: "2rem", marginBottom: "1.5rem" }}>
@@ -92,13 +99,67 @@ function Field({ label, value, onChange, multiline, maxLength, hint }: {
   );
 }
 
+function Toggle({ label, checked, onChange, hint }: { label: string; checked: boolean; onChange: (v: boolean) => void; hint?: string }) {
+  return (
+    <div style={{ marginBottom: "1.25rem" }}>
+      <div
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", cursor: "pointer" }}
+        onClick={() => onChange(!checked)}
+      >
+        <div>
+          <span style={{ color: "rgba(240,240,240,0.7)", fontSize: "0.85rem", fontWeight: 600 }}>{label}</span>
+          {hint && <p style={{ color: "rgba(240,240,240,0.3)", fontSize: "0.7rem", margin: "0.25rem 0 0" }}>{hint}</p>}
+        </div>
+        <div style={{
+          width: 44, height: 24, borderRadius: 12,
+          background: checked ? "#e63946" : "rgba(255,255,255,0.1)",
+          position: "relative", transition: "background 0.2s",
+          flexShrink: 0, marginLeft: "1rem",
+        }}>
+          <div style={{
+            position: "absolute", top: 3, left: checked ? 23 : 3,
+            width: 18, height: 18, borderRadius: "50%",
+            background: "white", transition: "left 0.2s",
+            boxShadow: "0 1px 4px rgba(0,0,0,0.3)",
+          }} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HourSelect({ label, value, onChange, hint }: { label: string; value: number; onChange: (v: number) => void; hint?: string }) {
+  return (
+    <div style={{ marginBottom: "1.25rem" }}>
+      <label style={{ color: "rgba(240,240,240,0.5)", fontSize: "0.72rem", letterSpacing: "0.08em", display: "block", marginBottom: "0.4rem" }}>{label}</label>
+      {hint && <p style={{ color: "rgba(240,240,240,0.3)", fontSize: "0.7rem", marginBottom: "0.4rem" }}>{hint}</p>}
+      <select
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        style={{
+          background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: "10px", padding: "0.75rem 1rem", color: "white",
+          fontSize: "0.875rem", outline: "none", width: "100%", cursor: "pointer",
+        }}
+      >
+        {Array.from({ length: 24 }, (_, h) => (
+          <option key={h} value={h} style={{ background: "#1a1a2e" }}>
+            {String(h).padStart(2, "0")}:00
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [seo, setSeo] = useState(defaultSEO);
   const [texts, setTexts] = useState(defaultTexts);
   const [media, setMedia] = useState(defaultMedia);
   const [extraCards, setExtraCards] = useState(defaultExtraCards);
+  const [live, setLive] = useState(defaultLive);
   const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState<"seo" | "teksten" | "media">("seo");
+  const [activeTab, setActiveTab] = useState<"seo" | "teksten" | "media" | "live">("seo");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -111,6 +172,7 @@ export default function AdminPage() {
         if (data.texts) setTexts((prev) => ({ ...prev, ...data.texts }));
         if (data.media) setMedia((prev) => ({ ...prev, ...data.media }));
         if (data.extraCards) setExtraCards(data.extraCards);
+        if (data.live) setLive((prev) => ({ ...prev, ...data.live }));
       })
       .catch(() => {/* geen bestand aanwezig, gebruik defaults */})
       .finally(() => setLoading(false));
@@ -142,12 +204,16 @@ export default function AdminPage() {
     setMedia((m) => ({ ...m, [key]: val }));
     setSaved(false);
   }
+  function updateLive(key: keyof typeof defaultLive, val: boolean | number) {
+    setLive((l) => ({ ...l, [key]: val }));
+    setSaved(false);
+  }
 
   async function handleSave() {
     const res = await fetch("/api/admin/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ seo, texts, media, extraCards }),
+      body: JSON.stringify({ seo, texts, media, extraCards, live }),
     });
     if (res.ok) setSaved(true);
   }
@@ -168,6 +234,10 @@ export default function AdminPage() {
     background: active ? "#e63946" : "rgba(255,255,255,0.06)",
     color: "white",
   });
+
+  // Live status preview
+  const nowHour = new Date().getHours();
+  const liveNow = live.enabled && !live.vacation && nowHour >= live.startHour && nowHour < live.endHour;
 
   // Extract ID from full URL if pasted
   const spotifyPreviewId = media.spotifyPlaylistId.includes("spotify.com")
@@ -207,10 +277,13 @@ export default function AdminPage() {
         </p>
 
         {/* Tabs */}
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "2rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "2rem", flexWrap: "wrap" }}>
           <button style={tabStyle(activeTab === "seo")} onClick={() => setActiveTab("seo")}>SEO</button>
           <button style={tabStyle(activeTab === "teksten")} onClick={() => setActiveTab("teksten")}>TEKSTEN</button>
           <button style={tabStyle(activeTab === "media")} onClick={() => setActiveTab("media")}>MEDIA</button>
+          <button style={tabStyle(activeTab === "live")} onClick={() => setActiveTab("live")}>
+            🔴 LIVE STATUS
+          </button>
         </div>
 
         {activeTab === "seo" && (
@@ -352,6 +425,74 @@ export default function AdminPage() {
               <div style={{ marginTop: "0.75rem", padding: "0.75rem 1rem", background: "rgba(255,255,255,0.03)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <p style={{ color: "rgba(240,240,240,0.4)", fontSize: "0.72rem", margin: 0 }}>
                   💡 Zet het videobestand in de <code style={{ color: "var(--neon)" }}>public/</code> map van je project en gebruik de bestandsnaam hier.
+                </p>
+              </div>
+            </Section>
+          </>
+        )}
+
+        {activeTab === "live" && (
+          <>
+            {/* Live preview */}
+            <div style={{
+              background: liveNow ? "rgba(230,57,70,0.08)" : "rgba(255,255,255,0.03)",
+              border: `1px solid ${liveNow ? "rgba(230,57,70,0.3)" : "rgba(255,255,255,0.07)"}`,
+              borderRadius: "16px", padding: "1.5rem 2rem", marginBottom: "1.5rem",
+              display: "flex", alignItems: "center", gap: "1rem",
+            }}>
+              <div style={{
+                width: 12, height: 12, borderRadius: "50%",
+                background: liveNow ? "#e63946" : "rgba(255,255,255,0.2)",
+                boxShadow: liveNow ? "0 0 8px #e63946" : "none",
+                flexShrink: 0,
+              }} />
+              <div>
+                <p style={{ color: liveNow ? "#e63946" : "rgba(240,240,240,0.5)", fontSize: "0.85rem", fontWeight: 700, margin: 0 }}>
+                  {liveNow ? "🎙️ NU LIVE op de Radio DJ kaart" : "Niet live op dit moment"}
+                </p>
+                <p style={{ color: "rgba(240,240,240,0.3)", fontSize: "0.72rem", margin: "0.25rem 0 0" }}>
+                  Huidig uur: {String(nowHour).padStart(2, "0")}:xx — schema: {String(live.startHour).padStart(2, "0")}:00–{String(live.endHour).padStart(2, "0")}:00
+                </p>
+              </div>
+            </div>
+
+            <Section title="Live indicator — Radio DJ kaart">
+              <Toggle
+                label="Live indicator inschakelen"
+                checked={live.enabled}
+                onChange={(v) => updateLive("enabled", v)}
+                hint="Zet uit om de indicator permanent te verbergen, ook tijdens uitzenduurtijden."
+              />
+
+              <Toggle
+                label="Vakantie / afwezig modus"
+                checked={live.vacation}
+                onChange={(v) => updateLive("vacation", v)}
+                hint="Zet aan als je op vakantie bent. De indicator verschijnt dan niet, ook niet tijdens uitzenduurtijden."
+              />
+
+              <div style={{ height: "1px", background: "rgba(255,255,255,0.07)", margin: "1.5rem 0" }} />
+
+              <p style={{ color: "rgba(240,240,240,0.4)", fontSize: "0.75rem", letterSpacing: "0.08em", marginBottom: "1rem" }}>UITZENDUURTIJDEN</p>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                <HourSelect
+                  label="BEGINTIJD"
+                  value={live.startHour}
+                  onChange={(v) => updateLive("startHour", v)}
+                  hint="Vanaf welk uur is de indicator zichtbaar"
+                />
+                <HourSelect
+                  label="EINDTIJD"
+                  value={live.endHour}
+                  onChange={(v) => updateLive("endHour", v)}
+                  hint="Tot welk uur (niet inclusief)"
+                />
+              </div>
+
+              <div style={{ padding: "0.75rem 1rem", background: "rgba(255,255,255,0.03)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.07)" }}>
+                <p style={{ color: "rgba(240,240,240,0.4)", fontSize: "0.72rem", margin: 0 }}>
+                  💡 De indicator verschijnt op de Radio DJ kaart op de site van <strong style={{ color: "white" }}>{String(live.startHour).padStart(2, "0")}:00</strong> tot <strong style={{ color: "white" }}>{String(live.endHour).padStart(2, "0")}:00</strong> uur — automatisch, geen actie nodig.
                 </p>
               </div>
             </Section>

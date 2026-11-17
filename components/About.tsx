@@ -13,12 +13,38 @@ const DEFAULT_CARDS = [
   { role: "Tech", sub: "BDZScreens & Planning Totaal", desc: "Software voor narrowcasting, coaches, klussers en salons.", link: "https://bdzscreens.nl" },
 ];
 
+const DEFAULT_LIVE = {
+  enabled: true,
+  vacation: false,
+  startHour: 8,
+  endHour: 10,
+};
+
+function useLiveStatus(enabled: boolean, vacation: boolean, startHour: number, endHour: number) {
+  const [isLive, setIsLive] = useState(false);
+
+  useEffect(() => {
+    function check() {
+      if (!enabled || vacation) { setIsLive(false); return; }
+      const now = new Date();
+      const h = now.getHours();
+      setIsLive(h >= startHour && h < endHour);
+    }
+    check();
+    const timer = setInterval(check, 60000);
+    return () => clearInterval(timer);
+  }, [enabled, vacation, startHour, endHour]);
+
+  return isLive;
+}
+
 export default function About() {
   const ref = useRef<HTMLDivElement>(null);
   const [title, setTitle] = useState(DEFAULT_TITLE);
   const [intro, setIntro] = useState(DEFAULT_INTRO);
   const [cards, setCards] = useState(DEFAULT_CARDS);
   const [extraCards, setExtraCards] = useState<{ role: string; sub: string; desc: string; link: string }[]>([]);
+  const [liveConfig, setLiveConfig] = useState(DEFAULT_LIVE);
 
   useEffect(() => {
     fetch("/site-content.json")
@@ -57,9 +83,19 @@ export default function About() {
             role: c.title, sub: c.sub, desc: c.desc, link: c.link,
           })));
         }
+        if (data.live) {
+          setLiveConfig({
+            enabled: data.live.enabled ?? DEFAULT_LIVE.enabled,
+            vacation: data.live.vacation ?? DEFAULT_LIVE.vacation,
+            startHour: data.live.startHour ?? DEFAULT_LIVE.startHour,
+            endHour: data.live.endHour ?? DEFAULT_LIVE.endHour,
+          });
+        }
       })
       .catch(() => {/* geen bestand, gebruik defaults */});
   }, []);
+
+  const isLive = useLiveStatus(liveConfig.enabled, liveConfig.vacation, liveConfig.startHour, liveConfig.endHour);
 
   const allCards = [
     ...cards,
@@ -214,6 +250,39 @@ export default function About() {
               {card.sub}
             </p>
 
+            {/* Live indicator — alleen op Radio DJ kaart (i === 0) */}
+            {i === 0 && isLive && (
+              <div style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                marginBottom: "0.75rem",
+                background: "rgba(230,57,70,0.12)",
+                border: "1px solid rgba(230,57,70,0.3)",
+                borderRadius: "100px",
+                padding: "3px 10px 3px 7px",
+              }}>
+                <span style={{
+                  display: "inline-block",
+                  width: 8,
+                  height: 8,
+                  borderRadius: "50%",
+                  background: "#e63946",
+                  boxShadow: "0 0 6px #e63946",
+                  animation: "livePulse 1.5s ease-in-out infinite",
+                }} />
+                <span style={{
+                  fontSize: "0.68rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  color: "#e63946",
+                  textTransform: "uppercase",
+                }}>
+                  Nu live
+                </span>
+              </div>
+            )}
+
             {/* Desc */}
             <p
               style={{
@@ -252,6 +321,13 @@ export default function About() {
           </a>
         ))}
       </div>
+
+      <style>{`
+        @keyframes livePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.3); }
+        }
+      `}</style>
     </section>
   );
 }
