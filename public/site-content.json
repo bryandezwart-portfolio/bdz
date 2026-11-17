@@ -41,7 +41,7 @@
     "enabled": true,
     "vacation": false,
     "startHour": 8,
-    "endHour": 18,
+    "endHour": 10,
     "days": [
       1,
       2,
