@@ -499,6 +499,40 @@ export default function AdminPage() {
                 />
               </div>
 
+              <div style={{ height: "1px", background: "rgba(255,255,255,0.07)", margin: "1.5rem 0" }} />
+
+              <p style={{ color: "rgba(240,240,240,0.4)", fontSize: "0.75rem", letterSpacing: "0.08em", marginBottom: "1rem" }}>ACTIEVE DAGEN</p>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginBottom: "1.25rem" }}>
+                {[
+                  { label: "Ma", day: 1 },
+                  { label: "Di", day: 2 },
+                  { label: "Wo", day: 3 },
+                  { label: "Do", day: 4 },
+                  { label: "Vr", day: 5 },
+                  { label: "Za", day: 6 },
+                  { label: "Zo", day: 0 },
+                ].map(({ label, day }) => {
+                  const active = live.days.includes(day);
+                  return (
+                    <button
+                      key={day}
+                      onClick={() => toggleDay(day)}
+                      style={{
+                        width: 48, height: 48, borderRadius: "10px", border: "none",
+                        cursor: "pointer", fontSize: "0.78rem", fontWeight: 700,
+                        letterSpacing: "0.04em",
+                        background: active ? "#e63946" : "rgba(255,255,255,0.06)",
+                        color: active ? "white" : "rgba(240,240,240,0.4)",
+                        transition: "all 0.15s",
+                        boxShadow: active ? "0 0 12px rgba(230,57,70,0.3)" : "none",
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+
               <div style={{ padding: "0.75rem 1rem", background: "rgba(255,255,255,0.03)", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.07)" }}>
                 <p style={{ color: "rgba(240,240,240,0.4)", fontSize: "0.72rem", margin: 0 }}>
                   💡 De indicator verschijnt op de Radio DJ kaart op de site van <strong style={{ color: "white" }}>{String(live.startHour).padStart(2, "0")}:00</strong> tot <strong style={{ color: "white" }}>{String(live.endHour).padStart(2, "0")}:00</strong> uur — automatisch, geen actie nodig.
