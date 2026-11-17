@@ -123,7 +123,7 @@ export default function About() {
 
 
       {/* Cards grid */}
-      <div
+      <div id="watikdoe"
         className="fade-up"
         style={{
           display: "flex",
