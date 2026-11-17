@@ -121,49 +121,6 @@ export default function About() {
         {intro}
       </p>
 
-      {/* Profielfoto */}
-      <div
-        className="fade-up"
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          marginBottom: "3.5rem",
-          transitionDelay: "0.25s",
-        }}
-      >
-        <div
-          style={{
-            position: "relative",
-            width: 160,
-            height: 160,
-          }}
-        >
-          {/* Glow achter foto */}
-          <div
-            style={{
-              position: "absolute",
-              inset: -8,
-              borderRadius: "50%",
-              background: "radial-gradient(circle, #e6394640 0%, transparent 70%)",
-              filter: "blur(12px)",
-            }}
-          />
-          <img
-            src="/bryandezwart-official.avif"
-            alt="Bryan de Zwart"
-            style={{
-              position: "relative",
-              width: 160,
-              height: 160,
-              borderRadius: "50%",
-              objectFit: "cover",
-              objectPosition: "top",
-              border: "2px solid rgba(230,57,70,0.4)",
-              display: "block",
-            }}
-          />
-        </div>
-      </div>
 
       {/* Cards grid */}
       <div
