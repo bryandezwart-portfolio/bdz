@@ -75,7 +75,7 @@ export default function Nav() {
         }}
       >
         <NavLink label="WIE IS BRYAN" href="#over" />
-        <NavLink label="WAT IK DOE" href="#over" />
+        <NavLink label="WAT IK DOE" href="#watikdoe" />
         <NavLink label="MUZIEK" href="#muziek" />
       </ul>
     </nav>
