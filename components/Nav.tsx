@@ -1,26 +1,83 @@
-import Image from "next/image";
-import { site } from "@/lib/content";
+"use client";
+import { useState, useEffect } from "react";
+
+function NavLink({ label, href }: { label: string; href: string }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <li>
+      <a
+        href={href}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          color: hovered ? "white" : "rgba(240,240,240,0.5)",
+          textDecoration: "none",
+          fontSize: "0.75rem",
+          letterSpacing: "0.12em",
+          fontWeight: 600,
+          transition: "color 0.2s",
+        }}
+      >
+        {label}
+      </a>
+    </li>
+  );
+}
 
 export default function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="fixed top-0 inset-x-0 z-50">
-      <div className="mx-auto max-w-5xl px-6 pt-4">
-        <div className="flex items-center justify-between gap-6 rounded-3xl bg-bg/40 backdrop-blur-2xl border border-line/60 px-3 py-2">
-          <a href="#top" aria-label="Naar boven" className="relative shrink-0">
-            <span className="absolute inset-0 rounded-full bg-gradient-to-tr from-onair/40 via-gold/30 to-transparent blur-2xl animate-glow-pulse" aria-hidden="true" />
-            <Image src={site.logo.src} alt={site.logo.alt} width={540} height={226} priority className="relative h-40 sm:h-48 w-auto animate-blur-breathe" />
-          </a>
-          <div className="flex items-center gap-3 rounded-full glass px-5 py-3">
-            <nav className="hidden sm:flex items-center gap-7 text-sm text-muted">
-              <a href="#over-mij" className="hover:text-ink transition-colors">Over mij</a>
-              <a href="#radio" className="hover:text-ink transition-colors">Radio</a>
-              <a href="#label" className="hover:text-ink transition-colors">Label</a>
-              <a href="#volg" className="hover:text-ink transition-colors">Volg mij</a>
-            </nav>
-            <a href={site.radio.url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium bg-ink text-bg rounded-full px-4 py-1.5 hover:opacity-85 transition-opacity whitespace-nowrap">Live luisteren</a>
-          </div>
-        </div>
-      </div>
-    </header>
+    <nav
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 2.5rem",
+        height: "64px",
+        background: scrolled
+          ? "rgba(3,5,7,0.95)"
+          : "rgba(3,5,7,0.3)",
+        backdropFilter: "blur(12px)",
+        borderBottom: scrolled
+          ? "1px solid rgba(255,255,255,0.06)"
+          : "1px solid transparent",
+        transition: "background 0.4s, border-color 0.4s",
+      }}
+    >
+      {/* Logo afbeelding */}
+      <a href="#" style={{ display: "flex", alignItems: "center" }}>
+        <img
+          src="/Bryan-de-Zwart-nl-logo.png"
+          alt="Bryan de Zwart"
+          style={{ height: "36px", width: "auto", objectFit: "contain" }}
+        />
+      </a>
+
+      <ul
+        style={{
+          display: "flex",
+          gap: "2.5rem",
+          listStyle: "none",
+          margin: 0,
+          padding: 0,
+        }}
+      >
+        <NavLink label="OVER" href="#over" />
+        <NavLink label="WAT IK DOE" href="#watikdoe" />
+        <NavLink label="MUZIEK" href="#muziek" />
+      </ul>
+    </nav>
   );
 }

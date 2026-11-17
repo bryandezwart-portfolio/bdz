@@ -1,85 +1,138 @@
-import { site } from "@/lib/content";
+"use client";
+import { useEffect, useRef, useState } from "react";
 
-const tracks = [
+const cards = [
   {
-    id: "radio",
-    side: "A1",
-    accent: "text-onair",
-    dot: "bg-onair",
-    label: site.radio.label,
-    title: site.radio.show,
-    subtitle: site.radio.name,
-    description: site.radio.description,
-    url: site.radio.url,
-    cta: site.radio.cta,
+    id: "bookings",
+    icon: "🎤",
+    title: "BRYAN DE ZWART BOOKINGS",
+    text: "Een jong en groeiend artiestenbureau. Van Nederpop tot NL Urban — ik regel alles van het eerste telefoontje tot het laatste nummer. Persoonlijk, snel en professioneel.",
+    link: "https://bdzbookings.nl",
+    linkLabel: "BEKIJK BUREAU →",
   },
   {
-    id: "label",
-    side: "B1",
-    accent: "text-gold",
-    dot: "bg-gold",
-    label: site.label.label,
-    title: site.label.name,
-    subtitle: "Platenmaatschappij",
-    description: site.label.description,
-    url: site.label.url,
-    cta: site.label.cta,
+    id: "radio",
+    icon: "📻",
+    title: "RADIO MUZIEKSTAD",
+    text: "7 dagen per week op de radio met De Wakker & Wel Show. Studioopnames 's avonds voor het ochtendprogramma — altijd die perfecte mix klaar voor je ochtend.",
+    link: "https://radiomuziekstad.nl",
+    linkLabel: null,
+  },
+  {
+    id: "music",
+    icon: "🎵",
+    title: "BRYAN DE ZWART MUSIC",
+    text: "Mijn platenlabel. Ik distribueer House Muziek, Nederpop en NL Urban artiesten via Boep.nl en breng zelf techno releases uit. Klaar om jouw muziek de wereld in te sturen? Neem een kijkje.",
+    link: "https://bdzmusic.nl",
+    linkLabel: "NAAR LABEL →",
   },
 ];
 
-export default function Projects() {
+function Card({ card }: { card: (typeof cards)[0] }) {
+  const [hovered, setHovered] = useState(false);
   return (
-    <section className="py-24 sm:py-32 border-t border-line">
-      <div className="mx-auto max-w-5xl px-6">
-        <p className="text-xs uppercase tracking-[0.18em] text-muted mb-10">
-          Waar ik aan werk
-        </p>
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        background: hovered ? "rgba(230,57,70,0.05)" : "var(--glass)",
+        border: `1px solid ${hovered ? "rgba(230,57,70,0.3)" : "var(--glass-border)"}`,
+        borderRadius: "16px",
+        padding: "2rem",
+        transition: "all 0.3s",
+        cursor: "default",
+      }}
+    >
+      <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>{card.icon}</div>
+      <h3
+        style={{
+          fontSize: "0.75rem",
+          letterSpacing: "0.12em",
+          color: "var(--neon)",
+          fontWeight: 700,
+          marginBottom: "0.75rem",
+        }}
+      >
+        {card.title}
+      </h3>
+      <p
+        style={{
+          color: "rgba(240,240,240,0.65)",
+          fontSize: "0.9rem",
+          lineHeight: 1.7,
+          marginBottom: "1.25rem",
+        }}
+      >
+        {card.text}
+      </p>
+      {card.linkLabel && (
+        <a
+          href={card.link}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            color: "var(--neon)",
+            fontSize: "0.72rem",
+            letterSpacing: "0.1em",
+            fontWeight: 700,
+            textDecoration: "none",
+          }}
+        >
+          {card.linkLabel}
+        </a>
+      )}
+    </div>
+  );
+}
 
-        <div className="grid sm:grid-cols-2 gap-5">
-          {tracks.map((t) => (
-            <a
-              key={t.id}
-              id={t.id}
-              href={t.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative rounded-3xl glass p-8 sm:p-10 flex flex-col justify-between min-h-[320px] overflow-hidden hover:bg-white/[0.05] transition-colors"
-            >
-              <div
-                className={`absolute -top-10 -right-10 h-40 w-40 rounded-full ${t.dot} opacity-[0.08] blur-3xl group-hover:opacity-[0.14] transition-opacity`}
-                aria-hidden="true"
-              />
+export default function Projects() {
+  const ref = useRef<HTMLDivElement>(null);
 
-              <div>
-                <div className="flex items-center gap-2 mb-8">
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${t.dot}`}
-                    aria-hidden="true"
-                  />
-                  <span className={`text-xs font-mono ${t.accent}`}>
-                    {t.side}
-                  </span>
-                  <span className="text-xs uppercase tracking-[0.14em] text-muted">
-                    {t.label}
-                  </span>
-                </div>
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) e.target.classList.add("visible");
+        });
+      },
+      { threshold: 0.1 }
+    );
+    const els = ref.current?.querySelectorAll(".fade-up");
+    els?.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
 
-                <h3 className="font-display font-bold text-3xl tracking-tight text-balance">
-                  {t.title}
-                </h3>
-                <p className="text-sm text-muted mt-1">{t.subtitle}</p>
-                <p className="mt-5 text-base text-muted leading-relaxed max-w-sm">
-                  {t.description}
-                </p>
-              </div>
+  return (
+    <section
+      id="watikdoe"
+      ref={ref}
+      style={{
+        padding: "8rem 2.5rem",
+        background: "var(--dark2)",
+      }}
+    >
+      <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
+        <p className="fade-up section-label">WAT IK DOE</p>
+        <h2
+          className="fade-up section-title"
+          style={{ transitionDelay: "0.1s" }}
+        >
+          Alles onder{" "}
+          <span style={{ color: "var(--neon)" }}>één dak</span>
+        </h2>
 
-              <span className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold">
-                {t.cta}
-                <span className="transition-transform group-hover:translate-x-1">
-                  →
-                </span>
-              </span>
-            </a>
+        <div
+          className="fade-up"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "1.5rem",
+            marginTop: "3rem",
+            transitionDelay: "0.2s",
+          }}
+        >
+          {cards.map((card) => (
+            <Card key={card.id} card={card} />
           ))}
         </div>
       </div>

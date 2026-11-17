@@ -1,55 +1,120 @@
-import Image from "next/image";
-import { site } from "@/lib/content";
-import Waveform from "./Waveform";
+"use client";
+import { useEffect, useRef } from "react";
 
 export default function Hero() {
+  const elRef = useRef<HTMLHeadingElement>(null);
+
+  useEffect(() => {
+    const names = ["Bryan de Zwart", "Radio DJ", "Label Owner", "BDZ Bookings"];
+    let ni = 0, ci = 0, deleting = false;
+
+    function type() {
+      if (!elRef.current) return;
+      const current = names[ni];
+      if (!deleting) {
+        elRef.current.textContent = current.slice(0, ++ci);
+        if (ci === current.length) {
+          deleting = true;
+          setTimeout(type, ni === 0 ? 3000 : 1800);
+          return;
+        }
+        setTimeout(type, 80);
+      } else {
+        elRef.current.textContent = current.slice(0, --ci);
+        if (ci === 0) {
+          deleting = false;
+          ni = (ni + 1) % names.length;
+          setTimeout(type, 400);
+          return;
+        }
+        setTimeout(type, 40);
+      }
+    }
+    setTimeout(type, 800);
+  }, []);
+
   return (
-    <section id="top" className="relative overflow-hidden pt-64 pb-24 sm:pt-80 sm:pb-32">
-      <div className="absolute inset-0 bg-studio-glow" aria-hidden="true" />
+    <section style={{ position: "relative", height: "100vh", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      {/* VIDEO */}
+      <video
+        autoPlay muted loop playsInline
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.5 }}
+      >
+        <source src="/bdz-nov.mp4" type="video/mp4" />
+      </video>
 
-      <div className="relative mx-auto max-w-5xl px-6">
-        <div className="grid sm:grid-cols-[1.1fr,0.9fr] gap-14 items-center">
-          <div className="animate-blur-up">
-            <div className="flex items-center gap-2.5 mb-6">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-onair animate-pulse-dot" />
-              </span>
-              <span className="text-xs uppercase tracking-[0.18em] text-muted">
-                On air &middot; {site.radio.show}
-              </span>
-              <Waveform />
-            </div>
+      {/* OVERLAY */}
+      <div style={{
+        position: "absolute", inset: 0,
+        background: "linear-gradient(135deg, rgba(3,5,7,0.75) 0%, rgba(230,57,70,0.08) 50%, rgba(3,5,7,0.85) 100%)",
+      }} />
 
-            <h1 className="font-display font-extrabold text-5xl sm:text-6xl leading-[1.03] tracking-tight text-balance">
-              {site.name}
-            </h1>
+      {/* CONTENT */}
+      <div style={{ position: "relative", zIndex: 2, textAlign: "center", padding: "0 20px" }}>
+        <div style={{
+          fontFamily: "'Orbitron', sans-serif",
+          fontSize: 11, letterSpacing: 6, color: "var(--neon)",
+          textTransform: "uppercase", marginBottom: 24,
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+        }}>
+          <span style={{ display: "inline-block", width: 40, height: 1, background: "var(--neon)", opacity: 0.5 }} />
+          Official
+          <span style={{ display: "inline-block", width: 40, height: 1, background: "var(--neon)", opacity: 0.5 }} />
+        </div>
 
-            <ul className="mt-5 space-y-1.5">
-              {site.titles.map((t) => (
-                <li key={t} className="text-lg sm:text-xl text-muted font-medium">
-                  {t}
-                </li>
-              ))}
-            </ul>
+        <h1 ref={elRef} style={{
+          fontFamily: "'Orbitron', sans-serif",
+          fontSize: "clamp(40px, 9vw, 110px)",
+          fontWeight: 900, lineHeight: 1,
+          color: "white",
+          textShadow: "0 0 60px rgba(230,57,70,0.3)",
+          letterSpacing: -2,
+          minHeight: "1.2em",
+        }} />
 
-            <div className="mt-9 flex flex-wrap gap-3">
-              <a href={site.radio.url} target="_blank" rel="noopener noreferrer" className="rounded-full bg-onair text-white text-sm font-semibold px-6 py-3 hover:brightness-110 transition-all">
-                {site.radio.cta}
-              </a>
-              <a href={site.label.url} target="_blank" rel="noopener noreferrer" className="rounded-full glass text-ink text-sm font-semibold px-6 py-3 hover:bg-white/[0.06] transition-colors">
-                {site.label.cta}
-              </a>
-            </div>
-          </div>
+        <p style={{
+          marginTop: 20, fontSize: 16, color: "rgba(240,240,240,0.5)",
+          letterSpacing: 2, textTransform: "uppercase", fontWeight: 300,
+        }}>
+          Radio DJ &nbsp;·&nbsp; Label Owner &nbsp;·&nbsp; Bookings &nbsp;·&nbsp; Tech
+        </p>
 
-          <div className="relative animate-blur-up [animation-delay:250ms]">
-            <div className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-tr from-onair/25 via-gold/10 to-transparent blur-2xl" aria-hidden="true" />
-            <div className="relative rounded-[2rem] overflow-hidden glass aspect-[4/5]">
-              <Image src={site.photo.src} alt={site.photo.alt} fill priority sizes="(max-width: 640px) 90vw, 420px" className="object-cover object-top" />
-            </div>
-          </div>
+        <div style={{ marginTop: 32, display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap" }}>
+          {["Radio Muziekstad", "Bryan de Zwart Music", "BDZ Bookings", "BDZScreens"].map(tag => (
+            <span key={tag} style={{
+              padding: "8px 20px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              borderRadius: 100, fontSize: 12, letterSpacing: 1,
+              color: "rgba(240,240,240,0.5)",
+              backdropFilter: "blur(10px)",
+              background: "rgba(255,255,255,0.04)",
+            }}>{tag}</span>
+          ))}
         </div>
       </div>
+
+      {/* SCROLL INDICATOR */}
+      <div style={{
+        position: "absolute", bottom: 40, left: "50%", transform: "translateX(-50%)",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 8,
+        color: "rgba(240,240,240,0.4)", fontSize: 11, letterSpacing: 2,
+      }}>
+        <span>Scroll</span>
+        <div style={{
+          width: 1, height: 60,
+          background: "linear-gradient(to bottom, var(--neon), transparent)",
+          animation: "scrollAnim 2s infinite",
+        }} />
+      </div>
+
+      <style>{`
+        @keyframes scrollAnim {
+          0% { transform: scaleY(0); transform-origin: top; }
+          50% { transform: scaleY(1); transform-origin: top; }
+          51% { transform: scaleY(1); transform-origin: bottom; }
+          100% { transform: scaleY(0); transform-origin: bottom; }
+        }
+      `}</style>
     </section>
   );
 }

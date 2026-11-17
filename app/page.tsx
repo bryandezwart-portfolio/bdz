@@ -1,7 +1,9 @@
 import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
+import VideoSection from "@/components/VideoSection";
 import About from "@/components/About";
-import Projects from "@/components/Projects";
+import PhotoSlider from "@/components/PhotoSlider";
+import TextBlock from "@/components/TextBlock";
 import Socials from "@/components/Socials";
 import Footer from "@/components/Footer";
 
@@ -10,8 +12,10 @@ export default function Home() {
     <main>
       <Nav />
       <Hero />
+      <VideoSection />
       <About />
-      <Projects />
+      <PhotoSlider />
+      <TextBlock />
       <Socials />
       <Footer />
     </main>
