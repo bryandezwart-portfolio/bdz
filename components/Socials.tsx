@@ -96,17 +96,26 @@ export default function Socials() {
             className="fade-up"
             style={{ marginTop: "2.5rem", transitionDelay: "0.2s" }}
           >
-            <iframe
-              style={{
-                borderRadius: "16px",
-                width: "100%",
-                height: "380px",
-                border: "none",
-              }}
-              src={`https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`}
-              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-            />
+            {/* Neon gloed wrapper */}
+            <div style={{
+              borderRadius: "20px",
+              padding: "3px",
+              background: "linear-gradient(135deg, rgba(230,57,70,0.6) 0%, rgba(230,57,70,0.1) 50%, rgba(230,57,70,0.4) 100%)",
+              boxShadow: "0 0 30px rgba(230,57,70,0.25), 0 0 60px rgba(230,57,70,0.1)",
+            }}>
+              <iframe
+                style={{
+                  borderRadius: "17px",
+                  width: "100%",
+                  height: "380px",
+                  border: "none",
+                  display: "block",
+                }}
+                src={`https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator&theme=0`}
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                loading="lazy"
+              />
+            </div>
           </div>
         </div>
       </section>
