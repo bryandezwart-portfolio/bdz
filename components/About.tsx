@@ -18,6 +18,7 @@ const DEFAULT_LIVE = {
   vacation: false,
   startHour: 8,
   endHour: 10,
+  days: [1, 2, 3, 4, 5], // 0=zo, 1=ma … 6=za
 };
 
 function useLiveStatus(enabled: boolean, vacation: boolean, startHour: number, endHour: number) {

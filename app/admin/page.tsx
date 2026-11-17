@@ -53,6 +53,7 @@ const defaultLive = {
   vacation: false,
   startHour: 8,
   endHour: 10,
+  days: [1, 2, 3, 4, 5], // 0=zo, 1=ma, 2=di, 3=wo, 4=do, 5=vr, 6=za
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -157,7 +158,7 @@ export default function AdminPage() {
   const [texts, setTexts] = useState(defaultTexts);
   const [media, setMedia] = useState(defaultMedia);
   const [extraCards, setExtraCards] = useState(defaultExtraCards);
-  const [live, setLive] = useState(defaultLive);
+  const [live, setLive] = useState<typeof defaultLive>(defaultLive);
   const [saved, setSaved] = useState(false);
   const [activeTab, setActiveTab] = useState<"seo" | "teksten" | "media" | "live">("seo");
   const [loading, setLoading] = useState(true);
@@ -172,7 +173,7 @@ export default function AdminPage() {
         if (data.texts) setTexts((prev) => ({ ...prev, ...data.texts }));
         if (data.media) setMedia((prev) => ({ ...prev, ...data.media }));
         if (data.extraCards) setExtraCards(data.extraCards);
-        if (data.live) setLive((prev) => ({ ...prev, ...data.live }));
+        if (data.live) setLive((prev) => ({ ...prev, ...data.live, days: data.live.days ?? prev.days }));
       })
       .catch(() => {/* geen bestand aanwezig, gebruik defaults */})
       .finally(() => setLoading(false));
@@ -204,8 +205,15 @@ export default function AdminPage() {
     setMedia((m) => ({ ...m, [key]: val }));
     setSaved(false);
   }
-  function updateLive(key: keyof typeof defaultLive, val: boolean | number) {
+  function updateLive(key: keyof typeof defaultLive, val: boolean | number | number[]) {
     setLive((l) => ({ ...l, [key]: val }));
+    setSaved(false);
+  }
+  function toggleDay(day: number) {
+    setLive((l) => {
+      const days = l.days.includes(day) ? l.days.filter((d) => d !== day) : [...l.days, day];
+      return { ...l, days };
+    });
     setSaved(false);
   }
 
@@ -237,7 +245,8 @@ export default function AdminPage() {
 
   // Live status preview
   const nowHour = new Date().getHours();
-  const liveNow = live.enabled && !live.vacation && nowHour >= live.startHour && nowHour < live.endHour;
+  const nowDay = new Date().getDay();
+  const liveNow = live.enabled && !live.vacation && nowHour >= live.startHour && nowHour < live.endHour && live.days.includes(nowDay);
 
   // Extract ID from full URL if pasted
   const spotifyPreviewId = media.spotifyPlaylistId.includes("spotify.com")
