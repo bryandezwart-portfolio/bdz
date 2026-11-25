@@ -5,7 +5,7 @@ const ICONS = ["📻", "🎵", "🎤", "💻", "✦"];
 const ACCENTS = ["#e63946", "#ff6b35", "#e63946", "#ff6b35", "#e63946"];
 
 const DEFAULT_TITLE = "Muziek is mijn leven";
-const DEFAULT_INTRO = "Begonnen als DJ op mijn vijftiende — sindsdien nooit meer gestopt. Van schoolfeesten tot radio, label en tech: ik bouw aan iets groots, stap voor stap.";
+const DEFAULT_INTRO = "Op mijn vijftiende kocht ik mijn eerste mengtafel. Daarna liet ik een radiozendertje bouwen, en vanaf dat moment was het gewoon draaien maar.\n\nIk ben Bryan de Zwart, geboren in 1983 in Nijmegen. Muziek zit in mijn bloed — de jaren 80, de goede 90's en house. In de jaren 90 tot begin 2000 draaide ik bij diverse Nijmeegse piratenzenders, puur omdat ik het leuk vond. Later startte ik mijn eigen online radio: BigB21.nl.\n\nNu presenteer ik De Wakker & Wel Show bij Radio Muziekstad, run ik platenlabel Bryan de Zwart Music en heb ik een boekingsbureau opgezet. Maar muziek alleen was nooit genoeg. Ik bouw software, websites en webshops met Next.js — van narrowcastingsoftware voor bedrijven tot planningsapps voor salons, coaches en klussers. BDZScreens begon als een idee op een bierviltje. Inmiddels draait het bij echte bedrijven.";
 const DEFAULT_CARDS = [
   { role: "Radio DJ", sub: "Radio Muziekstad", desc: "Elke week op de radio — live sets, ochtendshows en eigen mixes.", link: "https://radiomuziekstad.nl" },
   { role: "Label Owner", sub: "Bryan de Zwart Music", desc: "Eigen releases en distributie voor artiesten in Nederpop, NL Urban & House.", link: "https://bdzmusic.nl" },
@@ -152,7 +152,7 @@ export default function About() {
         {title.split(" ").slice(0, -1).join(" ")}{" "}
         <span style={{ color: "var(--neon)" }}>{title.split(" ").slice(-1)[0]}</span>
       </h2>
-      <p
+      <div
         className="fade-up section-text"
         style={{
           textAlign: "center",
@@ -161,8 +161,10 @@ export default function About() {
           transitionDelay: "0.2s",
         }}
       >
-        {intro}
-      </p>
+        {intro.split("\n\n").map((p, i) => (
+          <p key={i} style={{ marginBottom: i < intro.split("\n\n").length - 1 ? "1rem" : 0 }}>{p}</p>
+        ))}
+      </div>
 
 
       {/* Cards grid */}
