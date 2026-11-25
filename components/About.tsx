@@ -11,7 +11,7 @@ const DEFAULT_CARDS = [
   { role: "Label Owner", sub: "Bryan de Zwart Music", desc: "Eigen releases en distributie voor artiesten in Nederpop, NL Urban & House.", link: "https://bdzmusic.nl" },
   { role: "Bookings", sub: "BDZ Bookings", desc: "Artiestenbureau — van contract tot optreden, alles geregeld.", link: "https://bdzbookings.nl" },
   { role: "Tech", sub: "BDZScreens & Planning Totaal", desc: "Software voor narrowcasting, coaches, klussers en salons.", link: "https://bdzscreens.nl" },
-  { role: "Branding Totaal", sub: "Logo's · Websites · SEO", desc: "Op maat gemaakte logo's, Next.js websites met eigen CRM en SEO. Professioneel online staan zonder gedoe.", link: "https://claude.ai/artifact/9N8Rhmqs4xqedZ52xXU3q1" },
+  { role: "Branding Totaal", sub: "Logo's · Websites · SEO", desc: "Op maat gemaakte logo's, Next.js websites met eigen CRM en SEO. Professioneel online staan zonder gedoe.", link: "https://brandingtotaal.com" },
 ];
 
 const DEFAULT_LIVE = {
