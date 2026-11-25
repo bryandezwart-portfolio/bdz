@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-const ICONS = ["📻", "🎵", "🎤", "💻"];
-const ACCENTS = ["#e63946", "#ff6b35", "#e63946", "#ff6b35"];
+const ICONS = ["📻", "🎵", "🎤", "💻", "✦"];
+const ACCENTS = ["#e63946", "#ff6b35", "#e63946", "#ff6b35", "#e63946"];
 
 const DEFAULT_TITLE = "Muziek is mijn leven";
 const DEFAULT_INTRO = "Begonnen als DJ op mijn vijftiende — sindsdien nooit meer gestopt. Van schoolfeesten tot radio, label en tech: ik bouw aan iets groots, stap voor stap.";
@@ -11,6 +11,7 @@ const DEFAULT_CARDS = [
   { role: "Label Owner", sub: "Bryan de Zwart Music", desc: "Eigen releases en distributie voor artiesten in Nederpop, NL Urban & House.", link: "https://bdzmusic.nl" },
   { role: "Bookings", sub: "BDZ Bookings", desc: "Artiestenbureau — van contract tot optreden, alles geregeld.", link: "https://bdzbookings.nl" },
   { role: "Tech", sub: "BDZScreens & Planning Totaal", desc: "Software voor narrowcasting, coaches, klussers en salons.", link: "https://bdzscreens.nl" },
+  { role: "Branding Totaal", sub: "Logo's · Websites · SEO", desc: "Op maat gemaakte logo's, Next.js websites met eigen CRM en SEO. Professioneel online staan zonder gedoe.", link: "https://claude.ai/artifact/9N8Rhmqs4xqedZ52xXU3q1" },
 ];
 
 const DEFAULT_LIVE = {
@@ -79,6 +80,7 @@ export default function About() {
             desc: data.texts?.card4Desc ?? DEFAULT_CARDS[3].desc,
             link: data.texts?.card4Link ?? DEFAULT_CARDS[3].link,
           },
+          DEFAULT_CARDS[4],
         ]);
         if (data.extraCards) {
           setExtraCards(data.extraCards.map((c: { title: string; sub: string; desc: string; link: string }) => ({
