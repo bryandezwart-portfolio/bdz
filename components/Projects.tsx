@@ -26,6 +26,14 @@ const cards = [
     link: "https://bdzmusic.nl",
     linkLabel: "NAAR LABEL →",
   },
+  {
+    id: "branding",
+    icon: "✦",
+    title: "BRANDING TOTAAL",
+    text: "Logo's, Next.js websites met op maat CRM en SEO — alles onder één dak. Professioneel online staan zonder gedoe. SEO alleen in combinatie met een Branding Totaal website.",
+    link: "https://claude.ai/artifact/9N8Rhmqs4xqedZ52xXU3q1",
+    linkLabel: "BEKIJK DIENSTEN →",
+  },
 ];
 
 function Card({ card }: { card: (typeof cards)[0] }) {
@@ -125,7 +133,7 @@ export default function Projects() {
           className="fade-up"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
+            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
             gap: "1.5rem",
             marginTop: "3rem",
             transitionDelay: "0.2s",
