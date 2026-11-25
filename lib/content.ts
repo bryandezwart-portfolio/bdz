@@ -2,7 +2,7 @@ export const site = {
   name: "Bryan de Zwart",
   titles: ["Radio-DJ bij Radio Muziekstad", "Eigenaar van Bryan de Zwart Music"],
 
-  metaTitle: "Bryan de Zwart — Radio-DJ & Label Owner",
+  metaTitle: "Bryan de Zwart — Radio DJ · Label Owner · Developer",
   metaDescription:
     "Bryan de Zwart — presentator van De Wakker & Wel Show bij Radio Muziekstad en eigenaar van platenmaatschappij Bryan de Zwart Music.",
 
