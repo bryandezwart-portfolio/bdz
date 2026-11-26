@@ -38,10 +38,10 @@ export default function MediaPage() {
 
   useEffect(() => {
     fetch("/api/cms/media").then((r) => r.json()).then((d) => setItems(d.files ?? []));
-    fetch("/api/cms/save").then((r) => r.json()).then((d) => setContent(d ?? {}));
-    fetch("/api/cms/settings").then((r) => r.json()).then((d) => setSettings(d?.settings ?? d ?? {}));
-    fetch("/api/cms/seo").then((r) => r.json()).then((d) => setSeo(d ?? {}));
-    fetch("/api/cms/releases").then((r) => r.json()).then((d) => setReleases(Array.isArray(d) ? d : []));
+    fetch("/api/cms/media-usage").then((r) => r.json()).then((d) => { setContent({ heroVideo: d.heroVideo, heroBgImage: d.heroBgImage }); setSettings({ logoSrc: d.logoSrc }); setSeo({ ogImage: d.ogImage }); setReleases(d.releases ?? []); });
+    
+    
+    
   }, []);
 
   async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
