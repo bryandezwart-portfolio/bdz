@@ -33,19 +33,14 @@ export const cmsConfig = {
   },
 
   // ── Teksten ───────────────────────────────────
-  // Zet op false wat deze site niet gebruikt
   enabledFields: {
-    // Hero sectie
     heroNames:    true,
     heroSubtitle: true,
     heroTags:     true,
-    // Over sectie
     aboutTitle:   true,
     aboutIntro:   true,
-    // Kaarten (over-mij cards)
     cards:        true,
-    cardsCount:   4,     // hoeveel kaarten (1-4)
-    // Instellingen
+    cardsCount:   4,
     logo:         true,
     spotify:      true,
     footer:       true,

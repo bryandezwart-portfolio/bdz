@@ -94,11 +94,11 @@ export default function InstellingenPage() {
     : spotifyPlaylistId;
 
   const linkRows = [
-    { label: footerLink1Label, setLabel: setFooterLink1Label, url: footerLink1Url, setUrl: setFooterLink1Url, ph: "Link 1", phpUrl: "https://..." },
-    { label: footerLink2Label, setLabel: setFooterLink2Label, url: footerLink2Url, setUrl: setFooterLink2Url, ph: "Link 2", phpUrl: "https://..." },
-    { label: footerLink3Label, setLabel: setFooterLink3Label, url: footerLink3Url, setUrl: setFooterLink3Url, ph: "Link 3", phpUrl: "https://..." },
-    { label: footerLink4Label, setLabel: setFooterLink4Label, url: footerLink4Url, setUrl: setFooterLink4Url, ph: "Link 4", phpUrl: "https://..." },
-    { label: footerLink5Label, setLabel: setFooterLink5Label, url: footerLink5Url, setUrl: setFooterLink5Url, ph: "Link 5", phpUrl: "https://..." },
+    { label: footerLink1Label, setLabel: setFooterLink1Label, url: footerLink1Url, setUrl: setFooterLink1Url },
+    { label: footerLink2Label, setLabel: setFooterLink2Label, url: footerLink2Url, setUrl: setFooterLink2Url },
+    { label: footerLink3Label, setLabel: setFooterLink3Label, url: footerLink3Url, setUrl: setFooterLink3Url },
+    { label: footerLink4Label, setLabel: setFooterLink4Label, url: footerLink4Url, setUrl: setFooterLink4Url },
+    { label: footerLink5Label, setLabel: setFooterLink5Label, url: footerLink5Url, setUrl: setFooterLink5Url },
   ];
 
   return (
@@ -109,7 +109,6 @@ export default function InstellingenPage() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: 520 }}>
 
-        {/* Logo & sitenaam — altijd zichtbaar */}
         <div style={{ background: "#111", border: "1px solid #222", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Logo & sitenaam</h2>
           <div>
@@ -140,7 +139,6 @@ export default function InstellingenPage() {
           </>)}
         </div>
 
-        {/* Spotify */}
         {ef.spotify && (
           <div style={{ background: "#111", border: "1px solid #222", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
             <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Spotify playlist</h2>
@@ -154,7 +152,6 @@ export default function InstellingenPage() {
           </div>
         )}
 
-        {/* Footer */}
         {ef.footer && (
           <div style={{ background: "#111", border: "1px solid #333", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -164,14 +161,13 @@ export default function InstellingenPage() {
             <div>
               <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Subtitel</label>
               <input value={footerSubtitle} onChange={(e) => setFooterSubtitle(e.target.value)} placeholder="Radio DJ · Label Owner · Bookings" style={inp} />
-              <p style={{ fontSize: "0.73rem", color: "#555", marginTop: "0.3rem" }}>De regel onder het logo. Leeg = standaard tekst.</p>
             </div>
             <div>
               <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.6rem" }}>Footer links <span style={{ color: "#555", fontWeight: 400 }}>(max 5)</span></label>
               {linkRows.map((row, i) => (
                 <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.6rem" }}>
-                  <input value={row.label} onChange={(e) => row.setLabel(e.target.value)} placeholder={row.ph} style={inpHalf} />
-                  <input value={row.url} onChange={(e) => row.setUrl(e.target.value)} placeholder={row.phpUrl} style={inpHalf} />
+                  <input value={row.label} onChange={(e) => row.setLabel(e.target.value)} placeholder={`Link ${i + 1}`} style={inpHalf} />
+                  <input value={row.url}   onChange={(e) => row.setUrl(e.target.value)}   placeholder="https://..."   style={inpHalf} />
                 </div>
               ))}
             </div>
