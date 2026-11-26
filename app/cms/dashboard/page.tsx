@@ -42,16 +42,20 @@ export default function CmsLoginPage() {
       alignItems: "center",
       justifyContent: "center",
       background: "#0a0a0a",
+      backgroundImage: "url('/hero-bg.jpg')",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
       fontFamily: "system-ui, sans-serif",
     }}>
       <div style={{
         width: "100%",
         maxWidth: 400,
         padding: "2.5rem",
-        background: "#111",
+        background: "rgba(10,10,10,0.92)",
         borderRadius: 16,
         border: "1px solid #222",
         boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+        backdropFilter: "blur(12px)",
       }}>
         {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
@@ -71,59 +75,51 @@ export default function CmsLoginPage() {
           textAlign: "center",
           marginBottom: "0.25rem",
         }}>
-          CMS inloggen
+          Inloggen
         </h1>
         <p style={{ color: "#666", fontSize: "0.8rem", textAlign: "center", marginBottom: "2rem" }}>
           {cmsConfig.siteName}
         </p>
 
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div>
-            <label style={{ color: "#aaa", fontSize: "0.78rem", display: "block", marginBottom: 6 }}>
-              Gebruikersnaam
-            </label>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-              autoComplete="username"
-              style={{
-                width: "100%",
-                padding: "0.65rem 0.85rem",
-                background: "#1a1a1a",
-                border: "1px solid #2a2a2a",
-                borderRadius: 8,
-                color: "#fff",
-                fontSize: "0.9rem",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
-          <div>
-            <label style={{ color: "#aaa", fontSize: "0.78rem", display: "block", marginBottom: 6 }}>
-              Wachtwoord
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              style={{
-                width: "100%",
-                padding: "0.65rem 0.85rem",
-                background: "#1a1a1a",
-                border: "1px solid #2a2a2a",
-                borderRadius: 8,
-                color: "#fff",
-                fontSize: "0.9rem",
-                outline: "none",
-                boxSizing: "border-box",
-              }}
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Gebruikersnaam"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            autoComplete="username"
+            style={{
+              width: "100%",
+              padding: "0.75rem 1rem",
+              background: "#1a1a1a",
+              border: "1px solid #2a2a2a",
+              borderRadius: 8,
+              color: "#fff",
+              fontSize: "0.9rem",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Wachtwoord"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+            style={{
+              width: "100%",
+              padding: "0.75rem 1rem",
+              background: "#1a1a1a",
+              border: "1px solid #2a2a2a",
+              borderRadius: 8,
+              color: "#fff",
+              fontSize: "0.9rem",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
 
           {error && (
             <p style={{
@@ -143,7 +139,6 @@ export default function CmsLoginPage() {
             type="submit"
             disabled={loading}
             style={{
-              marginTop: "0.5rem",
               padding: "0.75rem",
               background: loading ? "#333" : accent,
               color: "#fff",
