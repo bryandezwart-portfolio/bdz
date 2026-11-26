@@ -1,54 +1,172 @@
-import { getSession } from "@/lib/cms-auth";
-import { redirect } from "next/navigation";
+"use client";
+import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cmsConfig } from "@/lib/cms-config";
 
-const ALL_CARDS = [
-  { emoji: "✏️",  title: "Teksten",      sub: "Alle paginateksten",    href: "/cms/dashboard/teksten",      masterOnly: false },
-  { emoji: "🖼️", title: "Media",        sub: "Foto's & video's",       href: "/cms/dashboard/media",        masterOnly: false },
-  { emoji: "🎨",  title: "Beelden",      sub: "Video & achtergrond",    href: "/cms/dashboard/beelden",      masterOnly: false },
-  { emoji: "🔍",  title: "SEO",          sub: "Paginatitel & snippet",  href: "/cms/dashboard/seo",          masterOnly: false },
-  { emoji: "🎵",  title: "Releases",     sub: "Singles & shows",        href: "/cms/dashboard/releases",     masterOnly: false },
-  { emoji: "💬",  title: "Socials",      sub: "Links & handles",        href: "/cms/dashboard/socials",      masterOnly: false },
-  { emoji: "⚙️", title: "Instellingen", sub: "Logo, footer & Spotify", href: "/cms/dashboard/instellingen", masterOnly: true  },
-  { emoji: "👥",  title: "Gebruikers",   sub: "Toegang beheren",        href: "/cms/dashboard/gebruikers",   masterOnly: true  },
-];
+export default function CmsLoginPage() {
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-export default async function DashboardPage() {
-  const session = await getSession();
-  if (!session) redirect("/cms/login");
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/cms/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (res.ok) {
+        router.push("/cms/dashboard");
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "Inloggen mislukt");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  const visible = ALL_CARDS.filter((c) => !c.masterOnly || session.role === "master");
-  const accent   = cmsConfig.accentColor;
-  const siteUrl  = cmsConfig.siteUrl;
-  const siteName = cmsConfig.siteName;
-  const naam     = session.role === "master" ? (session.username ?? "master") : (session.username ?? "gebruiker");
+  const accent = cmsConfig.accentColor;
 
   return (
-    <div style={{ maxWidth: 900, margin: "0 auto" }}>
-      <h1 style={{ fontSize: "1.5rem", fontWeight: 700, marginBottom: "0.3rem" }}>Dashboard</h1>
-      <p style={{ color: "#555", fontSize: "0.85rem", marginBottom: "2rem" }}>
-        Welkom terug, <span style={{ color: "#aaa" }}>{naam}</span>. Wat wil je aanpassen?
-      </p>
-
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem", marginBottom: "2rem" }}>
-        {visible.map((card) => (
-          <Link key={card.href} href={card.href} style={{ display: "block", background: "#111", border: "1px solid #1e1e1e", borderRadius: 12, padding: "1.4rem 1.25rem", textDecoration: "none", color: "#fff" }}>
-            <div style={{ fontSize: "1.6rem", marginBottom: "0.75rem" }}>{card.emoji}</div>
-            <div style={{ fontWeight: 600, fontSize: "0.95rem", marginBottom: "0.2rem" }}>{card.title}</div>
-            <div style={{ color: "#555", fontSize: "0.78rem" }}>{card.sub}</div>
-          </Link>
-        ))}
-      </div>
-
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", background: "#111", border: "1px solid #1e1e1e", borderRadius: 12, padding: "1rem 1.5rem" }}>
-        <div>
-          <div style={{ fontWeight: 600, fontSize: "0.9rem", marginBottom: "0.15rem" }}>Jouw website</div>
-          <div style={{ color: "#555", fontSize: "0.78rem" }}>{siteName}</div>
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#0a0a0a",
+      fontFamily: "system-ui, sans-serif",
+    }}>
+      <div style={{
+        width: "100%",
+        maxWidth: 400,
+        padding: "2.5rem",
+        background: "#111",
+        borderRadius: 16,
+        border: "1px solid #222",
+        boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+      }}>
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <Image
+            src={cmsConfig.logo.src}
+            alt={cmsConfig.logo.alt}
+            width={cmsConfig.logo.width}
+            height={60}
+            style={{ objectFit: "contain" }}
+          />
         </div>
-        <a href={siteUrl} target="_blank" rel="noopener noreferrer" style={{ background: accent, color: "#fff", borderRadius: 8, padding: "0.5rem 1.1rem", fontSize: "0.82rem", fontWeight: 600, textDecoration: "none" }}>
-          Bekijk live →
-        </a>
+
+        <h1 style={{
+          color: "#fff",
+          fontSize: "1.1rem",
+          fontWeight: 600,
+          textAlign: "center",
+          marginBottom: "0.25rem",
+        }}>
+          CMS inloggen
+        </h1>
+        <p style={{ color: "#666", fontSize: "0.8rem", textAlign: "center", marginBottom: "2rem" }}>
+          {cmsConfig.siteName}
+        </p>
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div>
+            <label style={{ color: "#aaa", fontSize: "0.78rem", display: "block", marginBottom: 6 }}>
+              Gebruikersnaam
+            </label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              autoComplete="username"
+              style={{
+                width: "100%",
+                padding: "0.65rem 0.85rem",
+                background: "#1a1a1a",
+                border: "1px solid #2a2a2a",
+                borderRadius: 8,
+                color: "#fff",
+                fontSize: "0.9rem",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+          <div>
+            <label style={{ color: "#aaa", fontSize: "0.78rem", display: "block", marginBottom: 6 }}>
+              Wachtwoord
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              style={{
+                width: "100%",
+                padding: "0.65rem 0.85rem",
+                background: "#1a1a1a",
+                border: "1px solid #2a2a2a",
+                borderRadius: 8,
+                color: "#fff",
+                fontSize: "0.9rem",
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+          </div>
+
+          {error && (
+            <p style={{
+              color: accent,
+              fontSize: "0.8rem",
+              background: `${accent}18`,
+              border: `1px solid ${accent}44`,
+              borderRadius: 8,
+              padding: "0.6rem 0.85rem",
+              margin: 0,
+            }}>
+              {error}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              marginTop: "0.5rem",
+              padding: "0.75rem",
+              background: loading ? "#333" : accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "background 0.2s",
+            }}
+          >
+            {loading ? "Bezig..." : "Inloggen"}
+          </button>
+
+          <div style={{ textAlign: "center", marginTop: "0.25rem" }}>
+            <Link
+              href="/cms/login/forgot"
+              style={{ color: "#666", fontSize: "0.78rem", textDecoration: "none" }}
+            >
+              Wachtwoord vergeten?
+            </Link>
+          </div>
+        </form>
       </div>
     </div>
   );

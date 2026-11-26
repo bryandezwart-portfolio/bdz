@@ -3,61 +3,52 @@
 // ─────────────────────────────────────────────
 
 export const cmsConfig = {
+  // Logo op de loginpagina (zet bestand in /public)
   logo: {
-    src: "/logo-brandingtotaal.png",
+    src: "/branding-totaal-logo.png", // ← verander naar klant-logo
     alt: "Branding Totaal",
     width: 180,
   },
 
-  siteName: "Branding Totaal",
-  siteUrl: "https://bryandezwart.nl",
-  accentColor: "#9ca3af",
+  // Naam van de site (zichtbaar in dashboard)
+  siteName: "Mijn Website",
 
-  // ── Beelden ──────────────────────────────────
-  enabledSections: {
-    heroVideo:    true,
-    heroBgImage:  true,
-    profilePhoto: true,
-  },
+  // Kleur van de knop / accenten
+  accentColor: "#e63946",
 
-  defaultMedia: {
-    heroVideo:    "/bdz-nov.mp4",
-    heroBgImage:  "",
-    profilePhoto: "/bryandezwart-official.avif",
-  },
+  // E-mailadressen voor de master (wachtwoord vergeten)
+  // Reset-link gaat naar ALLE adressen hieronder
+  masterEmails: [
+    "info@bdzbookings.nl",
+    // Voeg hier extra backup-emails toe:
+    // "backup@jouwdomein.nl",
+  ],
 
-  maxClientUploads: {
-    heroVideo:    2,
-    heroBgImage:  1,
-    profilePhoto: 1,
-  },
+  // Afzender voor alle CMS-emails
+  fromEmail: "noreply@brandingtotaal.com",
+  fromName: "Branding Totaal CMS",
 
-  // ── Teksten ───────────────────────────────────
-  enabledFields: {
-    heroNames:    true,
-    heroSubtitle: true,
-    heroTags:     true,
-    aboutTitle:   true,
-    aboutIntro:   true,
-    cards:        true,
-    cardsCount:   4,
-    logo:         true,
-    spotify:      true,
-    footer:       true,
-  },
+  // Gebruikers — voeg per site een eigen user toe
+  // Master-login werkt altijd op ELKE site
+  users: [
+    {
+      username: "master",
+      passwordEnvKey: "CMS_MASTER_PASSWORD",
+      role: "master" as const,
+    },
+    {
+      username: "klant",
+      passwordEnvKey: "CMS_CLIENT_PASSWORD",
+      role: "client" as const,
+    },
+  ],
 
-  // ── Tabs ──────────────────────────────────────
+  // Welke tabs zichtbaar zijn in het dashboard
   tabs: {
     teksten: true,
-    media:   true,
-    seo:     true,
+    media: true,
+    seo: true,
   },
-
-  // ── Gebruikers ────────────────────────────────
-  users: [
-    { username: "master",  passwordEnvKey: "CMS_MASTER_PASSWORD",  role: "master" as const },
-    { username: "klant",   passwordEnvKey: "CMS_CLIENT_PASSWORD",   role: "client" as const },
-  ],
 };
 
 export type CmsUser = (typeof cmsConfig.users)[number];
