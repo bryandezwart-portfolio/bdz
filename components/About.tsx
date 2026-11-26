@@ -50,35 +50,35 @@ export default function About() {
   const [liveConfig, setLiveConfig] = useState(DEFAULT_LIVE);
 
   useEffect(() => {
-    fetch("/site-content.json")
+    fetch("/api/cms/save")
       .then((r) => r.json())
       .then((data) => {
-        if (data.texts?.aboutTitle) setTitle(data.texts.aboutTitle);
-        if (data.texts?.aboutIntro) setIntro(data.texts.aboutIntro);
+        if (data?.aboutTitle) setTitle(data.aboutTitle);
+        if (data?.aboutIntro) setIntro(data.aboutIntro);
         setCards([
           {
-            role: data.texts?.card1Title ?? DEFAULT_CARDS[0].role,
-            sub: data.texts?.card1Sub ?? DEFAULT_CARDS[0].sub,
-            desc: data.texts?.card1Desc ?? DEFAULT_CARDS[0].desc,
-            link: data.texts?.card1Link ?? DEFAULT_CARDS[0].link,
+            role: data?.card1Title ?? DEFAULT_CARDS[0].role,
+            sub: data?.card1Sub ?? DEFAULT_CARDS[0].sub,
+            desc: data?.card1Desc ?? DEFAULT_CARDS[0].desc,
+            link: data?.card1Link ?? DEFAULT_CARDS[0].link,
           },
           {
-            role: data.texts?.card2Title ?? DEFAULT_CARDS[1].role,
-            sub: data.texts?.card2Sub ?? DEFAULT_CARDS[1].sub,
-            desc: data.texts?.card2Desc ?? DEFAULT_CARDS[1].desc,
-            link: data.texts?.card2Link ?? DEFAULT_CARDS[1].link,
+            role: data?.card2Title ?? DEFAULT_CARDS[1].role,
+            sub: data?.card2Sub ?? DEFAULT_CARDS[1].sub,
+            desc: data?.card2Desc ?? DEFAULT_CARDS[1].desc,
+            link: data?.card2Link ?? DEFAULT_CARDS[1].link,
           },
           {
-            role: data.texts?.card3Title ?? DEFAULT_CARDS[2].role,
-            sub: data.texts?.card3Sub ?? DEFAULT_CARDS[2].sub,
-            desc: data.texts?.card3Desc ?? DEFAULT_CARDS[2].desc,
-            link: data.texts?.card3Link ?? DEFAULT_CARDS[2].link,
+            role: data?.card3Title ?? DEFAULT_CARDS[2].role,
+            sub: data?.card3Sub ?? DEFAULT_CARDS[2].sub,
+            desc: data?.card3Desc ?? DEFAULT_CARDS[2].desc,
+            link: data?.card3Link ?? DEFAULT_CARDS[2].link,
           },
           {
-            role: data.texts?.card4Title ?? DEFAULT_CARDS[3].role,
-            sub: data.texts?.card4Sub ?? DEFAULT_CARDS[3].sub,
-            desc: data.texts?.card4Desc ?? DEFAULT_CARDS[3].desc,
-            link: data.texts?.card4Link ?? DEFAULT_CARDS[3].link,
+            role: data?.card4Title ?? DEFAULT_CARDS[3].role,
+            sub: data?.card4Sub ?? DEFAULT_CARDS[3].sub,
+            desc: data?.card4Desc ?? DEFAULT_CARDS[3].desc,
+            link: data?.card4Link ?? DEFAULT_CARDS[3].link,
           },
           DEFAULT_CARDS[4],
         ]);

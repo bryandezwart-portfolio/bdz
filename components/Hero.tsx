@@ -71,15 +71,15 @@ export default function Hero() {
   const [hoveredSocial, setHoveredSocial] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/site-content.json")
+    fetch("/api/cms/save")
       .then((r) => r.json())
       .then((data) => {
-        if (data.texts?.heroNames) {
-          setNames(data.texts.heroNames.split(",").map((s: string) => s.trim()).filter(Boolean));
+        if (data?.heroNames) {
+          setNames(data.heroNames.split(",").map((s: string) => s.trim()).filter(Boolean));
         }
-        if (data.texts?.heroSubtitle) setSubtitle(data.texts.heroSubtitle);
-        if (data.texts?.heroTags) {
-          setTags(data.texts.heroTags.split(",").map((s: string) => s.trim()).filter(Boolean));
+        if (data?.heroSubtitle) setSubtitle(data.heroSubtitle);
+        if (data?.heroTags) {
+          setTags(data.heroTags.split(",").map((s: string) => s.trim()).filter(Boolean));
         }
         setLoaded(true);
       })
