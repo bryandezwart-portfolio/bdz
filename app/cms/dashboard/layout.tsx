@@ -31,7 +31,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       </header>
 
       {/* Content */}
-      <main style={{ padding: "2rem" }}>
+      <main style={{ padding: "2rem", maxWidth: 1100, margin: "0 auto" }}>
         <BackButton />
         {children}
       </main>
