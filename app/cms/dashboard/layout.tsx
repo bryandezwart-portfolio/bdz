@@ -16,7 +16,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <a href="/cms/dashboard" style={{ display: "flex", alignItems: "center" }}>
             <Image src={cmsConfig.logo.src} alt={cmsConfig.logo.alt} width={280} height={80} style={{ objectFit: "contain" }} />
           </a>
-          <span style={{ color: "#333", fontSize: "0.8rem" }}>CMS · {cmsConfig.siteName}</span>
+          
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <a href={cmsConfig.siteUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.78rem", color: "#555", textDecoration: "none" }}>
