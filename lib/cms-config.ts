@@ -5,7 +5,7 @@
 export const cmsConfig = {
   // Logo op de loginpagina (zet bestand in /public)
   logo: {
-    src: "/branding-totaal-logo.png", // ← verander naar klant-logo
+    src: "/logo-brandingtotaal.png", // ← verander naar klant-logo
     alt: "Branding Totaal",
     width: 180,
   },
