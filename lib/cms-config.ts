@@ -13,6 +13,13 @@ export const cmsConfig = {
   siteUrl: "https://bryandezwart.nl",
   accentColor: "#9ca3af",
 
+  // Welke secties zichtbaar zijn in de Beelden pagina
+  enabledSections: {
+    heroVideo:    true,
+    heroBgImage:  true,
+    profilePhoto: true,
+  },
+
   defaultMedia: {
     heroVideo:    "/bdz-nov.mp4",
     heroBgImage:  "",

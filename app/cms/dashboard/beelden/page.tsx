@@ -4,11 +4,13 @@ import { cmsConfig } from "@/lib/cms-config";
 
 type SlotKey = "heroVideo" | "heroBgImage" | "profilePhoto";
 
-const SECTIONS: { key: SlotKey; label: string; icon: string; description: string; accept: string; isVideo: boolean }[] = [
+const ALL_SECTIONS: { key: SlotKey; label: string; icon: string; description: string; accept: string; isVideo: boolean }[] = [
   { key: "heroVideo",    label: "Hero video",       icon: "🎬", description: "De video op de achtergrond van de homepagina", accept: "video/*", isVideo: true  },
   { key: "heroBgImage",  label: "Hero achtergrond", icon: "🖼️", description: "Achtergrondafbeelding als er geen video is",   accept: "image/*", isVideo: false },
   { key: "profilePhoto", label: "Profielfoto",      icon: "🧑", description: "De ronde profielfoto in de Over-sectie",       accept: "image/*", isVideo: false },
 ];
+
+const SECTIONS = ALL_SECTIONS.filter((s) => cmsConfig.enabledSections[s.key]);
 
 export default function BeldenPage() {
   const [data, setData]       = useState<Record<string, string>>({});
