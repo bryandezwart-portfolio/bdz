@@ -6,6 +6,7 @@ import { cmsConfig } from "@/lib/cms-config";
 const CARDS = [
   { emoji: "✏️",  title: "Teksten",      sub: "Alle paginateksten",    href: "/cms/dashboard/teksten",      masterOnly: false },
   { emoji: "🖼️", title: "Media",        sub: "Foto's & video's",       href: "/cms/dashboard/media",        masterOnly: false },
+  { emoji: "🎨",  title: "Beelden",      sub: "Video & achtergrond",        href: "/cms/dashboard/beelden",      masterOnly: false },
   { emoji: "🔍",  title: "SEO",          sub: "Per pagina",             href: "/cms/dashboard/seo",          masterOnly: false },
   { emoji: "🎵",  title: "Releases",     sub: "Singles & shows",        href: "/cms/dashboard/releases",     masterOnly: false },
   { emoji: "💬",  title: "Socials",      sub: "Links & handles",        href: "/cms/dashboard/socials",      masterOnly: false },
