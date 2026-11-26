@@ -39,7 +39,7 @@ export default function Footer() {
         © 2026 Bryan de Zwart · BDZ Ventures · KvK 98283731
       </p>
       {(partner || credit) && (
-        <p style={{ color: "rgba(240,240,240,0.15)", fontSize: "0.65rem", letterSpacing: "0.06em" }}>
+        <p style={{ color: "rgba(240,240,240,0.12)", fontSize: "0.62rem", letterSpacing: "0.06em" }}>
           {partner && <span>{partner}</span>}
           {partner && credit && <span> · </span>}
           {credit && <span>{credit}</span>}
