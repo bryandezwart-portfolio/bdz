@@ -15,9 +15,19 @@ export default async function DashboardLayout({ children }: { children: React.Re
           <Image src={cmsConfig.logo.src} alt={cmsConfig.logo.alt} width={120} height={36} style={{ objectFit: "contain" }} />
           <span style={{ color: "#444", fontSize: "0.75rem" }}>CMS · {cmsConfig.siteName}</span>
         </div>
-        <form action="/api/cms/logout" method="POST">
-          <button type="submit" style={{ background: "none", border: "1px solid #333", color: "#888", borderRadius: 6, padding: "0.3rem 0.8rem", fontSize: "0.78rem", cursor: "pointer" }}>Uitloggen</button>
-        </form>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+          <a
+            href={cmsConfig.siteUrl ?? "https://bryandezwart.nl"}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ background: "none", border: "1px solid #333", color: "#aaa", borderRadius: 6, padding: "0.3rem 0.8rem", fontSize: "0.78rem", cursor: "pointer", textDecoration: "none" }}
+          >
+            Bekijk live →
+          </a>
+          <form action="/api/cms/logout" method="POST">
+            <button type="submit" style={{ background: "none", border: "1px solid #333", color: "#888", borderRadius: 6, padding: "0.3rem 0.8rem", fontSize: "0.78rem", cursor: "pointer" }}>Uitloggen</button>
+          </form>
+        </div>
       </header>
       <div style={{ display: "flex" }}>
         <aside style={{ width: 200, minHeight: "calc(100vh - 60px)", background: "#111", borderRight: "1px solid #222", padding: "1.5rem 0", flexShrink: 0 }}>

@@ -5,7 +5,7 @@
 export const cmsConfig = {
   // Logo op de loginpagina (zet bestand in /public)
   logo: {
-    src: "/logo-brandingtotaal.png", // ← verander naar klant-logo
+    src: "/logo-brandingtotaal.png",
     alt: "Branding Totaal",
     width: 180,
   },
@@ -13,21 +13,21 @@ export const cmsConfig = {
   // Naam van de site (zichtbaar in dashboard)
   siteName: "Branding Totaal",
 
+  // URL van de live site (voor "Bekijk live" knop)
+  siteUrl: "https://bryandezwart.nl",
+
   // Kleur van de knop / accenten
   accentColor: "#9ca3af",
 
   // Gebruikers — voeg per site een eigen user toe
-  // Master-login werkt altijd op ELKE site
   users: [
     {
       username: "master",
-      // Zet MASTER_PASSWORD in .env.local
       passwordEnvKey: "CMS_MASTER_PASSWORD",
       role: "master" as const,
     },
     {
       username: "klant",
-      // Zet CMS_CLIENT_PASSWORD in .env.local
       passwordEnvKey: "CMS_CLIENT_PASSWORD",
       role: "client" as const,
     },
