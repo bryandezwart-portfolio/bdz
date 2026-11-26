@@ -1,27 +1,30 @@
 "use client";
 import { useEffect, useState } from "react";
+import { cmsConfig } from "@/lib/cms-config";
+
+const ef = cmsConfig.enabledFields;
 
 export default function InstellingenPage() {
-  const [logoSrc,         setLogoSrc]         = useState("");
-  const [logoAlt,         setLogoAlt]         = useState("");
-  const [siteName,        setSiteName]        = useState("");
-  const [footerPartner,   setFooterPartner]   = useState("");
-  const [footerCredit,    setFooterCredit]    = useState("");
-  const [footerCopyright, setFooterCopyright] = useState("");
-  const [footerSubtitle,  setFooterSubtitle]  = useState("");
-  const [footerLink1Label,setFooterLink1Label]= useState("");
-  const [footerLink1Url,  setFooterLink1Url]  = useState("");
-  const [footerLink2Label,setFooterLink2Label]= useState("");
-  const [footerLink2Url,  setFooterLink2Url]  = useState("");
-  const [footerLink3Label,setFooterLink3Label]= useState("");
-  const [footerLink3Url,  setFooterLink3Url]  = useState("");
-  const [footerLink4Label,setFooterLink4Label]= useState("");
-  const [footerLink4Url,  setFooterLink4Url]  = useState("");
-  const [footerLink5Label,setFooterLink5Label]= useState("");
-  const [footerLink5Url,  setFooterLink5Url]  = useState("");
-  const [spotifyPlaylistId, setSpotifyPlaylistId] = useState("");
-  const [msg,             setMsg]             = useState("");
-  const [uploading,       setUploading]       = useState(false);
+  const [logoSrc,          setLogoSrc]          = useState("");
+  const [logoAlt,          setLogoAlt]          = useState("");
+  const [siteName,         setSiteName]         = useState("");
+  const [footerPartner,    setFooterPartner]    = useState("");
+  const [footerCredit,     setFooterCredit]     = useState("");
+  const [footerCopyright,  setFooterCopyright]  = useState("");
+  const [footerSubtitle,   setFooterSubtitle]   = useState("");
+  const [footerLink1Label, setFooterLink1Label] = useState("");
+  const [footerLink1Url,   setFooterLink1Url]   = useState("");
+  const [footerLink2Label, setFooterLink2Label] = useState("");
+  const [footerLink2Url,   setFooterLink2Url]   = useState("");
+  const [footerLink3Label, setFooterLink3Label] = useState("");
+  const [footerLink3Url,   setFooterLink3Url]   = useState("");
+  const [footerLink4Label, setFooterLink4Label] = useState("");
+  const [footerLink4Url,   setFooterLink4Url]   = useState("");
+  const [footerLink5Label, setFooterLink5Label] = useState("");
+  const [footerLink5Url,   setFooterLink5Url]   = useState("");
+  const [spotifyPlaylistId,setSpotifyPlaylistId]= useState("");
+  const [msg,              setMsg]              = useState("");
+  const [uploading,        setUploading]        = useState(false);
 
   useEffect(() => {
     fetch("/api/cms/settings").then((r) => r.json()).then((d) => {
@@ -50,20 +53,21 @@ export default function InstellingenPage() {
   }, []);
 
   const save = async () => {
+    const body: Record<string, string> = { siteName };
+    if (ef.logo)    Object.assign(body, { logoSrc, logoAlt });
+    if (ef.spotify) Object.assign(body, { spotifyPlaylistId });
+    if (ef.footer)  Object.assign(body, {
+      footerPartner, footerCredit, footerCopyright, footerSubtitle,
+      footerLink1Label, footerLink1Url,
+      footerLink2Label, footerLink2Url,
+      footerLink3Label, footerLink3Url,
+      footerLink4Label, footerLink4Url,
+      footerLink5Label, footerLink5Url,
+    });
     const r = await fetch("/api/cms/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        logoSrc, logoAlt, siteName,
-        footerPartner, footerCredit, footerCopyright,
-        footerSubtitle,
-        footerLink1Label, footerLink1Url,
-        footerLink2Label, footerLink2Url,
-        footerLink3Label, footerLink3Url,
-        footerLink4Label, footerLink4Url,
-        footerLink5Label, footerLink5Url,
-        spotifyPlaylistId,
-      }),
+      body: JSON.stringify(body),
     });
     const d = await r.json();
     setMsg(d.ok ? "Instellingen opgeslagen ✓" : d.error);
@@ -82,7 +86,7 @@ export default function InstellingenPage() {
     else setMsg("Upload mislukt");
   };
 
-  const inp = { background: "#1a1a1a", border: "1px solid #333", borderRadius: 6, color: "#fff", padding: "0.45rem 0.75rem", fontSize: "0.85rem", width: "100%" } as React.CSSProperties;
+  const inp     = { background: "#1a1a1a", border: "1px solid #333", borderRadius: 6, color: "#fff", padding: "0.45rem 0.75rem", fontSize: "0.85rem", width: "100%" } as React.CSSProperties;
   const inpHalf = { ...inp, width: "calc(50% - 0.3rem)" } as React.CSSProperties;
 
   const spotifyPreviewId = spotifyPlaylistId.includes("spotify.com")
@@ -90,11 +94,11 @@ export default function InstellingenPage() {
     : spotifyPlaylistId;
 
   const linkRows = [
-    { label: footerLink1Label, setLabel: setFooterLink1Label, url: footerLink1Url, setUrl: setFooterLink1Url, ph: "BDZ BOOKINGS", phpUrl: "https://bdzbookings.nl" },
-    { label: footerLink2Label, setLabel: setFooterLink2Label, url: footerLink2Url, setUrl: setFooterLink2Url, ph: "BDZ MUSIC",    phpUrl: "https://bdzmusic.nl"   },
-    { label: footerLink3Label, setLabel: setFooterLink3Label, url: footerLink3Url, setUrl: setFooterLink3Url, ph: "BDZSCREENS",   phpUrl: "https://bdzscreens.nl" },
-    { label: footerLink4Label, setLabel: setFooterLink4Label, url: footerLink4Url, setUrl: setFooterLink4Url, ph: "Link 4",       phpUrl: "https://..."           },
-    { label: footerLink5Label, setLabel: setFooterLink5Label, url: footerLink5Url, setUrl: setFooterLink5Url, ph: "Link 5",       phpUrl: "https://..."           },
+    { label: footerLink1Label, setLabel: setFooterLink1Label, url: footerLink1Url, setUrl: setFooterLink1Url, ph: "Link 1", phpUrl: "https://..." },
+    { label: footerLink2Label, setLabel: setFooterLink2Label, url: footerLink2Url, setUrl: setFooterLink2Url, ph: "Link 2", phpUrl: "https://..." },
+    { label: footerLink3Label, setLabel: setFooterLink3Label, url: footerLink3Url, setUrl: setFooterLink3Url, ph: "Link 3", phpUrl: "https://..." },
+    { label: footerLink4Label, setLabel: setFooterLink4Label, url: footerLink4Url, setUrl: setFooterLink4Url, ph: "Link 4", phpUrl: "https://..." },
+    { label: footerLink5Label, setLabel: setFooterLink5Label, url: footerLink5Url, setUrl: setFooterLink5Url, ph: "Link 5", phpUrl: "https://..." },
   ];
 
   return (
@@ -102,41 +106,93 @@ export default function InstellingenPage() {
       <h1 style={{ fontSize: "1.3rem", fontWeight: 700, marginBottom: "0.4rem" }}>Instellingen</h1>
       <p style={{ color: "#666", fontSize: "0.82rem", marginBottom: "2rem" }}>Logo, sitenaam en site-instellingen</p>
       {msg && <div style={{ background: "#1a2a1a", border: "1px solid #2a4a2a", borderRadius: 8, padding: "0.6rem 1rem", marginBottom: "1.5rem", fontSize: "0.82rem", color: "#6f6" }}>{msg}</div>}
+
       <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: 520 }}>
+
+        {/* Logo & sitenaam — altijd zichtbaar */}
         <div style={{ background: "#111", border: "1px solid #222", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
           <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Logo & sitenaam</h2>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Sitenaam</label><input value={siteName} onChange={(e) => setSiteName(e.target.value)} placeholder="Mijn Website" style={inp} /></div>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo URL</label><input value={logoSrc} onChange={(e) => setLogoSrc(e.target.value)} placeholder="/logo.png" style={inp} /></div>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo uploaden</label><input type="file" accept="image/*" onChange={uploadLogo} style={{ fontSize: "0.82rem", color: "#aaa" }} />{uploading && <p style={{ fontSize: "0.78rem", color: "#888", marginTop: "0.3rem" }}>Uploading...</p>}</div>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo alt-tekst</label><input value={logoAlt} onChange={(e) => setLogoAlt(e.target.value)} placeholder="Mijn Website" style={inp} /></div>
-          {logoSrc && <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Voorbeeld</label><img src={logoSrc} alt={logoAlt} style={{ maxHeight: 50, maxWidth: 200, objectFit: "contain", background: "#222", padding: "0.5rem", borderRadius: 6 }} /></div>}
-        </div>
-        <div style={{ background: "#111", border: "1px solid #222", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Spotify playlist</h2>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Playlist ID of URL</label><input value={spotifyPlaylistId} onChange={(e) => setSpotifyPlaylistId(e.target.value)} placeholder="37i9dQZF1DXcBWIGoYBM5M of volledige Spotify-link" style={inp} /></div>
-          {spotifyPreviewId && <iframe src={`https://open.spotify.com/embed/playlist/${spotifyPreviewId}?utm_source=generator&theme=0`} width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style={{ borderRadius: 8 }} />}
-        </div>
-        <div style={{ background: "#111", border: "1px solid #333", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Footer</h2>
-            <span style={{ background: "#2a2a2a", border: "1px solid #444", borderRadius: 4, padding: "1px 6px", fontSize: "0.68rem", color: "#888", letterSpacing: "0.05em" }}>MASTER</span>
-          </div>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Subtitel</label><input value={footerSubtitle} onChange={(e) => setFooterSubtitle(e.target.value)} placeholder="Radio DJ · Label Owner · Bookings · Tech" style={inp} /><p style={{ fontSize: "0.73rem", color: "#555", marginTop: "0.3rem" }}>De regel onder het logo. Leeg = standaard tekst.</p></div>
           <div>
-            <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.6rem" }}>Footer links <span style={{ color: "#555", fontWeight: 400 }}>(max 5)</span></label>
-            {linkRows.map((row, i) => (
-              <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.6rem" }}>
-                <input value={row.label} onChange={(e) => row.setLabel(e.target.value)} placeholder={row.ph} style={inpHalf} />
-                <input value={row.url} onChange={(e) => row.setUrl(e.target.value)} placeholder={row.phpUrl} style={inpHalf} />
-              </div>
-            ))}
-            <p style={{ fontSize: "0.73rem", color: "#555", marginTop: "0.1rem" }}>Links (label + URL). Leeg = standaard links.</p>
+            <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Sitenaam</label>
+            <input value={siteName} onChange={(e) => setSiteName(e.target.value)} placeholder="Mijn Website" style={inp} />
           </div>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Copyright regel</label><input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} placeholder="© 2026 Bryan de Zwart · BDZ Ventures · KvK 98283731" style={inp} /></div>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Partner regel</label><input value={footerPartner} onChange={(e) => setFooterPartner(e.target.value)} placeholder="Hosted & techniek by Studio Jan" style={inp} /></div>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Credit regel</label><input value={footerCredit} onChange={(e) => setFooterCredit(e.target.value)} placeholder="Designed by Branding Totaal ®" style={inp} /></div>
+          {ef.logo && (<>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo URL</label>
+              <input value={logoSrc} onChange={(e) => setLogoSrc(e.target.value)} placeholder="/logo.png" style={inp} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo uploaden</label>
+              <input type="file" accept="image/*" onChange={uploadLogo} style={{ fontSize: "0.82rem", color: "#aaa" }} />
+              {uploading && <p style={{ fontSize: "0.78rem", color: "#888", marginTop: "0.3rem" }}>Uploading...</p>}
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo alt-tekst</label>
+              <input value={logoAlt} onChange={(e) => setLogoAlt(e.target.value)} placeholder="Mijn Website" style={inp} />
+            </div>
+            {logoSrc && (
+              <div>
+                <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Voorbeeld</label>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logoSrc} alt={logoAlt} style={{ maxHeight: 50, maxWidth: 200, objectFit: "contain", background: "#222", padding: "0.5rem", borderRadius: 6 }} />
+              </div>
+            )}
+          </>)}
         </div>
-        <button onClick={save} style={{ background: "#9ca3af", border: "none", color: "#fff", borderRadius: 8, padding: "0.6rem 1.25rem", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", alignSelf: "flex-start" }}>Opslaan</button>
+
+        {/* Spotify */}
+        {ef.spotify && (
+          <div style={{ background: "#111", border: "1px solid #222", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Spotify playlist</h2>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Playlist ID of URL</label>
+              <input value={spotifyPlaylistId} onChange={(e) => setSpotifyPlaylistId(e.target.value)} placeholder="37i9dQZF1DXcBWIGoYBM5M of volledige Spotify-link" style={inp} />
+            </div>
+            {spotifyPreviewId && (
+              <iframe src={`https://open.spotify.com/embed/playlist/${spotifyPreviewId}?utm_source=generator&theme=0`} width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style={{ borderRadius: 8 }} />
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        {ef.footer && (
+          <div style={{ background: "#111", border: "1px solid #333", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Footer</h2>
+              <span style={{ background: "#2a2a2a", border: "1px solid #444", borderRadius: 4, padding: "1px 6px", fontSize: "0.68rem", color: "#888", letterSpacing: "0.05em" }}>MASTER</span>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Subtitel</label>
+              <input value={footerSubtitle} onChange={(e) => setFooterSubtitle(e.target.value)} placeholder="Radio DJ · Label Owner · Bookings" style={inp} />
+              <p style={{ fontSize: "0.73rem", color: "#555", marginTop: "0.3rem" }}>De regel onder het logo. Leeg = standaard tekst.</p>
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.6rem" }}>Footer links <span style={{ color: "#555", fontWeight: 400 }}>(max 5)</span></label>
+              {linkRows.map((row, i) => (
+                <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.6rem" }}>
+                  <input value={row.label} onChange={(e) => row.setLabel(e.target.value)} placeholder={row.ph} style={inpHalf} />
+                  <input value={row.url} onChange={(e) => row.setUrl(e.target.value)} placeholder={row.phpUrl} style={inpHalf} />
+                </div>
+              ))}
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Copyright regel</label>
+              <input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} placeholder="© 2026 Mijn Website" style={inp} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Partner regel</label>
+              <input value={footerPartner} onChange={(e) => setFooterPartner(e.target.value)} placeholder="Hosted by ..." style={inp} />
+            </div>
+            <div>
+              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Credit regel</label>
+              <input value={footerCredit} onChange={(e) => setFooterCredit(e.target.value)} placeholder="Designed by Branding Totaal ®" style={inp} />
+            </div>
+          </div>
+        )}
+
+        <button onClick={save} style={{ background: cmsConfig.accentColor, border: "none", color: "#fff", borderRadius: 8, padding: "0.6rem 1.25rem", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", alignSelf: "flex-start" }}>
+          Opslaan
+        </button>
       </div>
     </div>
   );

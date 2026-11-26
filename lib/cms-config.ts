@@ -13,7 +13,7 @@ export const cmsConfig = {
   siteUrl: "https://bryandezwart.nl",
   accentColor: "#9ca3af",
 
-  // Welke secties zichtbaar zijn in de Beelden pagina
+  // ── Beelden ──────────────────────────────────
   enabledSections: {
     heroVideo:    true,
     heroBgImage:  true,
@@ -32,16 +32,37 @@ export const cmsConfig = {
     profilePhoto: 1,
   },
 
-  users: [
-    { username: "master",  passwordEnvKey: "CMS_MASTER_PASSWORD",  role: "master" as const },
-    { username: "klant",   passwordEnvKey: "CMS_CLIENT_PASSWORD",   role: "client" as const },
-  ],
+  // ── Teksten ───────────────────────────────────
+  // Zet op false wat deze site niet gebruikt
+  enabledFields: {
+    // Hero sectie
+    heroNames:    true,
+    heroSubtitle: true,
+    heroTags:     true,
+    // Over sectie
+    aboutTitle:   true,
+    aboutIntro:   true,
+    // Kaarten (over-mij cards)
+    cards:        true,
+    cardsCount:   4,     // hoeveel kaarten (1-4)
+    // Instellingen
+    logo:         true,
+    spotify:      true,
+    footer:       true,
+  },
 
+  // ── Tabs ──────────────────────────────────────
   tabs: {
     teksten: true,
     media:   true,
     seo:     true,
   },
+
+  // ── Gebruikers ────────────────────────────────
+  users: [
+    { username: "master",  passwordEnvKey: "CMS_MASTER_PASSWORD",  role: "master" as const },
+    { username: "klant",   passwordEnvKey: "CMS_CLIENT_PASSWORD",   role: "client" as const },
+  ],
 };
 
 export type CmsUser = (typeof cmsConfig.users)[number];
