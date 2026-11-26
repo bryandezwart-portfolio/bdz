@@ -15,15 +15,25 @@ const NAV = [
 
 interface DashboardNavProps {
   role: "master" | "client";
+  // tabs als object { teksten: boolean, media: boolean, ... } (vanuit layout)
+  tabs?: Record<string, boolean>;
+  // of als array van strings (alternatief gebruik)
   allowedTabs?: string[];
+  // accent wordt doorgegeven vanuit layout maar niet gebruikt (kleur zit in component)
+  accent?: string;
 }
 
-export default function DashboardNav({ role, allowedTabs }: DashboardNavProps) {
+export default function DashboardNav({ role, tabs, allowedTabs, accent }: DashboardNavProps) {
   const pathname = usePathname();
+
+  // Zet tabs-object om naar array als allowedTabs niet meegegeven is
+  const resolvedAllowedTabs: string[] | undefined =
+    allowedTabs ??
+    (tabs ? Object.entries(tabs).filter(([, v]) => v).map(([k]) => k) : undefined);
 
   const visible = NAV.filter((item) => {
     if (item.masterOnly && role !== "master") return false;
-    if (role !== "master" && allowedTabs && !allowedTabs.includes(item.key) && item.key !== "overview") return false;
+    if (role !== "master" && resolvedAllowedTabs && !resolvedAllowedTabs.includes(item.key) && item.key !== "overview") return false;
     return true;
   });
 
