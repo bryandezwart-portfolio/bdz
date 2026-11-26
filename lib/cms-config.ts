@@ -46,11 +46,18 @@ export const cmsConfig = {
     },
   ],
 
-  // Welke velden zichtbaar zijn in instellingen
+  // Welke velden zichtbaar zijn in instellingen en teksten
   enabledFields: {
     logo: true,
     spotify: true,
     footer: true,
+    heroNames: true,
+    heroSubtitle: true,
+    heroTags: true,
+    aboutTitle: true,
+    aboutIntro: true,
+    cards: true,
+    cardsCount: 4,
   },
 
   // Welke tabs zichtbaar zijn in het dashboard
