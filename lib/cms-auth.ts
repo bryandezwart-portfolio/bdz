@@ -1,11 +1,10 @@
 import { cookies } from "next/headers";
-import { readFileSync, existsSync } from "fs";
-import { join } from "path";
+import { Redis } from "@upstash/redis";
 import crypto from "crypto";
 
 const SESSION_COOKIE = "cms_session";
 const SESSION_DURATION = 8 * 60 * 60 * 1000;
-const USERS_FILE = join(process.cwd(), "private", "cms-users.json");
+const USERS_KEY = "cms:users";
 
 export type Role = "master" | "client";
 
@@ -33,21 +32,20 @@ export function createPasswordHash(password: string): string {
   return hashPassword(password);
 }
 
-export function getUsers(): CmsUser[] {
-  if (!existsSync(USERS_FILE)) return [];
-  try {
-    return JSON.parse(readFileSync(USERS_FILE, "utf-8"));
-  } catch {
-    return [];
-  }
+export async function getRedisUsers(): Promise<CmsUser[]> {
+  const redis = Redis.fromEnv();
+  const users = await redis.get<CmsUser[]>(USERS_KEY);
+  return Array.isArray(users) ? users : [];
 }
 
 export async function validateLogin(username: string, password: string): Promise<CmsUser | null> {
+  // Master via env
   const masterPassword = process.env.CMS_MASTER_PASSWORD;
   if (username === "master" && masterPassword && password === masterPassword) {
     return { username: "master", passwordHash: "", role: "master" };
   }
-  const users = getUsers();
+  // Overige gebruikers via Redis
+  const users = await getRedisUsers();
   const user = users.find((u) => u.username === username);
   if (!user) return null;
   if (!verifyPassword(password, user.passwordHash)) return null;
