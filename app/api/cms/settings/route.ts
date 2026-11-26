@@ -18,7 +18,25 @@ export async function POST(req: Request) {
   if (!session || session.role !== "master")
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
 
-  const { logoSrc, logoAlt, siteName, footerPartner, footerCredit, footerCopyright, spotifyPlaylistId } = await req.json();
-  await redis.set("cms:settings", { logoSrc, logoAlt, siteName, footerPartner, footerCredit, footerCopyright, spotifyPlaylistId });
+  const {
+    logoSrc, logoAlt, siteName,
+    footerPartner, footerCredit, footerCopyright,
+    footerSubtitle,
+    footerLink1Label, footerLink1Url,
+    footerLink2Label, footerLink2Url,
+    footerLink3Label, footerLink3Url,
+    spotifyPlaylistId,
+  } = await req.json();
+
+  await redis.set("cms:settings", {
+    logoSrc, logoAlt, siteName,
+    footerPartner, footerCredit, footerCopyright,
+    footerSubtitle,
+    footerLink1Label, footerLink1Url,
+    footerLink2Label, footerLink2Url,
+    footerLink3Label, footerLink3Url,
+    spotifyPlaylistId,
+  });
+
   return NextResponse.json({ ok: true });
 }
