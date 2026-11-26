@@ -158,7 +158,7 @@ export default function TekstenPage() {
   const accent = cmsConfig.accentColor;
 
   return (
-    <div>
+    <div style={{ maxWidth: 1200, margin: "0 auto" }}>
       {/* Topbalk */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
         <h1 style={{ fontSize: "1.2rem", fontWeight: 700 }}>Teksten</h1>
