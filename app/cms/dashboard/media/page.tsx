@@ -12,7 +12,7 @@ const FIELD_MAP = [
   { key: "ogImage",     label: "SEO afbeelding",   section: "Alle paginas · SEO",  color: "#dc2626" },
 ];
 
-function getUsageLabels(url, content, settings, seo, releases) {
+function getUsageLabels(url: string, content: Record<string, string>, settings: Record<string, string>, seo: Record<string, string>, releases: {cover?: string; title?: string}[]) {
   if (!url) return [];
   const labels = [];
   for (const { key, label, section, color } of FIELD_MAP) {
@@ -28,13 +28,13 @@ function getUsageLabels(url, content, settings, seo, releases) {
 }
 
 export default function MediaPage() {
-  const [items, setItems]         = useState([]);
+  const [items, setItems] = useState<{name: string; url: string; type: string}[]>([]);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage]     = useState("");
-  const [content, setContent]     = useState({});
-  const [settings, setSettings]   = useState({});
-  const [seo, setSeo]             = useState({});
-  const [releases, setReleases]   = useState([]);
+  const [content, setContent] = useState<Record<string,string>>({});
+  const [settings, setSettings] = useState<Record<string,string>>({});
+  const [seo, setSeo] = useState<Record<string,string>>({});
+  const [releases, setReleases] = useState<{cover?: string; title?: string}[]>([]);
 
   useEffect(() => {
     fetch("/api/cms/media").then((r) => r.json()).then((d) => setItems(d.files ?? []));
@@ -44,7 +44,7 @@ export default function MediaPage() {
     fetch("/api/cms/releases").then((r) => r.json()).then((d) => setReleases(Array.isArray(d) ? d : []));
   }, []);
 
-  async function handleUpload(e) {
+  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     setUploading(true);
@@ -62,7 +62,7 @@ export default function MediaPage() {
     e.target.value = "";
   }
 
-  async function handleDelete(name) {
+  async function handleDelete(name: string) {
     if (!confirm("Weet je zeker dat je dit bestand wil verwijderen?")) return;
     await fetch("/api/cms/media?name=" + encodeURIComponent(name), { method: "DELETE" });
     setItems((prev) => prev.filter((i) => i.name !== name));
