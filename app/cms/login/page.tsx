@@ -49,7 +49,7 @@ export default function LoginPage() {
         </div>
 
         <h1 style={{ fontSize: "1.1rem", fontWeight: 600, color: "#fff", textAlign: "center", marginBottom: "0.3rem" }}>Inloggen</h1>
-        <p style={{ fontSize: "0.78rem", color: "#666", textAlign: "center", marginBottom: "1.75rem" }}>CMS · {cmsConfig.siteName}</p>
+        <p style={{ fontSize: "0.78rem", color: "#666", textAlign: "center", marginBottom: "1.75rem" }}></p>
 
         {error && (
           <div style={{ background: "#2a1010", border: "1px solid #442222", borderRadius: 8, padding: "0.6rem 0.9rem", marginBottom: "1rem", fontSize: "0.82rem", color: "#f88" }}>
