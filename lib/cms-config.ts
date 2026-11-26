@@ -43,6 +43,13 @@ export const cmsConfig = {
     },
   ],
 
+  // Welke velden zichtbaar zijn in instellingen
+  enabledFields: {
+    logo: true,
+    spotify: true,
+    footer: true,
+  },
+
   // Welke tabs zichtbaar zijn in het dashboard
   tabs: {
     teksten: true,
