@@ -162,10 +162,10 @@ export default function About() {
         }}
       >
         {intro.startsWith("<") ? (
-          <div dangerouslySetInnerHTML={{ __html: intro }} />
+          <div className="about-intro" dangerouslySetInnerHTML={{ __html: intro }} />
         ) : (
           intro.startsWith("<") ? (
-            <div dangerouslySetInnerHTML={{ __html: intro }} />
+            <div className="about-intro" dangerouslySetInnerHTML={{ __html: intro }} />
           ) : (
             intro.split("\n\n").map((p, i) => (
               <p key={i} style={{ marginBottom: i < intro.split("\n\n").length - 1 ? "1rem" : 0 }}>{p}</p>
@@ -339,6 +339,8 @@ export default function About() {
       </div>
 
       <style>{`
+        .about-intro a { color: inherit; text-decoration: underline; }
+        .about-intro a:hover { opacity: 0.75; }
         @keyframes livePulse {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.3); }
