@@ -13,6 +13,9 @@ export const cmsConfig = {
   // Naam van de site (zichtbaar in dashboard)
   siteName: "Mijn Website",
 
+  // URL van de live site (knop "Bekijk live" in dashboard)
+  siteUrl: "https://www.bryandezwart.nl",
+
   // Kleur van de knop / accenten
   accentColor: "#e63946",
 
