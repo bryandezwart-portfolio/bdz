@@ -3,16 +3,16 @@ import { useEffect, useState } from "react";
 import { cmsConfig } from "@/lib/cms-config";
 
 const PLATFORMS = [
-  { key: "socialYoutube",    label: "YouTube",    placeholder: "https://youtube.com/@jouwkanaal",    icon: "▶" },
-  { key: "socialInstagram",  label: "Instagram",  placeholder: "https://instagram.com/jouwprofiel",  icon: "📷" },
-  { key: "socialTiktok",     label: "TikTok",     placeholder: "https://tiktok.com/@jouwprofiel",    icon: "♪" },
-  { key: "socialFacebook",   label: "Facebook",   placeholder: "https://facebook.com/jouwpagina",    icon: "f" },
-  { key: "socialThreads",    label: "Threads",    placeholder: "https://threads.net/@jouwprofiel",   icon: "@" },
-  { key: "socialX",          label: "X / Twitter",placeholder: "https://x.com/jouwprofiel",          icon: "𝕏" },
-  { key: "socialWhatsapp",   label: "WhatsApp",   placeholder: "https://wa.me/31612345678",           icon: "💬" },
-  { key: "socialSpotify",    label: "Spotify",    placeholder: "https://open.spotify.com/artist/...",icon: "♫" },
-  { key: "socialSoundcloud", label: "SoundCloud", placeholder: "https://soundcloud.com/jouwprofiel", icon: "☁" },
-  { key: "socialLinkedin",   label: "LinkedIn",   placeholder: "https://linkedin.com/in/jouwprofiel",icon: "in" },
+  { key: "socialYoutube",    label: "YouTube",     placeholder: "https://youtube.com/@jouwkanaal",     icon: "▶" },
+  { key: "socialInstagram",  label: "Instagram",   placeholder: "https://instagram.com/jouwprofiel",   icon: "📷" },
+  { key: "socialTiktok",     label: "TikTok",      placeholder: "https://tiktok.com/@jouwprofiel",     icon: "♪" },
+  { key: "socialFacebook",   label: "Facebook",    placeholder: "https://facebook.com/jouwpagina",     icon: "f" },
+  { key: "socialThreads",    label: "Threads",     placeholder: "https://threads.net/@jouwprofiel",    icon: "@" },
+  { key: "socialX",          label: "X / Twitter", placeholder: "https://x.com/jouwprofiel",           icon: "𝕏" },
+  { key: "socialWhatsapp",   label: "WhatsApp",    placeholder: "https://wa.me/31612345678",            icon: "💬" },
+  { key: "socialSpotify",    label: "Spotify",     placeholder: "https://open.spotify.com/artist/...", icon: "♫" },
+  { key: "socialSoundcloud", label: "SoundCloud",  placeholder: "https://soundcloud.com/jouwprofiel",  icon: "☁" },
+  { key: "socialLinkedin",   label: "LinkedIn",    placeholder: "https://linkedin.com/in/jouwprofiel", icon: "in" },
 ];
 
 type SocialsData = Record<string, string>;
