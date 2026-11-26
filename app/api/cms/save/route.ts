@@ -1,20 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/cms-auth";
-import fs from "fs";
-import path from "path";
+import { Redis } from "@upstash/redis";
 
-const CONTENT_FILE = path.join(process.cwd(), "public", "site-content.json");
+const redis = Redis.fromEnv();
 
 export async function GET() {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
-  try {
-    const raw = fs.readFileSync(CONTENT_FILE, "utf8");
-    return NextResponse.json(JSON.parse(raw));
-  } catch {
-    return NextResponse.json({});
-  }
+  const content = (await redis.get("cms:content")) || {};
+  return NextResponse.json(content);
 }
 
 export async function POST(req: NextRequest) {
@@ -22,11 +17,8 @@ export async function POST(req: NextRequest) {
   if (!session) return NextResponse.json({ error: "Niet ingelogd" }, { status: 401 });
 
   const body = await req.json();
-  const existing = (() => {
-    try { return JSON.parse(fs.readFileSync(CONTENT_FILE, "utf8")); } catch { return {}; }
-  })();
-
+  const existing = ((await redis.get("cms:content")) || {}) as Record<string, unknown>;
   const merged = { ...existing, ...body };
-  fs.writeFileSync(CONTENT_FILE, JSON.stringify(merged, null, 2), "utf8");
+  await redis.set("cms:content", merged);
   return NextResponse.json({ ok: true });
 }
