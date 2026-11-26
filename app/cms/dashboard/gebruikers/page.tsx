@@ -65,7 +65,7 @@ export default function GebruikersPage() {
               <span style={{ fontWeight: 600, fontSize: "0.9rem" }}>master</span>
               <span style={{ marginLeft: "0.75rem", fontSize: "0.72rem", background: "#9ca3af22", color: "#9ca3af", borderRadius: 4, padding: "0.15rem 0.5rem" }}>master</span>
             </div>
-            <span style={{ fontSize: "0.75rem", color: "#555" }}>Wachtwoord via .env.local</span>
+            <span style={{ fontSize: "0.75rem", color: "#555" }}></span>
           </div>
           {users.map((u) => (
             <div key={u.username} style={{ background: "#111", border: "1px solid #222", borderRadius: 10, padding: "1rem 1.25rem" }}>
