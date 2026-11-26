@@ -1,32 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { uploadToDropbox } from '@/lib/dropbox'
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/cms-auth";
+import { Redis } from "@upstash/redis";
 
-export async function POST(req: NextRequest) {
-  // Auth check
-  const supabase = await createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return NextResponse.json({ error: 'Niet ingelogd' }, { status: 401 })
+const redis = Redis.fromEnv();
 
-  const formData = await req.formData()
-  const file = formData.get('file') as File | null
-  const projectId = formData.get('project_id') as string | null
+export async function GET() {
+  const session = await getSession();
+  if (!session || session.role !== "master")
+    return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
 
-  if (!file || !projectId) {
-    return NextResponse.json({ error: 'Ontbrekende gegevens' }, { status: 400 })
-  }
+  const settings = (await redis.get("cms:settings")) || {};
+  return NextResponse.json({ settings });
+}
 
-  if (file.size > 100 * 1024 * 1024) {
-    return NextResponse.json({ error: 'Bestand te groot (max 100 MB)' }, { status: 400 })
-  }
+export async function POST(req: Request) {
+  const session = await getSession();
+  if (!session || session.role !== "master")
+    return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
 
-  try {
-    const buffer = await file.arrayBuffer()
-    const result = await uploadToDropbox(projectId, 'voor-klant', file.name, buffer)
-    return NextResponse.json({ file: result })
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err)
-    console.error('Admin upload error:', message)
-    return NextResponse.json({ error: message }, { status: 500 })
-  }
+  const { logoSrc, logoAlt, siteName, footerPartner, footerCredit, footerCopyright, spotifyPlaylistId } = await req.json();
+  await redis.set("cms:settings", { logoSrc, logoAlt, siteName, footerPartner, footerCredit, footerCopyright, spotifyPlaylistId });
+  return NextResponse.json({ ok: true });
 }
