@@ -4,7 +4,7 @@ import { validateLogin, createSessionToken, SESSION_COOKIE } from "@/lib/cms-aut
 export async function POST(req: NextRequest) {
   const { username, password } = await req.json();
 
-  const user = validateLogin(username, password);
+  const user = await validateLogin(username, password);
   if (!user) {
     return NextResponse.json({ error: "Gebruikersnaam of wachtwoord onjuist" }, { status: 401 });
   }
