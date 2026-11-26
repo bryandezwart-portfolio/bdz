@@ -2,7 +2,6 @@ import { getSession } from "@/lib/cms-auth";
 import { redirect } from "next/navigation";
 import { cmsConfig } from "@/lib/cms-config";
 import Image from "next/image";
-import DashboardNav from "./DashboardNav";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -12,7 +11,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
     <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "system-ui, sans-serif", color: "#fff" }}>
       <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2rem", height: 60, background: "#111", borderBottom: "1px solid #222", position: "sticky", top: 0, zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Image src={cmsConfig.logo.src} alt={cmsConfig.logo.alt} width={120} height={36} style={{ objectFit: "contain" }} />
+          <a href="/cms/dashboard" style={{ display: "flex", alignItems: "center" }}>
+            <Image src={cmsConfig.logo.src} alt={cmsConfig.logo.alt} width={120} height={36} style={{ objectFit: "contain" }} />
+          </a>
           <span style={{ color: "#444", fontSize: "0.75rem" }}>CMS · {cmsConfig.siteName}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
@@ -29,12 +30,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </form>
         </div>
       </header>
-      <div style={{ display: "flex" }}>
-        <aside style={{ width: 200, minHeight: "calc(100vh - 60px)", background: "#111", borderRight: "1px solid #222", padding: "1.5rem 0", flexShrink: 0 }}>
-          <DashboardNav tabs={cmsConfig.tabs} accent={cmsConfig.accentColor} role={session.role} />
-        </aside>
-        <main style={{ flex: 1, padding: "2rem" }}>{children}</main>
-      </div>
+      <main style={{ padding: "2rem" }}>{children}</main>
     </div>
   );
 }
