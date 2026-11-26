@@ -2,6 +2,7 @@ import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import VideoSection from "@/components/VideoSection";
 import About from "@/components/About";
+import Releases from "@/components/Releases";
 import PhotoSlider from "@/components/PhotoSlider";
 import TextBlock from "@/components/TextBlock";
 import Socials from "@/components/Socials";
@@ -15,6 +16,7 @@ export default function Home() {
       <VideoSection />
       <PhotoSlider />
       <About />
+      <Releases />
       <TextBlock />
       <Socials />
       <Footer />
