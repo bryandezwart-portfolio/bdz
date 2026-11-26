@@ -52,11 +52,24 @@ export const cmsConfig = {
 
   // Welke secties actief zijn (voor beelden/media pagina)
   enabledSections: {
-    hero: true,
-    about: true,
-    projects: true,
-    contact: true,
+    heroVideo: true,
+    heroBgImage: true,
+    profilePhoto: true,
   } as Record<string, boolean>,
+
+  // Standaard media-URLs per sectie (leeg = geen standaard)
+  defaultMedia: {
+    heroVideo: "",
+    heroBgImage: "",
+    profilePhoto: "",
+  } as Record<string, string>,
+
+  // Max uploads per sectie voor klanten
+  maxClientUploads: {
+    heroVideo: 1,
+    heroBgImage: 2,
+    profilePhoto: 1,
+  } as Record<string, number>,
 };
 
 export type CmsUser = (typeof cmsConfig.users)[number];
