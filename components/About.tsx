@@ -161,9 +161,13 @@ export default function About() {
           transitionDelay: "0.2s",
         }}
       >
-        {intro.split("\n\n").map((p, i) => (
-          <p key={i} style={{ marginBottom: i < intro.split("\n\n").length - 1 ? "1rem" : 0 }}>{p}</p>
-        ))}
+        {intro.startsWith("<") ? (
+          <div dangerouslySetInnerHTML={{ __html: intro }} />
+        ) : (
+          intro.split("\n\n").map((p, i) => (
+            <p key={i} style={{ marginBottom: i < intro.split("\n\n").length - 1 ? "1rem" : 0 }}>{p}</p>
+          ))
+        )}
       </div>
 
 
