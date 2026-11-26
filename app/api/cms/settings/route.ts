@@ -25,6 +25,8 @@ export async function POST(req: Request) {
     footerLink1Label, footerLink1Url,
     footerLink2Label, footerLink2Url,
     footerLink3Label, footerLink3Url,
+    footerLink4Label, footerLink4Url,
+    footerLink5Label, footerLink5Url,
     spotifyPlaylistId,
   } = await req.json();
 
@@ -35,6 +37,8 @@ export async function POST(req: Request) {
     footerLink1Label, footerLink1Url,
     footerLink2Label, footerLink2Url,
     footerLink3Label, footerLink3Url,
+    footerLink4Label, footerLink4Url,
+    footerLink5Label, footerLink5Url,
     spotifyPlaylistId,
   });
 

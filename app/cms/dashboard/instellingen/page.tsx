@@ -15,12 +15,15 @@ export default function InstellingenPage() {
   const [footerLink2Url,  setFooterLink2Url]  = useState("");
   const [footerLink3Label,setFooterLink3Label]= useState("");
   const [footerLink3Url,  setFooterLink3Url]  = useState("");
+  const [footerLink4Label,setFooterLink4Label]= useState("");
+  const [footerLink4Url,  setFooterLink4Url]  = useState("");
+  const [footerLink5Label,setFooterLink5Label]= useState("");
+  const [footerLink5Url,  setFooterLink5Url]  = useState("");
   const [spotifyPlaylistId, setSpotifyPlaylistId] = useState("");
   const [msg,             setMsg]             = useState("");
   const [uploading,       setUploading]       = useState(false);
 
   useEffect(() => {
-    fetch("/api/cms/settings").then((r) => { if (r.status === 403) window.location.href = "/cms/dashboard"; });
     fetch("/api/cms/settings").then((r) => r.json()).then((d) => {
       if (d.settings) {
         const s = d.settings;
@@ -37,6 +40,10 @@ export default function InstellingenPage() {
         setFooterLink2Url(s.footerLink2Url || "");
         setFooterLink3Label(s.footerLink3Label || "");
         setFooterLink3Url(s.footerLink3Url || "");
+        setFooterLink4Label(s.footerLink4Label || "");
+        setFooterLink4Url(s.footerLink4Url || "");
+        setFooterLink5Label(s.footerLink5Label || "");
+        setFooterLink5Url(s.footerLink5Url || "");
         setSpotifyPlaylistId(s.spotifyPlaylistId || "");
       }
     });
@@ -53,6 +60,8 @@ export default function InstellingenPage() {
         footerLink1Label, footerLink1Url,
         footerLink2Label, footerLink2Url,
         footerLink3Label, footerLink3Url,
+        footerLink4Label, footerLink4Url,
+        footerLink5Label, footerLink5Url,
         spotifyPlaylistId,
       }),
     });
@@ -80,6 +89,14 @@ export default function InstellingenPage() {
     ? spotifyPlaylistId.split("/playlist/")[1]?.split("?")[0] ?? spotifyPlaylistId
     : spotifyPlaylistId;
 
+  const linkRows = [
+    { label: footerLink1Label, setLabel: setFooterLink1Label, url: footerLink1Url, setUrl: setFooterLink1Url, ph: "BDZ BOOKINGS", phpUrl: "https://bdzbookings.nl" },
+    { label: footerLink2Label, setLabel: setFooterLink2Label, url: footerLink2Url, setUrl: setFooterLink2Url, ph: "BDZ MUSIC",    phpUrl: "https://bdzmusic.nl"   },
+    { label: footerLink3Label, setLabel: setFooterLink3Label, url: footerLink3Url, setUrl: setFooterLink3Url, ph: "BDZSCREENS",   phpUrl: "https://bdzscreens.nl" },
+    { label: footerLink4Label, setLabel: setFooterLink4Label, url: footerLink4Url, setUrl: setFooterLink4Url, ph: "Link 4",       phpUrl: "https://..."           },
+    { label: footerLink5Label, setLabel: setFooterLink5Label, url: footerLink5Url, setUrl: setFooterLink5Url, ph: "Link 5",       phpUrl: "https://..."           },
+  ];
+
   return (
     <div>
       <h1 style={{ fontSize: "1.3rem", fontWeight: 700, marginBottom: "0.4rem" }}>Instellingen</h1>
@@ -106,12 +123,8 @@ export default function InstellingenPage() {
           </div>
           <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Subtitel</label><input value={footerSubtitle} onChange={(e) => setFooterSubtitle(e.target.value)} placeholder="Radio DJ · Label Owner · Bookings · Tech" style={inp} /><p style={{ fontSize: "0.73rem", color: "#555", marginTop: "0.3rem" }}>De regel onder het logo. Leeg = standaard tekst.</p></div>
           <div>
-            <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.6rem" }}>Footer links</label>
-            {[
-              { label: footerLink1Label, setLabel: setFooterLink1Label, url: footerLink1Url, setUrl: setFooterLink1Url, ph: "BDZ BOOKINGS", phpUrl: "https://bdzbookings.nl" },
-              { label: footerLink2Label, setLabel: setFooterLink2Label, url: footerLink2Url, setUrl: setFooterLink2Url, ph: "BDZ MUSIC",    phpUrl: "https://bdzmusic.nl"   },
-              { label: footerLink3Label, setLabel: setFooterLink3Label, url: footerLink3Url, setUrl: setFooterLink3Url, ph: "BDZSCREENS",   phpUrl: "https://bdzscreens.nl" },
-            ].map((row, i) => (
+            <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.6rem" }}>Footer links <span style={{ color: "#555", fontWeight: 400 }}>(max 5)</span></label>
+            {linkRows.map((row, i) => (
               <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.6rem" }}>
                 <input value={row.label} onChange={(e) => row.setLabel(e.target.value)} placeholder={row.ph} style={inpHalf} />
                 <input value={row.url} onChange={(e) => row.setUrl(e.target.value)} placeholder={row.phpUrl} style={inpHalf} />
@@ -119,7 +132,7 @@ export default function InstellingenPage() {
             ))}
             <p style={{ fontSize: "0.73rem", color: "#555", marginTop: "0.1rem" }}>Links (label + URL). Leeg = standaard links.</p>
           </div>
-          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Copyright regel</label><input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} placeholder="© 2026 Bryan de Zwart · BDZ Ventures · KvK 98283731" style={inp} /><p style={{ fontSize: "0.73rem", color: "#555", marginTop: "0.3rem" }}>Leeg = standaard tekst.</p></div>
+          <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Copyright regel</label><input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} placeholder="© 2026 Bryan de Zwart · BDZ Ventures · KvK 98283731" style={inp} /></div>
           <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Partner regel</label><input value={footerPartner} onChange={(e) => setFooterPartner(e.target.value)} placeholder="Hosted & techniek by Studio Jan" style={inp} /></div>
           <div><label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Credit regel</label><input value={footerCredit} onChange={(e) => setFooterCredit(e.target.value)} placeholder="Designed by Branding Totaal ®" style={inp} /></div>
         </div>

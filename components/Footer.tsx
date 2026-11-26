@@ -25,11 +25,16 @@ export default function Footer() {
         if (s.footerCopyright) setCopyright(s.footerCopyright);
         if (s.footerSubtitle)  setSubtitle(s.footerSubtitle);
 
-        // Linkparen: als minstens één label/url ingevuld is, vervang de defaults
-        const l1 = s.footerLink1Label || s.footerLink1Url ? { label: s.footerLink1Label || "Link 1", href: s.footerLink1Url || "#" } : null;
-        const l2 = s.footerLink2Label || s.footerLink2Url ? { label: s.footerLink2Label || "Link 2", href: s.footerLink2Url || "#" } : null;
-        const l3 = s.footerLink3Label || s.footerLink3Url ? { label: s.footerLink3Label || "Link 3", href: s.footerLink3Url || "#" } : null;
-        const custom = [l1, l2, l3].filter(Boolean) as typeof DEFAULT_LINKS;
+        const pairs = [
+          [s.footerLink1Label, s.footerLink1Url],
+          [s.footerLink2Label, s.footerLink2Url],
+          [s.footerLink3Label, s.footerLink3Url],
+          [s.footerLink4Label, s.footerLink4Url],
+          [s.footerLink5Label, s.footerLink5Url],
+        ];
+        const custom = pairs
+          .filter(([l, u]) => l || u)
+          .map(([l, u], i) => ({ label: l || `Link ${i + 1}`, href: u || "#" }));
         if (custom.length > 0) setLinks(custom);
       })
       .catch(() => {});
@@ -43,7 +48,7 @@ export default function Footer() {
       <p style={{ color: "var(--muted)", fontSize: "0.8rem", letterSpacing: "0.06em", marginBottom: "1.5rem" }}>
         {subtitle}
       </p>
-      <div style={{ display: "flex", justifyContent: "center", gap: "2.5rem", marginBottom: "2.5rem" }}>
+      <div style={{ display: "flex", justifyContent: "center", gap: "2.5rem", flexWrap: "wrap", marginBottom: "2.5rem" }}>
         {links.map((link) => (
           <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
             style={{ color: "var(--muted)", fontSize: "0.72rem", letterSpacing: "0.1em", textDecoration: "none" }}>
