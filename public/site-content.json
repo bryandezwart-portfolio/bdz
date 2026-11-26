@@ -51,5 +51,10 @@
       6,
       0
     ]
+  },
+  "cms": {
+    "logoSrc": "",
+    "logoAlt": "Branding Totaal",
+    "siteName": "Test bedrijfje"
   }
 }

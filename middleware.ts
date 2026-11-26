@@ -1,14 +1,23 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+const SESSION_COOKIE = "cms_session";
 
-  // Alleen /admin beschermen (niet /admin/login zelf)
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    const token = request.cookies.get("bdz-admin-token")?.value;
-    if (token !== process.env.ADMIN_SECRET) {
-      return NextResponse.redirect(new URL("/admin/login", request.url));
+export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  // Alleen /cms/dashboard routes beveiligen
+  if (pathname.startsWith("/cms/dashboard")) {
+    const cookie = req.cookies.get(SESSION_COOKIE);
+    if (!cookie) {
+      return NextResponse.redirect(new URL("/cms/login", req.url));
+    }
+    try {
+      const data = JSON.parse(Buffer.from(cookie.value, "base64").toString("utf8"));
+      if (data.expires < Date.now()) {
+        return NextResponse.redirect(new URL("/cms/login", req.url));
+      }
+    } catch {
+      return NextResponse.redirect(new URL("/cms/login", req.url));
     }
   }
 
@@ -16,5 +25,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/cms/dashboard/:path*"],
 };
