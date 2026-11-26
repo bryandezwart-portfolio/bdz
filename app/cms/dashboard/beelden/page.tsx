@@ -2,11 +2,12 @@
 import { useEffect, useState } from "react";
 import { cmsConfig } from "@/lib/cms-config";
 
-type SlotKey = "heroVideo" | "heroBgImage";
+type SlotKey = "heroVideo" | "heroBgImage" | "profilePhoto";
 
 const SECTIONS: { key: SlotKey; label: string; icon: string; description: string; accept: string; isVideo: boolean }[] = [
-  { key: "heroVideo",   label: "Hero video",       icon: "🎬", description: "De video op de achtergrond van de homepagina", accept: "video/*", isVideo: true  },
-  { key: "heroBgImage", label: "Hero achtergrond", icon: "🖼️", description: "Achtergrondafbeelding als er geen video is",   accept: "image/*", isVideo: false },
+  { key: "heroVideo",    label: "Hero video",       icon: "🎬", description: "De video op de achtergrond van de homepagina", accept: "video/*", isVideo: true  },
+  { key: "heroBgImage",  label: "Hero achtergrond", icon: "🖼️", description: "Achtergrondafbeelding als er geen video is",   accept: "image/*", isVideo: false },
+  { key: "profilePhoto", label: "Profielfoto",      icon: "🧑", description: "De ronde profielfoto in de Over-sectie",       accept: "image/*", isVideo: false },
 ];
 
 export default function BeldenPage() {
@@ -47,10 +48,12 @@ export default function BeldenPage() {
     setMsg(key, "Actief ✓");
   }
 
-  async function handleDelete(slotKey: string) {
+  async function handleDelete(slotKey: string, fieldKey: SlotKey) {
     if (!confirm("Weet je zeker dat je deze upload wil verwijderen?")) return;
+    const wasActive = data[fieldKey] === data[slotKey];
     await saveField(slotKey, "");
-    setMsg(slotKey, "Verwijderd");
+    if (wasActive) await saveField(fieldKey, "");
+    setMsg(fieldKey, "Verwijderd");
   }
 
   const accent = cmsConfig.accentColor;
@@ -84,7 +87,6 @@ export default function BeldenPage() {
 
           return (
             <div key={key} style={{ background: "#111", border: "1px solid #222", borderRadius: 12, overflow: "hidden" }}>
-              {/* Header */}
               <div style={{ padding: "1rem 1.25rem 0.75rem", borderBottom: "1px solid #1a1a1a", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
                   <div style={{ fontSize: "0.95rem", fontWeight: 600 }}>{icon} {label}</div>
@@ -93,11 +95,15 @@ export default function BeldenPage() {
                 {msg && <span style={{ fontSize: "0.75rem", color: msg.includes("✓") ? "#4ade80" : "#888" }}>{msg}</span>}
               </div>
 
-              {/* Actieve preview */}
               <div style={{ background: "#0a0a0a", minHeight: 180, position: "relative" }}>
                 {activeOption?.url ? (
                   isVideo ? (
                     <video src={activeOption.url} style={{ width: "100%", maxHeight: 220, objectFit: "cover", display: "block" }} muted controls />
+                  ) : key === "profilePhoto" ? (
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 220 }}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={activeOption.url} alt={label} style={{ width: 160, height: 160, objectFit: "cover", borderRadius: "50%", border: "3px solid #e63946", boxShadow: "0 0 24px rgba(230,57,70,0.4)" }} />
+                    </div>
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={activeOption.url} alt={label} style={{ width: "100%", maxHeight: 220, objectFit: "cover", display: "block" }} />
@@ -115,7 +121,6 @@ export default function BeldenPage() {
                 )}
               </div>
 
-              {/* Opties om te selecteren */}
               {options.length > 1 && (
                 <div style={{ padding: "0.75rem 1.25rem", borderTop: "1px solid #1a1a1a", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                   <div style={{ fontSize: "0.72rem", color: "#555", marginBottom: "0.25rem", letterSpacing: "0.08em" }}>SELECTEER</div>
@@ -123,13 +128,9 @@ export default function BeldenPage() {
                     const isActive = activeUrl === opt.url || (!activeUrl && opt.id === "default");
                     return (
                       <div key={opt.id} style={{ display: "flex", alignItems: "center", gap: "0.75rem", padding: "0.5rem 0.75rem", background: isActive ? accent + "18" : "#0a0a0a", border: `1px solid ${isActive ? accent + "44" : "#1a1a1a"}`, borderRadius: 8 }}>
-                        <div style={{ width: 40, height: 28, borderRadius: 4, overflow: "hidden", flexShrink: 0, background: "#1a1a1a" }}>
-                          {isVideo ? (
-                            <video src={opt.url} style={{ width: "100%", height: "100%", objectFit: "cover" }} muted />
-                          ) : (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={opt.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          )}
+                        <div style={{ width: 40, height: 28, borderRadius: key === "profilePhoto" ? "50%" : 4, overflow: "hidden", flexShrink: 0, background: "#1a1a1a" }}>
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={opt.url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                         </div>
                         <span style={{ flex: 1, fontSize: "0.78rem", color: isActive ? "#fff" : "#666" }}>{opt.labelText}</span>
                         {!isActive && (
@@ -139,7 +140,7 @@ export default function BeldenPage() {
                         )}
                         {isActive && <span style={{ fontSize: "0.68rem", color: accent }}>✓ Actief</span>}
                         {opt.deletable && (
-                          <button onClick={() => handleDelete(opt.id)} style={{ fontSize: "0.68rem", color: "#444", background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: "0.25rem" }}>
+                          <button onClick={() => handleDelete(opt.id, key)} style={{ fontSize: "0.68rem", color: "#444", background: "none", border: "none", cursor: "pointer", padding: 0, marginLeft: "0.25rem" }}>
                             ✕
                           </button>
                         )}
@@ -149,7 +150,6 @@ export default function BeldenPage() {
                 </div>
               )}
 
-              {/* Upload knop */}
               <div style={{ padding: "0.75rem 1.25rem 1rem", borderTop: "1px solid #1a1a1a" }}>
                 {canUploadMore ? (
                   <label style={{ display: "inline-flex", alignItems: "center", gap: "0.5rem", padding: "0.5rem 1rem", background: "#1a1a1a", border: "1px solid #333", color: "#aaa", borderRadius: 8, fontWeight: 600, fontSize: "0.78rem", cursor: "pointer" }}>

@@ -5,15 +5,26 @@ import Image from "next/image";
 
 const COLORS = ["#3b82f6", "#ff6b35", "#e63946", "#ffffff"];
 const WORD = "Zwart";
+const DEFAULT_PHOTO = "/bryandezwart-official.avif";
 
 export default function PhotoSlider() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
+  const [photoSrc, setPhotoSrc] = useState(DEFAULT_PHOTO);
 
   const [displayed, setDisplayed] = useState(WORD);
   const [deleting, setDeleting] = useState(false);
   const [colorIndex, setColorIndex] = useState(0);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    fetch("/api/cms/save")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d?.profilePhoto) setPhotoSrc(d.profilePhoto);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -166,7 +177,7 @@ export default function PhotoSlider() {
               onContextMenu={(e) => e.preventDefault()}
             />
             <Image
-              src="/bryandezwart-official.avif"
+              src={photoSrc}
               alt="Bryan de Zwart"
               fill
               style={{

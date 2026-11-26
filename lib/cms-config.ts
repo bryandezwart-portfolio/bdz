@@ -13,16 +13,16 @@ export const cmsConfig = {
   siteUrl: "https://bryandezwart.nl",
   accentColor: "#9ca3af",
 
-  // Standaard media — ingesteld door Branding Totaal, altijd beschikbaar
   defaultMedia: {
-    heroVideo:   "/bdz-nov.mp4",
-    heroBgImage: "", // wordt ingevuld zodra jij de eerste upload doet
+    heroVideo:    "/bdz-nov.mp4",
+    heroBgImage:  "",
+    profilePhoto: "/bryandezwart-official.avif",
   },
 
-  // Max uploads per sectie door de klant
   maxClientUploads: {
-    heroVideo:   2,
-    heroBgImage: 1,
+    heroVideo:    2,
+    heroBgImage:  1,
+    profilePhoto: 1,
   },
 
   users: [
