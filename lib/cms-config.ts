@@ -49,6 +49,14 @@ export const cmsConfig = {
     media: true,
     seo: true,
   },
+
+  // Welke secties actief zijn (voor beelden/media pagina)
+  enabledSections: {
+    hero: true,
+    about: true,
+    projects: true,
+    contact: true,
+  } as Record<string, boolean>,
 };
 
 export type CmsUser = (typeof cmsConfig.users)[number];
