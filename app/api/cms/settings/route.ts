@@ -1,28 +1,24 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/cms-auth";
-import { readFileSync, writeFileSync, existsSync } from "fs";
-import { join } from "path";
+import { Redis } from "@upstash/redis";
 
-const CONTENT_FILE = join(process.cwd(), "public", "site-content.json");
-
-function readContent() {
-  if (!existsSync(CONTENT_FILE)) return {};
-  return JSON.parse(readFileSync(CONTENT_FILE, "utf-8"));
-}
+const redis = Redis.fromEnv();
 
 export async function GET() {
   const session = await getSession();
-  if (!session || session.role !== "master") return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
-  const content = readContent();
-  return NextResponse.json({ settings: content.cms || {} });
+  if (!session || session.role !== "master")
+    return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
+
+  const settings = (await redis.get("cms:settings")) || {};
+  return NextResponse.json({ settings });
 }
 
 export async function POST(req: Request) {
   const session = await getSession();
-  if (!session || session.role !== "master") return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
+  if (!session || session.role !== "master")
+    return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
+
   const { logoSrc, logoAlt, siteName } = await req.json();
-  const content = readContent();
-  content.cms = { ...(content.cms || {}), logoSrc, logoAlt, siteName };
-  writeFileSync(CONTENT_FILE, JSON.stringify(content, null, 2));
+  await redis.set("cms:settings", { logoSrc, logoAlt, siteName });
   return NextResponse.json({ ok: true });
 }
