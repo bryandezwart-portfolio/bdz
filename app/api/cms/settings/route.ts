@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   if (!session || session.role !== "master")
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
 
-  const { logoSrc, logoAlt, siteName } = await req.json();
-  await redis.set("cms:settings", { logoSrc, logoAlt, siteName });
+  const { logoSrc, logoAlt, siteName, footerPartner, footerCredit, spotifyPlaylistId } = await req.json();
+  await redis.set("cms:settings", { logoSrc, logoAlt, siteName, footerPartner, footerCredit, spotifyPlaylistId });
   return NextResponse.json({ ok: true });
 }
