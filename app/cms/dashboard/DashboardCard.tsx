@@ -1,5 +1,16 @@
 "use client";
 
+const ICONS: Record<string, string> = {
+  Teksten: "✏️",
+  Media: "🖼️",
+  Beelden: "🎬",
+  SEO: "🔍",
+  Releases: "🎵",
+  Socials: "📱",
+  Instellingen: "⚙️",
+  Gebruikers: "👥",
+};
+
 export function DashboardCard({ title, desc, href, accent }: { title: string; desc: string; href: string; accent: string }) {
   return (
     <a
@@ -18,6 +29,7 @@ export function DashboardCard({ title, desc, href, accent }: { title: string; de
       onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = accent)}
       onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.borderColor = "#222")}
     >
+      <div style={{ fontSize: "1.6rem", marginBottom: "0.6rem" }}>{ICONS[title] ?? "📄"}</div>
       <h2 style={{ fontSize: "1rem", fontWeight: 600, color: "#fff", marginBottom: "0.4rem" }}>{title}</h2>
       <p style={{ fontSize: "0.78rem", color: "#666", lineHeight: 1.5, margin: 0 }}>{desc}</p>
     </a>
