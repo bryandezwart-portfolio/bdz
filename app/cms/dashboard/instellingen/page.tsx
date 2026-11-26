@@ -7,6 +7,7 @@ export default function InstellingenPage() {
   const [siteName, setSiteName] = useState("");
   const [footerPartner, setFooterPartner] = useState("");
   const [footerCredit, setFooterCredit] = useState("");
+  const [footerCopyright, setFooterCopyright] = useState("");
   const [spotifyPlaylistId, setSpotifyPlaylistId] = useState("");
   const [msg, setMsg] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -20,6 +21,7 @@ export default function InstellingenPage() {
         setSiteName(d.settings.siteName || "");
         setFooterPartner(d.settings.footerPartner || "");
         setFooterCredit(d.settings.footerCredit || "");
+        setFooterCopyright(d.settings.footerCopyright || "");
         setSpotifyPlaylistId(d.settings.spotifyPlaylistId || "");
       }
     });
@@ -29,7 +31,7 @@ export default function InstellingenPage() {
     const r = await fetch("/api/cms/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ logoSrc, logoAlt, siteName, footerPartner, footerCredit, spotifyPlaylistId }),
+      body: JSON.stringify({ logoSrc, logoAlt, siteName, footerPartner, footerCredit, footerCopyright, spotifyPlaylistId }),
     });
     const d = await r.json();
     setMsg(d.ok ? "Instellingen opgeslagen ✓" : d.error);
@@ -103,6 +105,11 @@ export default function InstellingenPage() {
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Footer</h2>
             <span style={{ background: "#2a2a2a", border: "1px solid #444", borderRadius: 4, padding: "1px 6px", fontSize: "0.68rem", color: "#888", letterSpacing: "0.05em" }}>MASTER</span>
+          </div>
+          <div>
+            <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Copyright regel</label>
+            <input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} placeholder="© 2026 Bryan de Zwart · BDZ Ventures · KvK 98283731" style={inp} />
+            <p style={{ fontSize: "0.73rem", color: "#555", marginTop: "0.3rem" }}>De officiële copyright regel. Leeg = standaard tekst.</p>
           </div>
           <div>
             <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Partner regel</label>

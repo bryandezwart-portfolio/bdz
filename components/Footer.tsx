@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 export default function Footer() {
   const [partner, setPartner] = useState<string | null>(null);
   const [credit, setCredit] = useState<string | null>(null);
+  const [copyright, setCopyright] = useState<string>("© 2026 Bryan de Zwart · BDZ Ventures · KvK 98283731");
 
   useEffect(() => {
     fetch("/api/cms/settings")
@@ -11,6 +12,7 @@ export default function Footer() {
       .then((d) => {
         if (d.settings?.footerPartner) setPartner(d.settings.footerPartner);
         if (d.settings?.footerCredit) setCredit(d.settings.footerCredit);
+        if (d.settings?.footerCopyright) setCopyright(d.settings.footerCopyright);
       })
       .catch(() => {});
   }, []);
@@ -36,7 +38,7 @@ export default function Footer() {
         ))}
       </div>
       <p style={{ color: "rgba(240,240,240,0.2)", fontSize: "0.72rem", letterSpacing: "0.06em", marginBottom: partner || credit ? "0.5rem" : 0 }}>
-        © 2026 Bryan de Zwart · BDZ Ventures · KvK 98283731
+        {copyright}
       </p>
       {(partner || credit) && (
         <p style={{ color: "rgba(240,240,240,0.12)", fontSize: "0.62rem", letterSpacing: "0.06em" }}>
