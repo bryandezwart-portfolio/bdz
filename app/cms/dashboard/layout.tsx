@@ -9,10 +9,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "system-ui, sans-serif", color: "#fff" }}>
-      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2rem", height: 60, background: "#111", borderBottom: "1px solid #222", position: "sticky", top: 0, zIndex: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+      <header style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 2rem", height: 72, background: "#111", borderBottom: "1px solid #222", position: "sticky", top: 0, zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
           <a href="/cms/dashboard" style={{ display: "flex", alignItems: "center" }}>
-            <Image src={cmsConfig.logo.src} alt={cmsConfig.logo.alt} width={120} height={36} style={{ objectFit: "contain" }} />
+            <Image src={cmsConfig.logo.src} alt={cmsConfig.logo.alt} width={200} height={56} style={{ objectFit: "contain" }} />
           </a>
           <span style={{ color: "#444", fontSize: "0.75rem" }}>CMS · {cmsConfig.siteName}</span>
         </div>
