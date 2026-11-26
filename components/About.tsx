@@ -19,7 +19,7 @@ const DEFAULT_LIVE = {
   vacation: false,
   startHour: 8,
   endHour: 10,
-  days: [1, 2, 3, 4, 5], // 0=zo, 1=ma … 6=za
+  days: [1, 2, 3, 4, 5],
 };
 
 function useLiveStatus(enabled: boolean, vacation: boolean, startHour: number, endHour: number, days: number[]) {
@@ -39,6 +39,16 @@ function useLiveStatus(enabled: boolean, vacation: boolean, startHour: number, e
   }, [enabled, vacation, startHour, endHour, days]);
 
   return isLive;
+}
+
+function CardDesc({ desc }: { desc: string }) {
+  if (desc.startsWith("<")) {
+    return (
+      <p style={{ fontSize: "0.85rem", color: "var(--muted)", lineHeight: 1.6 }}
+        dangerouslySetInnerHTML={{ __html: desc }} />
+    );
+  }
+  return <p style={{ fontSize: "0.85rem", color: "var(--muted)", lineHeight: 1.6 }}>{desc}</p>;
 }
 
 export default function About() {
@@ -98,7 +108,7 @@ export default function About() {
           }));
         }
       })
-      .catch(() => {/* geen bestand, gebruik defaults */});
+      .catch(() => {});
   }, []);
 
   const isLive = useLiveStatus(liveConfig.enabled, liveConfig.vacation, liveConfig.startHour, liveConfig.endHour, liveConfig.days);
@@ -137,45 +147,29 @@ export default function About() {
         margin: "0 auto",
       }}
     >
-      {/* Header */}
       <p className="fade-up section-label" style={{ textAlign: "center" }}>
         OVER MIJ
       </p>
       <h2
         className="fade-up section-title"
-        style={{
-          textAlign: "center",
-          transitionDelay: "0.1s",
-          marginBottom: "1rem",
-        }}
+        style={{ textAlign: "center", transitionDelay: "0.1s", marginBottom: "1rem" }}
       >
         {title.split(" ").slice(0, -1).join(" ")}{" "}
         <span style={{ color: "var(--neon)" }}>{title.split(" ").slice(-1)[0]}</span>
       </h2>
       <div
         className="fade-up section-text"
-        style={{
-          textAlign: "center",
-          maxWidth: 620,
-          margin: "0 auto 2.5rem",
-          transitionDelay: "0.2s",
-        }}
+        style={{ textAlign: "center", maxWidth: 620, margin: "0 auto 2.5rem", transitionDelay: "0.2s" }}
       >
         {intro.startsWith("<") ? (
           <div className="about-intro" dangerouslySetInnerHTML={{ __html: intro }} />
         ) : (
-          intro.startsWith("<") ? (
-            <div className="about-intro" dangerouslySetInnerHTML={{ __html: intro }} />
-          ) : (
-            intro.split("\n\n").map((p, i) => (
-              <p key={i} style={{ marginBottom: i < intro.split("\n\n").length - 1 ? "1rem" : 0 }}>{p}</p>
-            ))
-          )
+          intro.split("\n\n").map((p, i) => (
+            <p key={i} style={{ marginBottom: i < intro.split("\n\n").length - 1 ? "1rem" : 0 }}>{p}</p>
+          ))
         )}
       </div>
 
-
-      {/* Cards grid */}
       <div id="watikdoe"
         className="fade-up"
         style={{
@@ -217,123 +211,25 @@ export default function About() {
               (e.currentTarget as HTMLAnchorElement).style.boxShadow = "none";
             }}
           >
-            {/* Glow accent top-left */}
-            <div
-              style={{
-                position: "absolute",
-                top: -40,
-                left: -40,
-                width: 120,
-                height: 120,
-                borderRadius: "50%",
-                background: i < ACCENTS.length ? ACCENTS[i] : EXTRA_ACCENTS[i - ACCENTS.length],
-                opacity: 0.08,
-                filter: "blur(30px)",
-                pointerEvents: "none",
-              }}
-            />
-
-            {/* Icon */}
+            <div style={{ position: "absolute", top: -40, left: -40, width: 120, height: 120, borderRadius: "50%", background: i < ACCENTS.length ? ACCENTS[i] : EXTRA_ACCENTS[i - ACCENTS.length], opacity: 0.08, filter: "blur(30px)", pointerEvents: "none" }} />
             <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>
               {i < ICONS.length ? ICONS[i] : EXTRA_ICONS[i - ICONS.length]}
             </div>
-
-            {/* Role */}
-            <h3
-              style={{
-                fontSize: "1.15rem",
-                fontWeight: 700,
-                color: "var(--text)",
-                marginBottom: "0.25rem",
-                fontFamily: "var(--font-orbitron)",
-                letterSpacing: "0.02em",
-              }}
-            >
+            <h3 style={{ fontSize: "1.15rem", fontWeight: 700, color: "var(--text)", marginBottom: "0.25rem", fontFamily: "var(--font-orbitron)", letterSpacing: "0.02em" }}>
               {card.role}
             </h3>
-
-            {/* Sub */}
-            <p
-              style={{
-                fontSize: "0.72rem",
-                color: i < ACCENTS.length ? ACCENTS[i] : EXTRA_ACCENTS[i - ACCENTS.length],
-                letterSpacing: "0.1em",
-                fontWeight: 600,
-                marginBottom: "0.9rem",
-                textTransform: "uppercase",
-              }}
-            >
+            <p style={{ fontSize: "0.72rem", color: i < ACCENTS.length ? ACCENTS[i] : EXTRA_ACCENTS[i - ACCENTS.length], letterSpacing: "0.1em", fontWeight: 600, marginBottom: "0.9rem", textTransform: "uppercase" }}>
               {card.sub}
             </p>
-
-            {/* Live indicator — alleen op Radio DJ kaart (i === 0) */}
             {i === 0 && isLive && (
-              <div style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "6px",
-                marginBottom: "0.75rem",
-                background: "rgba(230,57,70,0.12)",
-                border: "1px solid rgba(230,57,70,0.3)",
-                borderRadius: "100px",
-                padding: "3px 10px 3px 7px",
-              }}>
-                <span style={{
-                  display: "inline-block",
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: "#e63946",
-                  boxShadow: "0 0 6px #e63946",
-                  animation: "livePulse 1.5s ease-in-out infinite",
-                }} />
-                <span style={{
-                  fontSize: "0.68rem",
-                  fontWeight: 700,
-                  letterSpacing: "0.08em",
-                  color: "#e63946",
-                  textTransform: "uppercase",
-                }}>
-                  Nu live
-                </span>
+              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", marginBottom: "0.75rem", background: "rgba(230,57,70,0.12)", border: "1px solid rgba(230,57,70,0.3)", borderRadius: "100px", padding: "3px 10px 3px 7px" }}>
+                <span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#e63946", boxShadow: "0 0 6px #e63946", animation: "livePulse 1.5s ease-in-out infinite" }} />
+                <span style={{ fontSize: "0.68rem", fontWeight: 700, letterSpacing: "0.08em", color: "#e63946", textTransform: "uppercase" }}>Nu live</span>
               </div>
             )}
-
-            {/* Desc */}
-            <p
-              style={{
-                fontSize: "0.85rem",
-                color: "var(--muted)",
-                lineHeight: 1.6,
-              }}
-            >
-              {card.desc}
-            </p>
-
-            {/* Bottom accent line */}
-            <div
-              style={{
-                position: "absolute",
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 2,
-                background: `linear-gradient(to right, ${i < ACCENTS.length ? ACCENTS[i] : EXTRA_ACCENTS[i - ACCENTS.length]}, transparent)`,
-                opacity: 0.5,
-              }}
-            />
-
-            {/* Pijltje rechtsboven */}
-            <div style={{
-              position: "absolute",
-              top: "1.25rem",
-              right: "1.25rem",
-              color: i < ACCENTS.length ? ACCENTS[i] : EXTRA_ACCENTS[i - ACCENTS.length],
-              fontSize: "0.85rem",
-              opacity: 0.6,
-            }}>
-              ↗
-            </div>
+            <CardDesc desc={card.desc} />
+            <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: `linear-gradient(to right, ${i < ACCENTS.length ? ACCENTS[i] : EXTRA_ACCENTS[i - ACCENTS.length]}, transparent)`, opacity: 0.5 }} />
+            <div style={{ position: "absolute", top: "1.25rem", right: "1.25rem", color: i < ACCENTS.length ? ACCENTS[i] : EXTRA_ACCENTS[i - ACCENTS.length], fontSize: "0.85rem", opacity: 0.6 }}>↗</div>
           </a>
         ))}
       </div>
@@ -341,6 +237,8 @@ export default function About() {
       <style>{`
         .about-intro a { color: inherit; text-decoration: underline; }
         .about-intro a:hover { opacity: 0.75; }
+        .card-desc a { color: inherit; text-decoration: underline; }
+        .card-desc a:hover { opacity: 0.75; }
         @keyframes livePulse {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.5; transform: scale(1.3); }
