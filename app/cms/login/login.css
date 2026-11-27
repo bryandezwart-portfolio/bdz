@@ -1,0 +1,12 @@
+.cms-login-bg {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-image: url('/login-bg.png');
+  background-size: cover;
+  background-position: center;
+  font-family: system-ui, sans-serif;
+  position: relative;
+  overflow: hidden;
+}

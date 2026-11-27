@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cmsConfig } from "@/lib/cms-config";
+import "./login.css";
 
 export default function CmsLoginPage() {
   const router = useRouter();
@@ -50,23 +51,14 @@ export default function CmsLoginPage() {
 
   const accent = cmsConfig.accentColor;
   const hasVideoBg = loginBg && loginBgType === "video";
-  // Gebruik vaste fallback achtergrond als er geen custom bg is
-  const bgImage = loginBg && loginBgType === "image" ? loginBg : "/login-bg.png";
+  const customImgBg = loginBg && loginBgType === "image" ? loginBg : null;
 
   return (
-    <div style={{
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundImage: `url('${bgImage}')`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-      fontFamily: "system-ui, sans-serif",
-      position: "relative",
-      overflow: "hidden",
-    }}>
-      {/* Donkere overlay zodat het formulier leesbaar blijft */}
+    <div
+      className="cms-login-bg"
+      style={customImgBg ? { backgroundImage: `url('${customImgBg}')` } : {}}
+    >
+      {/* Donkere overlay */}
       <div style={{
         position: "absolute",
         inset: 0,
