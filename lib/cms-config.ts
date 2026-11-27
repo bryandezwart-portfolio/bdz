@@ -17,7 +17,7 @@ export const cmsConfig = {
   siteUrl: "https://www.bryandezwart.nl",
 
   // Kleur van de knop / accenten
-  accentColor: "#e63946",
+  accentColor: "#1e61e6",
 
   // E-mailadressen voor de master (wachtwoord vergeten)
   // Reset-link gaat naar ALLE adressen hieronder
