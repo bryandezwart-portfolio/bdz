@@ -1,7 +1,6 @@
 import { getSession } from "@/lib/cms-auth";
 import { cmsConfig } from "@/lib/cms-config";
 import { DashboardCard } from "./DashboardCard";
-import Image from "next/image";
 import fs from "fs";
 import path from "path";
 
@@ -18,23 +17,8 @@ export default async function DashboardPage() {
   const content = getSiteContent();
   const accent = content.accentColor ?? cmsConfig.accentColor;
   const siteName = content.siteName ?? cmsConfig.siteName;
-  const isSeo = session?.role === "seo";
-
   return (
     <div>
-      {/* SEO logo bovenaan als seo-rol */}
-      {isSeo && (
-        <div style={{ marginBottom: "1.5rem" }}>
-          <Image
-            src="/logo-seo-login.png"
-            alt="SEO"
-            width={80}
-            height={54}
-            style={{ objectFit: "contain" }}
-          />
-        </div>
-      )}
-
       <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "0.5rem" }}>
         Welkom{session ? `, ${session.username}` : ""}
       </h1>

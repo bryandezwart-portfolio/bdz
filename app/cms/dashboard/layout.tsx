@@ -2,7 +2,6 @@ import { getSession } from "@/lib/cms-auth";
 import { redirect } from "next/navigation";
 import { cmsConfig } from "@/lib/cms-config";
 import Image from "next/image";
-import DashboardNav from "./DashboardNav";
 import fs from "fs";
 import path from "path";
 
@@ -19,7 +18,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const content = getSiteContent();
   const accent = content.accentColor ?? cmsConfig.accentColor;
-  const logoSrc = content.logoUrl ?? cmsConfig.logo.src;
+  const rawLogoSrc = content.logoUrl ?? cmsConfig.logo.src;
+  const logoSrc = session.role === "seo" ? "/logo-seo-login.png" : rawLogoSrc;
   const siteName = content.siteName ?? cmsConfig.siteName;
 
   return (
@@ -65,24 +65,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </form>
       </header>
 
-      <div style={{ display: "flex" }}>
-        {/* Sidebar */}
-        <aside style={{
-          width: 200,
-          minHeight: "calc(100vh - 60px)",
-          background: "#111",
-          borderRight: "1px solid #222",
-          padding: "1.5rem 0",
-          flexShrink: 0,
-        }}>
-          <DashboardNav tabs={cmsConfig.tabs} accent={accent} role={session.role as "master" | "client" | "seo"} />
-        </aside>
-
-        {/* Content */}
-        <main style={{ flex: 1, padding: "2rem" }}>
+      {/* Content — geen sidebar, navigatie via de kaarten zelf */}
+      <main style={{ flex: 1, padding: "2rem", display: "flex", justifyContent: "center" }}>
+        <div style={{ width: "100%", maxWidth: 780 }}>
           {children}
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
