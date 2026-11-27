@@ -1,206 +1,203 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { cmsConfig } from "@/lib/cms-config";
 
-type User = { username: string; role: string; email?: string };
-
-export default function GebruikersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newUsername, setNewUsername] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newRole, setNewRole] = useState<"client" | "master">("client");
-  const [creating, setCreating] = useState(false);
+export default function CmsLoginPage() {
+  const router = useRouter();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loginBg, setLoginBg] = useState<string | null>(null);
+  const [loginBgType, setLoginBgType] = useState<"image" | "video">("image");
 
-  async function load() {
-    setLoading(true);
-    const res = await fetch("/api/cms/users");
-    const data = await res.json();
-    setUsers(Array.isArray(data) ? data : []);
-    setLoading(false);
-  }
+  useEffect(() => {
+    fetch("/api/cms/save")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.loginBackground) {
+          setLoginBg(data.loginBackground);
+          const ext = data.loginBackground.split(".").pop()?.toLowerCase() ?? "";
+          setLoginBgType(["mp4", "webm", "mov"].includes(ext) ? "video" : "image");
+        }
+      })
+      .catch(() => {});
+  }, []);
 
-  useEffect(() => { load(); }, []);
-
-  async function createUser(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setCreating(true);
     setError("");
-    setSuccess("");
-    const res = await fetch("/api/cms/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: newUsername, password: newPassword, email: newEmail, role: newRole }),
-    });
-    const data = await res.json();
-    setCreating(false);
-    if (!res.ok) {
-      setError(data.error || "Aanmaken mislukt");
-    } else {
-      setSuccess(`Gebruiker "${newUsername}" aangemaakt`);
-      setNewUsername("");
-      setNewPassword("");
-      setNewEmail("");
-      setNewRole("client");
-      load();
+    setLoading(true);
+    try {
+      const res = await fetch("/api/cms/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+      if (res.ok) {
+        router.push("/cms/dashboard");
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "Inloggen mislukt");
+      }
+    } finally {
+      setLoading(false);
     }
   }
 
-  async function deleteUser(username: string) {
-    if (!confirm(`Gebruiker "${username}" verwijderen?`)) return;
-    await fetch(`/api/cms/users?username=${encodeURIComponent(username)}`, { method: "DELETE" });
-    load();
-  }
-
   const accent = cmsConfig.accentColor;
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "0.55rem 0.75rem",
-    border: "1px solid #333",
-    borderRadius: 6,
-    fontSize: "0.88rem",
-    boxSizing: "border-box",
-    outline: "none",
-    background: "#1a1a1a",
-    color: "#fff",
-  };
-  const labelStyle: React.CSSProperties = {
-    fontSize: "0.78rem",
-    fontWeight: 600,
-    color: "#999",
-    display: "block",
-    marginBottom: 4,
-  };
 
   return (
-    <div style={{ maxWidth: 640 }}>
-      <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "1.5rem" }}>Gebruikers</h1>
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: "#0a0a0a",
+      backgroundImage: loginBg && loginBgType === "image" ? `url('${loginBg}')` : undefined,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      fontFamily: "system-ui, sans-serif",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      {loginBg && loginBgType === "video" && (
+        <video
+          src={loginBg}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            zIndex: 0,
+          }}
+        />
+      )}
+      <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", justifyContent: "center" }}>
+      <div style={{
+        width: "100%",
+        maxWidth: 400,
+        padding: "2.5rem",
+        background: "rgba(10,10,10,0.92)",
+        borderRadius: 16,
+        border: "1px solid #222",
+        boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
+        backdropFilter: "blur(12px)",
+      }}>
+        {/* Logo */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <Image
+            src={cmsConfig.logo.src}
+            alt={cmsConfig.logo.alt}
+            width={cmsConfig.logo.width}
+            height={60}
+            style={{ objectFit: "contain" }}
+          />
+        </div>
 
-      {/* Gebruikerslijst */}
-      <div style={{ background: "#111", borderRadius: 10, border: "1px solid #222", marginBottom: "2rem", overflow: "hidden" }}>
-        {loading ? (
-          <p style={{ padding: "1rem", color: "#666" }}>Laden…</p>
-        ) : users.length === 0 ? (
-          <p style={{ padding: "1rem", color: "#666" }}>Geen extra gebruikers</p>
-        ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "#1a1a1a", borderBottom: "1px solid #222" }}>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Gebruiker</th>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>E-mail</th>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Rol</th>
-                <th style={{ padding: "0.6rem 0.5rem" }} />
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.username} style={{ borderBottom: "1px solid #1e1e1e" }}>
-                  <td style={{ padding: "0.6rem 1rem", fontWeight: 600, fontSize: "0.9rem", color: "#fff" }}>{u.username}</td>
-                  <td style={{ padding: "0.6rem 1rem", fontSize: "0.85rem", color: "#888" }}>{u.email || "—"}</td>
-                  <td style={{ padding: "0.6rem 1rem" }}>
-                    <span style={{
-                      display: "inline-block",
-                      padding: "2px 10px",
-                      borderRadius: 20,
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      background: u.role === "master" ? "#fef3c7" : "#e0f2fe",
-                      color: u.role === "master" ? "#92400e" : "#0369a1",
-                    }}>
-                      {u.role}
-                    </span>
-                  </td>
-                  <td style={{ padding: "0.6rem 0.5rem", textAlign: "right" }}>
-                    <button
-                      onClick={() => deleteUser(u.username)}
-                      style={{ background: "none", border: "none", color: "#e63946", cursor: "pointer", fontSize: "0.8rem" }}
-                    >
-                      Verwijderen
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+        <h1 style={{
+          color: "#fff",
+          fontSize: "1.1rem",
+          fontWeight: 600,
+          textAlign: "center",
+          marginBottom: "0.25rem",
+        }}>
+          Inloggen
+        </h1>
+        <p style={{ color: "#666", fontSize: "0.8rem", textAlign: "center", marginBottom: "2rem" }}>
+          {cmsConfig.siteName}
+        </p>
 
-      {/* Nieuwe gebruiker */}
-      <div style={{ background: "#111", borderRadius: 10, border: "1px solid #222", padding: "1.25rem" }}>
-        <h2 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem", marginTop: 0, color: "#fff" }}>Nieuwe gebruiker</h2>
-        <form onSubmit={createUser} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-            <div>
-              <label style={labelStyle}>Gebruikersnaam</label>
-              <input
-                style={inputStyle}
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                required
-                placeholder="gebruikersnaam"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Wachtwoord</label>
-              <input
-                type="password"
-                style={inputStyle}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <input
+            type="text"
+            placeholder="Gebruikersnaam"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            autoComplete="username"
+            style={{
+              width: "100%",
+              padding: "0.75rem 1rem",
+              background: "#1a1a1a",
+              border: "1px solid #2a2a2a",
+              borderRadius: 8,
+              color: "#fff",
+              fontSize: "0.9rem",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          <input
+            type="password"
+            placeholder="Wachtwoord"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete="current-password"
+            style={{
+              width: "100%",
+              padding: "0.75rem 1rem",
+              background: "#1a1a1a",
+              border: "1px solid #2a2a2a",
+              borderRadius: 8,
+              color: "#fff",
+              fontSize: "0.9rem",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-            <div>
-              <label style={labelStyle}>E-mailadres (voor wachtwoord vergeten)</label>
-              <input
-                type="email"
-                style={inputStyle}
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="email@domein.nl"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Rol</label>
-              <select
-                style={inputStyle}
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value as "client" | "master")}
-              >
-                <option value="client">Client</option>
-                <option value="master">Master</option>
-              </select>
-            </div>
-          </div>
-
-          {error && <p style={{ color: "#e63946", fontSize: "0.82rem", margin: 0 }}>{error}</p>}
-          {success && <p style={{ color: "#16a34a", fontSize: "0.82rem", margin: 0 }}>{success}</p>}
+          {error && (
+            <p style={{
+              color: accent,
+              fontSize: "0.8rem",
+              background: `${accent}18`,
+              border: `1px solid ${accent}44`,
+              borderRadius: 8,
+              padding: "0.6rem 0.85rem",
+              margin: 0,
+            }}>
+              {error}
+            </p>
+          )}
 
           <button
             type="submit"
-            disabled={creating}
+            disabled={loading}
             style={{
-              alignSelf: "flex-start",
-              padding: "0.6rem 1.4rem",
-              background: creating ? "#ccc" : accent,
+              padding: "0.75rem",
+              background: loading ? "#333" : accent,
               color: "#fff",
               border: "none",
-              borderRadius: 7,
-              fontWeight: 700,
-              fontSize: "0.88rem",
-              cursor: creating ? "not-allowed" : "pointer",
+              borderRadius: 8,
+              fontSize: "0.9rem",
+              fontWeight: 600,
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "background 0.2s",
             }}
           >
-            {creating ? "Aanmaken…" : "Aanmaken"}
+            {loading ? "Bezig..." : "Inloggen"}
           </button>
+
+          <div style={{ textAlign: "center", marginTop: "0.25rem" }}>
+            <Link
+              href="/cms/login/forgot"
+              style={{ color: "#666", fontSize: "0.78rem", textDecoration: "none" }}
+            >
+              Wachtwoord vergeten?
+            </Link>
+          </div>
         </form>
+      </div>
       </div>
     </div>
   );
