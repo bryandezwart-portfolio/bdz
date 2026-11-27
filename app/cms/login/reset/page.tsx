@@ -1,51 +1,54 @@
 "use client";
+
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import Image from "next/image";
 import { cmsConfig } from "@/lib/cms-config";
 
 function ResetForm() {
-  const params = useSearchParams();
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const token = params.get("token") || "";
+  const token = searchParams.get("token") ?? "";
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!token) setError("Geen geldige reset-link. Vraag een nieuwe aan.");
+    if (!token) setError("Ongeldige resetlink. Vraag een nieuwe aan.");
   }, [token]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password !== confirm) {
-      setError("Wachtwoorden komen niet overeen");
-      return;
-    }
-    if (password.length < 8) {
-      setError("Wachtwoord moet minimaal 8 tekens zijn");
-      return;
-    }
-    setStatus("loading");
     setError("");
+
+    if (password.length < 8) {
+      setError("Wachtwoord moet minimaal 8 tekens zijn.");
+      return;
+    }
+    if (password !== confirm) {
+      setError("Wachtwoorden komen niet overeen.");
+      return;
+    }
+
+    setStatus("loading");
     try {
       const res = await fetch("/api/cms/reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, password }),
       });
-      const data = await res.json();
+      const json = await res.json();
       if (!res.ok) {
-        setError(data.error || "Er is iets misgegaan");
+        setError(json.error ?? "Er is iets misgegaan.");
         setStatus("error");
-      } else {
-        setStatus("done");
-        setTimeout(() => router.push("/cms/login"), 2500);
+        return;
       }
+      setStatus("success");
+      setTimeout(() => router.push("/cms/login"), 2500);
     } catch {
-      setError("Kan geen verbinding maken");
+      setError("Netwerkfout. Probeer het opnieuw.");
       setStatus("error");
     }
   }
@@ -57,157 +60,153 @@ function ResetForm() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "#f5f5f5",
+        background: "#f4f4f5",
+        fontFamily: "system-ui, sans-serif",
       }}
     >
       <div
         style={{
           background: "#fff",
-          borderRadius: 12,
-          padding: "2.5rem",
+          borderRadius: 16,
+          padding: "2.5rem 2rem",
           width: "100%",
-          maxWidth: 420,
-          boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+          maxWidth: 400,
+          boxShadow: "0 4px 32px rgba(0,0,0,0.08)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: "1.5rem",
         }}
       >
-        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              background: cmsConfig.accentColor,
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              marginBottom: "1rem",
-            }}
-          >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, margin: 0, color: "#111" }}>
-            Nieuw wachtwoord instellen
+        {/* Logo */}
+        {cmsConfig.logo && (
+          <Image
+            src={cmsConfig.logo.src}
+            alt={cmsConfig.logo.alt}
+            width={180}
+            height={60}
+            style={{ objectFit: "contain" }}
+          />
+        )}
+
+        <div style={{ width: "100%", textAlign: "center" }}>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, margin: "0 0 0.25rem" }}>
+            Nieuw wachtwoord
           </h1>
+          <p style={{ color: "#888", fontSize: "0.9rem", margin: 0 }}>
+            Kies een nieuw wachtwoord voor je account.
+          </p>
         </div>
 
-        {status === "done" ? (
-          <div style={{ textAlign: "center" }}>
-            <div
-              style={{
-                width: 48,
-                height: 48,
-                borderRadius: "50%",
-                background: "#22c55e",
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                marginBottom: "1rem",
-              }}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </div>
-            <p style={{ color: "#333", fontWeight: 600, marginBottom: "0.5rem" }}>
-              Wachtwoord gewijzigd!
-            </p>
-            <p style={{ color: "#666", fontSize: "0.9rem" }}>
-              Je wordt doorgestuurd naar de loginpagina…
-            </p>
+        {status === "success" ? (
+          <div
+            style={{
+              background: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              borderRadius: 10,
+              padding: "1rem",
+              color: "#166534",
+              textAlign: "center",
+              width: "100%",
+            }}
+          >
+            ✓ Wachtwoord succesvol ingesteld! Je wordt doorgestuurd naar de loginpagina…
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            {!token ? (
-              <div style={{ textAlign: "center" }}>
-                <p style={{ color: "#e63946", marginBottom: "1rem" }}>{error}</p>
-                <Link
-                  href="/cms/login/forgot"
-                  style={{ color: cmsConfig.accentColor, fontWeight: 600, textDecoration: "none" }}
-                >
-                  Nieuwe reset-link aanvragen
-                </Link>
+          <form onSubmit={handleSubmit} style={{ width: "100%", display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "#333" }}>
+                Nieuw wachtwoord
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Minimaal 8 tekens"
+                required
+                minLength={8}
+                disabled={status === "loading" || !token}
+                style={{
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: 8,
+                  border: "1.5px solid #e2e8f0",
+                  fontSize: "0.95rem",
+                  outline: "none",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+              <label style={{ fontSize: "0.85rem", fontWeight: 600, color: "#333" }}>
+                Herhaal wachtwoord
+              </label>
+              <input
+                type="password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                placeholder="Herhaal wachtwoord"
+                required
+                minLength={8}
+                disabled={status === "loading" || !token}
+                style={{
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: 8,
+                  border: "1.5px solid #e2e8f0",
+                  fontSize: "0.95rem",
+                  outline: "none",
+                  width: "100%",
+                  boxSizing: "border-box",
+                }}
+              />
+            </div>
+
+            {error && (
+              <div
+                style={{
+                  background: "#fef2f2",
+                  border: "1px solid #fecaca",
+                  borderRadius: 8,
+                  padding: "0.65rem 0.85rem",
+                  color: "#b91c1c",
+                  fontSize: "0.88rem",
+                }}
+              >
+                {error}
               </div>
-            ) : (
-              <>
-                <label style={{ display: "block", fontWeight: 600, marginBottom: "0.4rem", fontSize: "0.9rem" }}>
-                  Nieuw wachtwoord
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoFocus
-                  placeholder="Minimaal 8 tekens"
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 1rem",
-                    border: "1.5px solid #ddd",
-                    borderRadius: 8,
-                    fontSize: "1rem",
-                    outline: "none",
-                    boxSizing: "border-box",
-                    marginBottom: "1rem",
-                  }}
-                />
-
-                <label style={{ display: "block", fontWeight: 600, marginBottom: "0.4rem", fontSize: "0.9rem" }}>
-                  Herhaal wachtwoord
-                </label>
-                <input
-                  type="password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  required
-                  placeholder="Zelfde wachtwoord"
-                  style={{
-                    width: "100%",
-                    padding: "0.75rem 1rem",
-                    border: "1.5px solid #ddd",
-                    borderRadius: 8,
-                    fontSize: "1rem",
-                    outline: "none",
-                    boxSizing: "border-box",
-                    marginBottom: "1rem",
-                  }}
-                />
-
-                {error && (
-                  <p style={{ color: "#e63946", fontSize: "0.85rem", marginBottom: "1rem" }}>{error}</p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={status === "loading"}
-                  style={{
-                    width: "100%",
-                    padding: "0.8rem",
-                    background: cmsConfig.accentColor,
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: 8,
-                    fontWeight: 700,
-                    fontSize: "1rem",
-                    cursor: status === "loading" ? "not-allowed" : "pointer",
-                    opacity: status === "loading" ? 0.7 : 1,
-                    marginBottom: "1rem",
-                  }}
-                >
-                  {status === "loading" ? "Opslaan…" : "Wachtwoord opslaan"}
-                </button>
-
-                <div style={{ textAlign: "center" }}>
-                  <Link
-                    href="/cms/login"
-                    style={{ color: "#666", fontSize: "0.85rem", textDecoration: "none" }}
-                  >
-                    ← Terug naar inloggen
-                  </Link>
-                </div>
-              </>
             )}
+
+            <button
+              type="submit"
+              disabled={status === "loading" || !token}
+              style={{
+                background: cmsConfig.accentColor ?? "#2563eb",
+                color: "#fff",
+                border: "none",
+                borderRadius: 10,
+                padding: "0.75rem",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                cursor: status === "loading" || !token ? "not-allowed" : "pointer",
+                opacity: status === "loading" || !token ? 0.7 : 1,
+                transition: "opacity 0.2s",
+              }}
+            >
+              {status === "loading" ? "Bezig…" : "Wachtwoord instellen"}
+            </button>
+
+            <a
+              href="/cms/login"
+              style={{
+                textAlign: "center",
+                fontSize: "0.85rem",
+                color: "#888",
+                textDecoration: "none",
+              }}
+            >
+              ← Terug naar inloggen
+            </a>
           </form>
         )}
       </div>
