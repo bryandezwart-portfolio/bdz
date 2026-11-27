@@ -1,10 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cmsConfig } from "@/lib/cms-config";
-import "./login.css";
 
 export default function CmsLoginPage() {
   const router = useRouter();
@@ -12,21 +11,6 @@ export default function CmsLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [loginBg, setLoginBg] = useState<string | null>(null);
-  const [loginBgType, setLoginBgType] = useState<"image" | "video">("image");
-
-  useEffect(() => {
-    fetch("/api/cms/save")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.loginBackground) {
-          setLoginBg(data.loginBackground);
-          const ext = data.loginBackground.split(".").pop()?.toLowerCase() ?? "";
-          setLoginBgType(["mp4", "webm", "mov"].includes(ext) ? "video" : "image");
-        }
-      })
-      .catch(() => {});
-  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,46 +34,79 @@ export default function CmsLoginPage() {
   }
 
   const accent = cmsConfig.accentColor;
-  const hasVideoBg = loginBg && loginBgType === "video";
-  const customImgBg = loginBg && loginBgType === "image" ? loginBg : null;
 
   return (
-    <div
-      className="cms-login-bg"
-      style={customImgBg ? { backgroundImage: `url('${customImgBg}')` } : {}}
-    >
-      {/* Donkere overlay */}
-      <div style={{
-        position: "absolute",
-        inset: 0,
-        background: "rgba(0,0,0,0.55)",
-        backdropFilter: "blur(2px)",
-      }} />
+    <>
+      <style>{`
+        html, body { margin: 0; padding: 0; }
+        .login-page {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-image: url('/login-bg.png');
+          background-size: cover;
+          background-position: center;
+          font-family: system-ui, sans-serif;
+          position: relative;
+          overflow: hidden;
+        }
+        .login-overlay {
+          position: absolute;
+          inset: 0;
+          background: rgba(0,0,0,0.58);
+        }
+        .login-card {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          max-width: 400px;
+          padding: 2.5rem;
+          background: rgba(6,6,10,0.88);
+          border-radius: 20px;
+          border: 1px solid ${accent}44;
+          box-shadow: 0 24px 64px rgba(0,0,0,0.8), inset 0 1px 0 #ffffff08, 0 0 40px ${accent}18;
+          backdrop-filter: blur(20px);
+          margin: 1rem;
+        }
+        .login-input {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          background: #0f0f16;
+          border: 1px solid #2a2a38;
+          border-radius: 10px;
+          color: #fff;
+          font-size: 0.9rem;
+          outline: none;
+          box-sizing: border-box;
+          transition: border-color 0.2s;
+          font-family: system-ui, sans-serif;
+        }
+        .login-input:focus {
+          border-color: ${accent};
+        }
+        .login-btn {
+          width: 100%;
+          padding: 0.78rem;
+          background: ${accent};
+          color: #fff;
+          border: none;
+          border-radius: 10px;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          box-shadow: 0 4px 24px ${accent}50;
+          letter-spacing: 0.02em;
+          font-family: system-ui, sans-serif;
+          transition: opacity 0.2s;
+        }
+        .login-btn:hover { opacity: 0.88; }
+        .login-btn:disabled { background: #333; box-shadow: none; cursor: not-allowed; }
+      `}</style>
 
-      {/* Video achtergrond */}
-      {hasVideoBg && (
-        <video
-          src={loginBg}
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0 }}
-        />
-      )}
-
-      {/* Login kaart */}
-      <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", justifyContent: "center", padding: "1rem" }}>
-        <div style={{
-          width: "100%",
-          maxWidth: 400,
-          padding: "2.5rem",
-          background: "rgba(6,6,10,0.90)",
-          borderRadius: 20,
-          border: `1px solid ${accent}35`,
-          boxShadow: `0 24px 64px rgba(0,0,0,0.8), 0 0 0 1px #ffffff06, inset 0 1px 0 #ffffff08, 0 0 40px ${accent}12`,
-          backdropFilter: "blur(24px)",
-        }}>
+      <div className="login-page">
+        <div className="login-overlay" />
+        <div className="login-card">
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <Image
               src={cmsConfig.logo.src}
@@ -106,26 +123,22 @@ export default function CmsLoginPage() {
 
           <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
             <input
+              className="login-input"
               type="text"
               placeholder="E-mailadres"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
               autoComplete="username"
-              style={{ width: "100%", padding: "0.75rem 1rem", background: "#0f0f16", border: "1px solid #2a2a38", borderRadius: 10, color: "#fff", fontSize: "0.9rem", outline: "none", boxSizing: "border-box" }}
-              onFocus={(e) => e.target.style.borderColor = accent}
-              onBlur={(e) => e.target.style.borderColor = "#2a2a38"}
             />
             <input
+              className="login-input"
               type="password"
               placeholder="Wachtwoord"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              style={{ width: "100%", padding: "0.75rem 1rem", background: "#0f0f16", border: "1px solid #2a2a38", borderRadius: 10, color: "#fff", fontSize: "0.9rem", outline: "none", boxSizing: "border-box" }}
-              onFocus={(e) => e.target.style.borderColor = accent}
-              onBlur={(e) => e.target.style.borderColor = "#2a2a38"}
             />
 
             {error && (
@@ -134,22 +147,7 @@ export default function CmsLoginPage() {
               </p>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              style={{
-                padding: "0.78rem",
-                background: loading ? "#333" : accent,
-                color: "#fff",
-                border: "none",
-                borderRadius: 10,
-                fontSize: "0.9rem",
-                fontWeight: 600,
-                cursor: loading ? "not-allowed" : "pointer",
-                boxShadow: loading ? "none" : `0 4px 24px ${accent}50`,
-                letterSpacing: "0.02em",
-              }}
-            >
+            <button className="login-btn" type="submit" disabled={loading}>
               {loading ? "Bezig..." : "Inloggen"}
             </button>
 
@@ -161,6 +159,6 @@ export default function CmsLoginPage() {
           </form>
         </div>
       </div>
-    </div>
+    </>
   );
 }
