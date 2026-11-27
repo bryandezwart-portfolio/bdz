@@ -1,190 +1,206 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { cmsConfig } from "@/lib/cms-config";
 
-export default function InstellingenPage() {
-  const [current, setCurrent] = useState<string | null>(null);
-  const [currentType, setCurrentType] = useState<"image" | "video">("image");
-  const [uploading, setUploading] = useState(false);
-  const [success, setSuccess] = useState("");
+type User = { username: string; role: string; email?: string };
+
+export default function GebruikersPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newRole, setNewRole] = useState<"client" | "master">("client");
+  const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
-  const fileRef = useRef<HTMLInputElement>(null);
-  const accent = cmsConfig.accentColor;
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    fetch("/api/cms/save")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.loginBackground) {
-          setCurrent(data.loginBackground);
-          const ext = data.loginBackground.split(".").pop()?.toLowerCase() ?? "";
-          setCurrentType(["mp4", "webm", "mov"].includes(ext) ? "video" : "image");
-        }
-      });
-  }, []);
+  async function load() {
+    setLoading(true);
+    const res = await fetch("/api/cms/users");
+    const data = await res.json();
+    setUsers(Array.isArray(data) ? data : []);
+    setLoading(false);
+  }
 
-  async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
+  useEffect(() => { load(); }, []);
+
+  async function createUser(e: React.FormEvent) {
+    e.preventDefault();
+    setCreating(true);
     setError("");
     setSuccess("");
-
-    const form = new FormData();
-    form.append("file", file);
-
-    const upload = await fetch("/api/cms/media", { method: "POST", body: form });
-    const uploadData = await upload.json();
-
-    if (!upload.ok) {
-      setError(uploadData.error || "Upload mislukt");
-      setUploading(false);
-      return;
-    }
-
-    const url = uploadData.url as string;
-    const save = await fetch("/api/cms/save", {
+    const res = await fetch("/api/cms/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ loginBackground: url }),
+      body: JSON.stringify({ username: newUsername, password: newPassword, email: newEmail, role: newRole }),
     });
-
-    if (save.ok) {
-      setCurrent(url);
-      const ext = url.split(".").pop()?.toLowerCase() ?? "";
-      setCurrentType(["mp4", "webm", "mov"].includes(ext) ? "video" : "image");
-      setSuccess("Achtergrond opgeslagen!");
+    const data = await res.json();
+    setCreating(false);
+    if (!res.ok) {
+      setError(data.error || "Aanmaken mislukt");
     } else {
-      setError("Opslaan mislukt");
+      setSuccess(`Gebruiker "${newUsername}" aangemaakt`);
+      setNewUsername("");
+      setNewPassword("");
+      setNewEmail("");
+      setNewRole("client");
+      load();
     }
-    setUploading(false);
   }
 
-  async function handleRemove() {
-    await fetch("/api/cms/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ loginBackground: null }),
-    });
-    setCurrent(null);
-    setSuccess("Achtergrond verwijderd");
+  async function deleteUser(username: string) {
+    if (!confirm(`Gebruiker "${username}" verwijderen?`)) return;
+    await fetch(`/api/cms/users?username=${encodeURIComponent(username)}`, { method: "DELETE" });
+    load();
   }
 
-  const cardStyle: React.CSSProperties = {
-    background: "#111",
-    borderRadius: 12,
-    border: "1px solid #222",
-    padding: "1.5rem",
-    marginBottom: "1.5rem",
+  const accent = cmsConfig.accentColor;
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "0.55rem 0.75rem",
+    border: "1px solid #333",
+    borderRadius: 6,
+    fontSize: "0.88rem",
+    boxSizing: "border-box",
+    outline: "none",
+    background: "#1a1a1a",
+    color: "#fff",
+  };
+  const labelStyle: React.CSSProperties = {
+    fontSize: "0.78rem",
+    fontWeight: 600,
+    color: "#999",
+    display: "block",
+    marginBottom: 4,
   };
 
   return (
     <div style={{ maxWidth: 640 }}>
-      <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "1.5rem", color: "#fff" }}>
-        Instellingen
-      </h1>
+      <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "1.5rem" }}>Gebruikers</h1>
 
-      {/* Login achtergrond */}
-      <div style={cardStyle}>
-        <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginTop: 0, marginBottom: "0.4rem" }}>
-          Loginpagina achtergrond
-        </h2>
-        <p style={{ fontSize: "0.82rem", color: "#666", marginTop: 0, marginBottom: "1.25rem" }}>
-          Upload een foto of video die achter het inlogformulier verschijnt.
-        </p>
+      {/* Gebruikerslijst */}
+      <div style={{ background: "#111", borderRadius: 10, border: "1px solid #222", marginBottom: "2rem", overflow: "hidden" }}>
+        {loading ? (
+          <p style={{ padding: "1rem", color: "#666" }}>Laden…</p>
+        ) : users.length === 0 ? (
+          <p style={{ padding: "1rem", color: "#666" }}>Geen extra gebruikers</p>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "#1a1a1a", borderBottom: "1px solid #222" }}>
+                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Gebruiker</th>
+                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>E-mail</th>
+                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Rol</th>
+                <th style={{ padding: "0.6rem 0.5rem" }} />
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.username} style={{ borderBottom: "1px solid #1e1e1e" }}>
+                  <td style={{ padding: "0.6rem 1rem", fontWeight: 600, fontSize: "0.9rem", color: "#fff" }}>{u.username}</td>
+                  <td style={{ padding: "0.6rem 1rem", fontSize: "0.85rem", color: "#888" }}>{u.email || "—"}</td>
+                  <td style={{ padding: "0.6rem 1rem" }}>
+                    <span style={{
+                      display: "inline-block",
+                      padding: "2px 10px",
+                      borderRadius: 20,
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      background: u.role === "master" ? "#fef3c7" : "#e0f2fe",
+                      color: u.role === "master" ? "#92400e" : "#0369a1",
+                    }}>
+                      {u.role}
+                    </span>
+                  </td>
+                  <td style={{ padding: "0.6rem 0.5rem", textAlign: "right" }}>
+                    <button
+                      onClick={() => deleteUser(u.username)}
+                      style={{ background: "none", border: "none", color: "#e63946", cursor: "pointer", fontSize: "0.8rem" }}
+                    >
+                      Verwijderen
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
-        {/* Huidige achtergrond preview */}
-        {current && (
-          <div style={{ marginBottom: "1.25rem", borderRadius: 10, overflow: "hidden", position: "relative", height: 180 }}>
-            {currentType === "video" ? (
-              <video
-                src={current}
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      {/* Nieuwe gebruiker */}
+      <div style={{ background: "#111", borderRadius: 10, border: "1px solid #222", padding: "1.25rem" }}>
+        <h2 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem", marginTop: 0, color: "#fff" }}>Nieuwe gebruiker</h2>
+        <form onSubmit={createUser} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <div>
+              <label style={labelStyle}>Gebruikersnaam</label>
+              <input
+                style={inputStyle}
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                required
+                placeholder="gebruikersnaam"
               />
-            ) : (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={current}
-                alt="Login achtergrond"
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            </div>
+            <div>
+              <label style={labelStyle}>Wachtwoord</label>
+              <input
+                type="password"
+                style={inputStyle}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                placeholder="••••••••"
               />
-            )}
-            <div style={{
-              position: "absolute", inset: 0,
-              background: "linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 60%)",
-              display: "flex", alignItems: "flex-end", padding: "0.75rem",
-            }}>
-              <span style={{ fontSize: "0.75rem", color: "#ccc" }}>
-                Huidige achtergrond ({currentType === "video" ? "video" : "afbeelding"})
-              </span>
             </div>
           </div>
-        )}
 
-        {/* Upload knop */}
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <div>
+              <label style={labelStyle}>E-mailadres (voor wachtwoord vergeten)</label>
+              <input
+                type="email"
+                style={inputStyle}
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="email@domein.nl"
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Rol</label>
+              <select
+                style={inputStyle}
+                value={newRole}
+                onChange={(e) => setNewRole(e.target.value as "client" | "master")}
+              >
+                <option value="client">Client</option>
+                <option value="master">Master</option>
+              </select>
+            </div>
+          </div>
+
+          {error && <p style={{ color: "#e63946", fontSize: "0.82rem", margin: 0 }}>{error}</p>}
+          {success && <p style={{ color: "#16a34a", fontSize: "0.82rem", margin: 0 }}>{success}</p>}
+
           <button
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
+            type="submit"
+            disabled={creating}
             style={{
-              padding: "0.6rem 1.2rem",
-              background: uploading ? "#333" : accent,
+              alignSelf: "flex-start",
+              padding: "0.6rem 1.4rem",
+              background: creating ? "#ccc" : accent,
               color: "#fff",
               border: "none",
-              borderRadius: 8,
-              fontWeight: 600,
+              borderRadius: 7,
+              fontWeight: 700,
               fontSize: "0.88rem",
-              cursor: uploading ? "not-allowed" : "pointer",
+              cursor: creating ? "not-allowed" : "pointer",
             }}
           >
-            {uploading ? "Uploaden…" : current ? "Vervangen" : "Achtergrond uploaden"}
+            {creating ? "Aanmaken…" : "Aanmaken"}
           </button>
-
-          {current && (
-            <button
-              onClick={handleRemove}
-              style={{
-                padding: "0.6rem 1.2rem",
-                background: "transparent",
-                color: "#e63946",
-                border: "1px solid #e63946",
-                borderRadius: 8,
-                fontWeight: 600,
-                fontSize: "0.88rem",
-                cursor: "pointer",
-              }}
-            >
-              Verwijderen
-            </button>
-          )}
-
-          <span style={{ fontSize: "0.75rem", color: "#555" }}>
-            JPG, PNG, MP4, WebM — max 50 MB
-          </span>
-        </div>
-
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/jpeg,image/png,image/webp,video/mp4,video/webm"
-          style={{ display: "none" }}
-          onChange={handleUpload}
-        />
-
-        {success && (
-          <p style={{ color: "#16a34a", fontSize: "0.82rem", marginTop: "0.75rem", marginBottom: 0 }}>
-            ✓ {success}
-          </p>
-        )}
-        {error && (
-          <p style={{ color: "#e63946", fontSize: "0.82rem", marginTop: "0.75rem", marginBottom: 0 }}>
-            {error}
-          </p>
-        )}
+        </form>
       </div>
     </div>
   );

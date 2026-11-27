@@ -1,207 +1,88 @@
-"use client";
-import { useEffect, useState } from "react";
-import { cmsConfig } from "@/lib/cms-config";
 
-type User = { username: string; role: string; email?: string };
 
-export default function GebruikersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newUsername, setNewUsername] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newRole, setNewRole] = useState<"client" | "master">("client");
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+import { vereistInloggen } from "@/lib/auth";
+import { supabaseAdmin } from "@/lib/supabase";
+import BeheerNav from "@/components/BeheerNav";
+import Link from "next/link";
 
-  async function load() {
-    setLoading(true);
-    const res = await fetch("/api/cms/users");
-    const data = await res.json();
-    setUsers(Array.isArray(data) ? data : []);
-    setLoading(false);
-  }
+export default async function BeheerDashboard() {
+  await vereistInloggen();
 
-  useEffect(() => { load(); }, []);
+  // Statistieken ophalen
+  const [
+    { count: portfolioAantal },
+    { count: berichtenAantal },
+    { count: berichtenOngelezen },
+  ] = await Promise.all([
+    supabaseAdmin.from("portfolio").select("*", { count: "exact", head: true }),
+    supabaseAdmin.from("contactberichten").select("*", { count: "exact", head: true }),
+    supabaseAdmin.from("contactberichten").select("*", { count: "exact", head: true }).eq("gelezen", false),
+  ]);
 
-  async function createUser(e: React.FormEvent) {
-    e.preventDefault();
-    setCreating(true);
-    setError("");
-    setSuccess("");
-    const res = await fetch("/api/cms/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: newUsername, password: newPassword, email: newEmail, role: newRole }),
-    });
-    const data = await res.json();
-    setCreating(false);
-    if (!res.ok) {
-      setError(data.error || "Aanmaken mislukt");
-    } else {
-      setSuccess(`Gebruiker "${newUsername}" aangemaakt`);
-      setNewUsername("");
-      setNewPassword("");
-      setNewEmail("");
-      setNewRole("client");
-      load();
-    }
-  }
-
-  async function deleteUser(username: string) {
-    if (!confirm(`Gebruiker "${username}" verwijderen?`)) return;
-    await fetch(`/api/cms/users?username=${encodeURIComponent(username)}`, { method: "DELETE" });
-    load();
-  }
-
-  const accent = cmsConfig.accentColor;
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "0.55rem 0.75rem",
-    border: "1px solid #333",
-    borderRadius: 6,
-    fontSize: "0.88rem",
-    boxSizing: "border-box",
-    outline: "none",
-    background: "#1a1a1a",
-    color: "#fff",
-  };
-  const labelStyle: React.CSSProperties = {
-    fontSize: "0.78rem",
-    fontWeight: 600,
-    color: "#999",
-    display: "block",
-    marginBottom: 4,
-  };
+  const kaarten = [
+    { href: "/beheer/pakketten",   label: "Pakketten",       icon: "💶", tel: null,            info: "Prijzen aanpassen" },
+    { href: "/beheer/teksten",     label: "Teksten",         icon: "✏️", tel: null,            info: "Alle paginateksten" },
+    { href: "/beheer/media",       label: "Media",           icon: "🖼️", tel: null,            info: "Foto's & video's" },
+    { href: "/beheer/portfolio",   label: "Portfolio",       icon: "🎨", tel: portfolioAantal, info: "projecten" },
+    { href: "/beheer/bedrijf",     label: "Bedrijfsgegevens",icon: "🏢", tel: null,            info: "Contactinfo" },
+    { href: "/beheer/seo",         label: "SEO",             icon: "🔍", tel: null,            info: "Per pagina" },
+    { href: "/beheer/recensies",   label: "Recensies",       icon: "⭐", tel: null,            info: "Klantquotes" },
+    { href: "/beheer/berichten",   label: "Berichten",       icon: "✉️", tel: berichtenAantal, info: `${berichtenOngelezen ?? 0} ongelezen`, urgent: (berichtenOngelezen ?? 0) > 0 },
+    { href: "/beheer/overeenkomsten", label: "Overeenkomsten", icon: "🤝", tel: null,            info: "Whitelabel teksten" },
+    { href: "/beheer/privacy",     label: "Privacybeleid",   icon: "🔒", tel: null,            info: "Tekst bewerken" },
+    { href: "/beheer/voorwaarden", label: "Voorwaarden",     icon: "📄", tel: null,            info: "Tekst bewerken" },
+  ];
 
   return (
-    <div style={{ maxWidth: 640 }}>
-      <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "1.5rem" }}>Gebruikers</h1>
+    <div className="flex min-h-screen">
+      <BeheerNav />
 
-      {/* Gebruikerslijst */}
-      <div style={{ background: "#111", borderRadius: 10, border: "1px solid #222", marginBottom: "2rem", overflow: "hidden" }}>
-        {loading ? (
-          <p style={{ padding: "1rem", color: "#666" }}>Laden…</p>
-        ) : users.length === 0 ? (
-          <p style={{ padding: "1rem", color: "#666" }}>Geen extra gebruikers</p>
-        ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "#1a1a1a", borderBottom: "1px solid #222" }}>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Gebruiker</th>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>E-mail</th>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Rol</th>
-                <th style={{ padding: "0.6rem 0.5rem" }} />
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.username} style={{ borderBottom: "1px solid #1e1e1e" }}>
-                  <td style={{ padding: "0.6rem 1rem", fontWeight: 600, fontSize: "0.9rem", color: "#fff" }}>{u.username}</td>
-                  <td style={{ padding: "0.6rem 1rem", fontSize: "0.85rem", color: "#888" }}>{u.email || "—"}</td>
-                  <td style={{ padding: "0.6rem 1rem" }}>
-                    <span style={{
-                      display: "inline-block",
-                      padding: "2px 10px",
-                      borderRadius: 20,
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      background: u.role === "master" ? "#fef3c7" : "#e0f2fe",
-                      color: u.role === "master" ? "#92400e" : "#0369a1",
-                    }}>
-                      {u.role}
-                    </span>
-                  </td>
-                  <td style={{ padding: "0.6rem 0.5rem", textAlign: "right" }}>
-                    <button
-                      onClick={() => deleteUser(u.username)}
-                      style={{ background: "none", border: "none", color: "#e63946", cursor: "pointer", fontSize: "0.8rem" }}
-                    >
-                      Verwijderen
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-
-      {/* Nieuwe gebruiker */}
-      <div style={{ background: "#111", borderRadius: 10, border: "1px solid #222", padding: "1.25rem" }}>
-        <h2 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem", marginTop: 0, color: "#fff" }}>Nieuwe gebruiker</h2>
-        <form onSubmit={createUser} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-            <div>
-              <label style={labelStyle}>Gebruikersnaam</label>
-              <input
-                style={inputStyle}
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                required
-                placeholder="gebruikersnaam"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Wachtwoord</label>
-              <input
-                type="password"
-                style={inputStyle}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-              />
-            </div>
+      <main className="flex-1 p-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+            <p className="text-white/50 mt-1">Welkom terug, Bryan. Wat wil je aanpassen?</p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-            <div>
-              <label style={labelStyle}>E-mailadres (voor wachtwoord vergeten)</label>
-              <input
-                type="email"
-                style={inputStyle}
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="email@domein.nl"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Rol</label>
-              <select
-                style={inputStyle}
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value as "client" | "master")}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {kaarten.map((k) => (
+              <Link
+                key={k.href}
+                href={k.href}
+                className="group bg-white/5 hover:bg-white/8 border border-white/8 hover:border-[#3a6bb3]/40 rounded-2xl p-5 transition-all"
               >
-                <option value="client">Client</option>
-                <option value="master">Master</option>
-              </select>
-            </div>
+                <div className="text-2xl mb-3">{k.icon}</div>
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="font-semibold text-sm text-white group-hover:text-[#5b8fe0] transition-colors">{k.label}</div>
+                    <div className={`text-xs mt-0.5 ${k.urgent ? "text-orange-400" : "text-white/40"}`}>{k.info}</div>
+                  </div>
+                  {k.tel !== null && (
+                    <div className={`text-lg font-bold ${k.urgent ? "text-orange-400" : "text-[#5b8fe0]"}`}>
+                      {k.tel}
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
           </div>
 
-          {error && <p style={{ color: "#e63946", fontSize: "0.82rem", margin: 0 }}>{error}</p>}
-          {success && <p style={{ color: "#16a34a", fontSize: "0.82rem", margin: 0 }}>{success}</p>}
-
-          <button
-            type="submit"
-            disabled={creating}
-            style={{
-              alignSelf: "flex-start",
-              padding: "0.6rem 1.4rem",
-              background: creating ? "#ccc" : accent,
-              color: "#fff",
-              border: "none",
-              borderRadius: 7,
-              fontWeight: 700,
-              fontSize: "0.88rem",
-              cursor: creating ? "not-allowed" : "pointer",
-            }}
-          >
-            {creating ? "Aanmaken…" : "Aanmaken"}
-          </button>
-        </form>
-      </div>
+          {/* Snelle link naar site */}
+          <div className="mt-8 bg-[#3a6bb3]/10 border border-[#3a6bb3]/20 rounded-2xl p-5 flex items-center justify-between">
+            <div>
+              <div className="font-semibold text-sm text-white">Jouw website</div>
+              <div className="text-xs text-white/50 mt-0.5">brandingtotaal.com</div>
+            </div>
+            <Link
+              href="/"
+              target="_blank"
+              className="bg-[#3a6bb3] hover:bg-[#2f5fae] text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors"
+            >
+              Bekijk live →
+            </Link>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }
