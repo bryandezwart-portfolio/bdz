@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,11 +13,6 @@ export default function CmsLoginPage() {
   const [loading, setLoading] = useState(false);
   const [loginBg, setLoginBg] = useState<string | null>(null);
   const [loginBgType, setLoginBgType] = useState<"image" | "video">("image");
-  const [orb1Y, setOrb1Y] = useState(0);
-  const [orb2Y, setOrb2Y] = useState(0);
-  const [bgPos, setBgPos] = useState(0);
-  const rafRef = useRef<number>(0);
-  const startRef = useRef<number>(0);
 
   useEffect(() => {
     fetch("/api/cms/save")
@@ -30,20 +25,6 @@ export default function CmsLoginPage() {
         }
       })
       .catch(() => {});
-  }, []);
-
-  // Animate orbs
-  useEffect(() => {
-    const animate = (ts: number) => {
-      if (!startRef.current) startRef.current = ts;
-      const t = (ts - startRef.current) / 1000;
-      setOrb1Y(Math.sin(t * 0.5) * 24);
-      setOrb2Y(Math.sin(t * 0.4 + 2) * 20);
-      setBgPos((t * 2) % 100);
-      rafRef.current = requestAnimationFrame(animate);
-    };
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -68,8 +49,9 @@ export default function CmsLoginPage() {
   }
 
   const accent = cmsConfig.accentColor;
-  const hasCustomBg = loginBg && loginBgType === "image";
   const hasVideoBg = loginBg && loginBgType === "video";
+  // Gebruik vaste fallback achtergrond als er geen custom bg is
+  const bgImage = loginBg && loginBgType === "image" ? loginBg : "/login-bg.jpg";
 
   return (
     <div style={{
@@ -77,15 +59,21 @@ export default function CmsLoginPage() {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      background: hasCustomBg
-        ? `url('${loginBg}') center/cover`
-        : `radial-gradient(ellipse at ${30 + bgPos * 0.4}% ${40 + orb1Y * 0.3}%, ${accent}55 0%, transparent 55%),
-           radial-gradient(ellipse at ${70 - bgPos * 0.3}% ${60 + orb2Y * 0.3}%, ${accent}33 0%, transparent 55%),
-           linear-gradient(135deg, #0a0608 0%, #150a0a 50%, #0a0608 100%)`,
+      backgroundImage: `url('${bgImage}')`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
       fontFamily: "system-ui, sans-serif",
       position: "relative",
       overflow: "hidden",
     }}>
+      {/* Donkere overlay zodat het formulier leesbaar blijft */}
+      <div style={{
+        position: "absolute",
+        inset: 0,
+        background: "rgba(0,0,0,0.55)",
+        backdropFilter: "blur(2px)",
+      }} />
+
       {/* Video achtergrond */}
       {hasVideoBg && (
         <video
@@ -96,53 +84,6 @@ export default function CmsLoginPage() {
           playsInline
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0 }}
         />
-      )}
-
-      {/* Floating orbs */}
-      {!loginBg && (
-        <>
-          <div style={{
-            position: "absolute",
-            width: 500,
-            height: 500,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${accent}60 0%, ${accent}22 40%, transparent 70%)`,
-            top: -100 + orb1Y,
-            left: -100,
-            pointerEvents: "none",
-            transition: "top 0.05s linear",
-          }} />
-          <div style={{
-            position: "absolute",
-            width: 400,
-            height: 400,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, ${accent}50 0%, ${accent}18 40%, transparent 70%)`,
-            bottom: -80 - orb2Y,
-            right: -80,
-            pointerEvents: "none",
-            transition: "bottom 0.05s linear",
-          }} />
-          <div style={{
-            position: "absolute",
-            width: 300,
-            height: 300,
-            borderRadius: "50%",
-            background: `radial-gradient(circle, #ffffff06 0%, transparent 70%)`,
-            top: "50%",
-            left: "65%",
-            transform: `translateY(${orb2Y * 0.5}px)`,
-            pointerEvents: "none",
-          }} />
-          {/* Grid texture */}
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `linear-gradient(${accent}09 1px, transparent 1px), linear-gradient(90deg, ${accent}09 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
-            pointerEvents: "none",
-          }} />
-        </>
       )}
 
       {/* Login kaart */}
