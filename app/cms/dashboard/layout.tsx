@@ -1,8 +1,8 @@
+import Image from "next/image";
 import { getSession } from "@/lib/cms-auth";
 import { redirect } from "next/navigation";
 import { cmsConfig } from "@/lib/cms-config";
-import Image from "next/image";
-import DashboardNav from "./DashboardNav";
+import BackButton from "./BackButton";
 import fs from "fs";
 import path from "path";
 
@@ -18,73 +18,36 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session) redirect("/cms/login");
 
   const content = getSiteContent();
-  const accent = content.accentColor ?? cmsConfig.accentColor;
   const logoSrc = content.logoUrl ?? cmsConfig.logo.src;
   const siteName = content.siteName ?? cmsConfig.siteName;
 
-  const role: "master" | "client" = (session as any).role === "master" ? "master" : "client";
-
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "system-ui, sans-serif", color: "#fff" }}>
-      {/* Topbar */}
-      <header style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        padding: "0 2rem",
-        height: 60,
-        background: "#111",
-        borderBottom: "1px solid #222",
-        position: "sticky",
-        top: 0,
-        zIndex: 10,
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <Image
-            src={logoSrc}
-            alt={cmsConfig.logo.alt}
-            width={120}
-            height={36}
-            style={{ objectFit: "contain" }}
-          />
-          <span style={{ color: "#444", fontSize: "0.75rem" }}>CMS · {siteName}</span>
+    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "system-ui, sans-serif" }}>
+      {/* Header */}
+      <header style={{ borderBottom: "1px solid #1a1a1a", padding: "0 2rem", height: 96, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "#0a0a0a", zIndex: 50 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
+          <a href="/cms/dashboard" style={{ display: "flex", alignItems: "center" }}>
+            <Image src={logoSrc} alt={cmsConfig.logo.alt} width={280} height={80} style={{ objectFit: "contain" }} />
+          </a>
         </div>
-        <form action="/api/cms/logout" method="POST">
-          <button
-            type="submit"
-            style={{
-              background: "none",
-              border: "1px solid #333",
-              color: "#888",
-              borderRadius: 6,
-              padding: "0.3rem 0.8rem",
-              fontSize: "0.78rem",
-              cursor: "pointer",
-            }}
-          >
-            Uitloggen
-          </button>
-        </form>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          <span style={{ fontSize: "0.78rem", color: "#444" }}>CMS · {siteName}</span>
+          <a href={cmsConfig.siteUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.78rem", color: "#555", textDecoration: "none" }}>
+            Bekijk live →
+          </a>
+          <form action="/api/cms/logout" method="POST">
+            <button type="submit" style={{ fontSize: "0.78rem", color: "#555", background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+              Uitloggen
+            </button>
+          </form>
+        </div>
       </header>
 
-      <div style={{ display: "flex" }}>
-        {/* Sidebar */}
-        <aside style={{
-          width: 200,
-          minHeight: "calc(100vh - 60px)",
-          background: "#111",
-          borderRight: "1px solid #222",
-          padding: "1.5rem 0",
-          flexShrink: 0,
-        }}>
-          <DashboardNav role={role} tabs={cmsConfig.tabs} accent={accent} />
-        </aside>
-
-        {/* Content */}
-        <main style={{ flex: 1, padding: "2rem" }}>
-          {children}
-        </main>
-      </div>
+      {/* Content */}
+      <main style={{ padding: "2rem", maxWidth: 1100, margin: "0 auto" }}>
+        <BackButton />
+        {children}
+      </main>
     </div>
   );
 }
