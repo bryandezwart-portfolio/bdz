@@ -1,188 +1,151 @@
 "use client";
 import { useEffect, useState } from "react";
-import { cmsConfig } from "@/lib/cms-config";
+import { useCmsAccent } from "@/lib/useCmsAccent";
 
-type ReleaseType = "single" | "ep" | "album" | "show";
-
-interface Release {
+type Release = {
   id: string;
-  type: ReleaseType;
   title: string;
-  date: string;
-  link?: string;
-  cover?: string;
-  venue?: string;
-}
-
-const EMPTY = (): Release => ({
-  id: crypto.randomUUID(),
-  type: "single",
-  title: "",
-  date: new Date().toISOString().split("T")[0],
-  link: "",
-  cover: "",
-  venue: "",
-});
-
-const TYPE_COLOR: Record<ReleaseType, string> = {
-  single: "#9ca3af",
-  ep: "#a78bfa",
-  album: "#60a5fa",
-  show: "#34d399",
+  artist: string;
+  releaseDate: string;
+  coverUrl?: string;
+  spotifyUrl?: string;
+  appleMusicUrl?: string;
+  genre?: string;
+  visible: boolean;
 };
 
-export default function ReleasesPage() {
-  const [items, setItems] = useState<Release[]>([]);
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [form, setForm] = useState<Release>(EMPTY());
+function newRelease(): Release {
+  return { id: Date.now().toString(), title: "", artist: "", releaseDate: new Date().toISOString().split("T")[0], visible: true };
+}
 
-  const accent = cmsConfig.accentColor;
+export default function ReleasesPage() {
+  const [releases, setReleases] = useState<Release[]>([]);
+  const [saving, setSaving]     = useState(false);
+  const [saved, setSaved]       = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const accent = useCmsAccent();
 
   useEffect(() => {
-    fetch("/api/cms/releases").then((r) => r.json()).then((d) => {
-      if (Array.isArray(d)) setItems(d);
+    fetch("/api/cms/save").then((r) => r.json()).then((d) => {
+      setReleases(Array.isArray(d?.releases) ? d.releases : []);
     });
   }, []);
 
-  async function save(list: Release[]) {
+  function update(id: string, key: keyof Release, value: string | boolean) {
+    setReleases((prev) => prev.map((r) => r.id === id ? { ...r, [key]: value } : r));
+    setSaved(false);
+  }
+
+  function addRelease() {
+    const r = newRelease();
+    setReleases((prev) => [r, ...prev]);
+    setExpanded(r.id);
+    setSaved(false);
+  }
+
+  function removeRelease(id: string) {
+    if (!confirm("Release verwijderen?")) return;
+    setReleases((prev) => prev.filter((r) => r.id !== id));
+    setSaved(false);
+  }
+
+  async function handleSave() {
     setSaving(true);
-    await fetch("/api/cms/releases", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(list),
-    });
+    const existing = await fetch("/api/cms/save").then((r) => r.json()).then((d) => d ?? {});
+    await fetch("/api/cms/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...existing, releases }) });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }
 
-  function addItem() {
-    if (!form.title || !form.date) return;
-    const updated = [...items, { ...form, id: crypto.randomUUID() }];
-    setItems(updated);
-    save(updated);
-    setForm(EMPTY());
-    setAdding(false);
-  }
-
-  function removeItem(id: string) {
-    const updated = items.filter((i) => i.id !== id);
-    setItems(updated);
-    save(updated);
-  }
-
-  const sorted = [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-  const now = new Date();
-
-  const inp = {
-    padding: "0.55rem 0.75rem",
-    background: "#1a1a1a",
-    border: "1px solid #2a2a2a",
-    borderRadius: 8,
-    color: "#fff",
-    fontSize: "0.83rem",
-    width: "100%",
-    boxSizing: "border-box" as const,
-    fontFamily: "inherit",
-  };
+  const inputStyle = { width: "100%", padding: "0.55rem 0.8rem", background: "#0a0a0a", border: "1px solid #2a2a2a", borderRadius: 8, color: "#fff", fontSize: "0.82rem", boxSizing: "border-box" as const };
 
   return (
-    <div style={{ maxWidth: 740, margin: "0 auto" }}>
+    <div style={{ maxWidth: 800 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h1 style={{ fontSize: "1.2rem", fontWeight: 700 }}>Releases & Shows</h1>
+        <h1 style={{ fontSize: "1.2rem", fontWeight: 700 }}>Releases</h1>
         <div style={{ display: "flex", gap: "0.75rem" }}>
-          {saved && <span style={{ color: "#6f6", fontSize: "0.8rem", alignSelf: "center" }}>✓ Opgeslagen</span>}
-          <button
-            onClick={() => { setAdding((v) => !v); setForm(EMPTY()); }}
-            style={{ padding: "0.5rem 1.1rem", background: adding ? "#2a2a2a" : accent, color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: "0.82rem", cursor: "pointer" }}
-          >
-            {adding ? "Annuleren" : "+ Toevoegen"}
+          <button onClick={addRelease} style={{ padding: "0.45rem 1rem", background: "transparent", color: accent, border: `1px solid ${accent}`, borderRadius: 8, fontWeight: 600, fontSize: "0.78rem", cursor: "pointer" }}>+ Toevoegen</button>
+          <button onClick={handleSave} disabled={saving} style={{ padding: "0.55rem 1.4rem", background: saved ? "#1a7a1a" : accent, color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: "0.85rem", cursor: saving ? "not-allowed" : "pointer" }}>
+            {saving ? "Opslaan..." : saved ? "✓ Opgeslagen" : "Opslaan"}
           </button>
         </div>
       </div>
 
-      {/* Formulier */}
-      {adding && (
-        <div style={{ background: "#111", border: "1px solid #2a2a2a", borderRadius: 12, padding: "1.25rem", marginBottom: "1.5rem", display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-            <div>
-              <label style={{ color: "#aaa", fontSize: "0.72rem", display: "block", marginBottom: 4 }}>TYPE</label>
-              <select value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as ReleaseType })} style={{ ...inp }}>
-                <option value="single">Single</option>
-                <option value="ep">EP</option>
-                <option value="album">Album</option>
-                <option value="show">Show / Optreden</option>
-              </select>
-            </div>
-            <div>
-              <label style={{ color: "#aaa", fontSize: "0.72rem", display: "block", marginBottom: 4 }}>DATUM</label>
-              <input type="date" value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} style={inp} />
-            </div>
-          </div>
-          <div>
-            <label style={{ color: "#aaa", fontSize: "0.72rem", display: "block", marginBottom: 4 }}>TITEL</label>
-            <input type="text" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder={form.type === "show" ? "Naam van het evenement" : "Naam van de release"} style={inp} />
-          </div>
-          {form.type === "show" && (
-            <div>
-              <label style={{ color: "#aaa", fontSize: "0.72rem", display: "block", marginBottom: 4 }}>LOCATIE / VENUE</label>
-              <input type="text" value={form.venue} onChange={(e) => setForm({ ...form, venue: e.target.value })} placeholder="Club X, Amsterdam" style={inp} />
-            </div>
-          )}
-          <div>
-            <label style={{ color: "#aaa", fontSize: "0.72rem", display: "block", marginBottom: 4 }}>LINK <span style={{ color: "#555" }}>(Spotify, ticketshop, etc.)</span></label>
-            <input type="text" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })} placeholder="https://open.spotify.com/..." style={inp} />
-          </div>
-          <div>
-            <label style={{ color: "#aaa", fontSize: "0.72rem", display: "block", marginBottom: 4 }}>COVER URL <span style={{ color: "#555" }}>(optioneel)</span></label>
-            <input type="text" value={form.cover} onChange={(e) => setForm({ ...form, cover: e.target.value })} placeholder="https://... of /cover.jpg" style={inp} />
-          </div>
-          <button
-            onClick={addItem}
-            disabled={!form.title || !form.date}
-            style={{ alignSelf: "flex-start", padding: "0.55rem 1.3rem", background: !form.title || !form.date ? "#222" : accent, color: !form.title || !form.date ? "#555" : "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: "0.82rem", cursor: !form.title || !form.date ? "not-allowed" : "pointer" }}
-          >
-            Opslaan
-          </button>
+      {releases.length === 0 && (
+        <div style={{ textAlign: "center", padding: "3rem", color: "#555", border: "1px dashed #222", borderRadius: 12 }}>
+          <div style={{ fontSize: "2rem", marginBottom: "0.75rem" }}>🎵</div>
+          <div style={{ marginBottom: "0.5rem" }}>Geen releases gevonden</div>
+          <button onClick={addRelease} style={{ padding: "0.45rem 1rem", background: accent, color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: "0.78rem", cursor: "pointer" }}>Eerste release toevoegen</button>
         </div>
       )}
 
-      {/* Lijst */}
-      {sorted.length === 0 ? (
-        <div style={{ color: "#444", fontSize: "0.85rem", textAlign: "center", padding: "3rem 0" }}>
-          Nog geen releases of shows. Klik op "+ Toevoegen" om te beginnen.
-        </div>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-          {sorted.map((item) => {
-            const isPast = new Date(item.date) < now;
-            const dateStr = new Date(item.date).toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
-            return (
-              <div key={item.id} style={{ display: "flex", alignItems: "center", gap: "1rem", background: "#111", border: "1px solid #1e1e1e", borderRadius: 10, padding: "0.85rem 1rem", opacity: isPast ? 0.6 : 1 }}>
-                {item.cover ? (
-                  <img src={item.cover} alt="" style={{ width: 44, height: 44, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />
-                ) : (
-                  <div style={{ width: 44, height: 44, borderRadius: 6, background: "#1a1a1a", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.2rem" }}>
-                    {item.type === "show" ? "🎤" : "🎵"}
-                  </div>
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 600, fontSize: "0.88rem", marginBottom: 2 }}>{item.title}{item.venue ? ` @ ${item.venue}` : ""}</div>
-                  <div style={{ color: "#555", fontSize: "0.73rem" }}>{dateStr}</div>
-                </div>
-                <span style={{ border: `1px solid ${TYPE_COLOR[item.type]}`, color: TYPE_COLOR[item.type], borderRadius: 20, padding: "2px 9px", fontSize: "0.65rem", fontWeight: 600, flexShrink: 0 }}>
-                  {item.type.toUpperCase()}
-                </span>
-                <button onClick={() => removeItem(item.id)} style={{ background: "none", border: "none", color: "#444", cursor: "pointer", fontSize: "1rem", padding: "0.2rem 0.4rem", flexShrink: 0 }} title="Verwijderen">
-                  ✕
-                </button>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        {releases.map((r) => (
+          <div key={r.id} style={{ background: "#111", border: `1px solid ${expanded === r.id ? accent + "44" : "#1e1e1e"}`, borderRadius: 12, overflow: "hidden" }}>
+            <div onClick={() => setExpanded(expanded === r.id ? null : r.id)} style={{ padding: "1rem 1.25rem", display: "flex", alignItems: "center", gap: "1rem", cursor: "pointer" }}>
+              {r.coverUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={r.coverUrl} alt="" style={{ width: 44, height: 44, borderRadius: 6, objectFit: "cover", flexShrink: 0 }} />
+              ) : (
+                <div style={{ width: 44, height: 44, background: "#1a1a1a", borderRadius: 6, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.4rem" }}>🎵</div>
+              )}
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 600, fontSize: "0.9rem" }}>{r.title || <span style={{ color: "#555" }}>Naamloos</span>}</div>
+                <div style={{ color: "#666", fontSize: "0.75rem" }}>{r.artist} {r.releaseDate && `· ${r.releaseDate}`}</div>
               </div>
-            );
-          })}
-        </div>
-      )}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <span style={{ fontSize: "0.68rem", padding: "2px 8px", borderRadius: 20, background: r.visible ? "#1a3a1a" : "#2a2a2a", color: r.visible ? "#4ade80" : "#555" }}>{r.visible ? "Zichtbaar" : "Verborgen"}</span>
+                <span style={{ color: "#555", fontSize: "0.85rem" }}>{expanded === r.id ? "▲" : "▼"}</span>
+              </div>
+            </div>
+
+            {expanded === r.id && (
+              <div style={{ padding: "0 1.25rem 1.25rem", display: "flex", flexDirection: "column", gap: "0.85rem", borderTop: "1px solid #1a1a1a" }}>
+                <div style={{ paddingTop: "1rem", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
+                  <div>
+                    <label style={{ color: "#777", fontSize: "0.68rem", display: "block", marginBottom: 4 }}>TITEL</label>
+                    <input type="text" value={r.title} onChange={(e) => update(r.id, "title", e.target.value)} placeholder="Titel" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#777", fontSize: "0.68rem", display: "block", marginBottom: 4 }}>ARTIEST</label>
+                    <input type="text" value={r.artist} onChange={(e) => update(r.id, "artist", e.target.value)} placeholder="Artiestennaam" style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#777", fontSize: "0.68rem", display: "block", marginBottom: 4 }}>RELEASEDATUM</label>
+                    <input type="date" value={r.releaseDate} onChange={(e) => update(r.id, "releaseDate", e.target.value)} style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#777", fontSize: "0.68rem", display: "block", marginBottom: 4 }}>GENRE</label>
+                    <input type="text" value={r.genre ?? ""} onChange={(e) => update(r.id, "genre", e.target.value)} placeholder="House, Techno, Nederpop..." style={inputStyle} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ color: "#777", fontSize: "0.68rem", display: "block", marginBottom: 4 }}>HOES URL</label>
+                  <input type="url" value={r.coverUrl ?? ""} onChange={(e) => update(r.id, "coverUrl", e.target.value)} placeholder="https://..." style={inputStyle} />
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
+                  <div>
+                    <label style={{ color: "#777", fontSize: "0.68rem", display: "block", marginBottom: 4 }}>SPOTIFY LINK</label>
+                    <input type="url" value={r.spotifyUrl ?? ""} onChange={(e) => update(r.id, "spotifyUrl", e.target.value)} placeholder="https://open.spotify.com/..." style={inputStyle} />
+                  </div>
+                  <div>
+                    <label style={{ color: "#777", fontSize: "0.68rem", display: "block", marginBottom: 4 }}>APPLE MUSIC LINK</label>
+                    <input type="url" value={r.appleMusicUrl ?? ""} onChange={(e) => update(r.id, "appleMusicUrl", e.target.value)} placeholder="https://music.apple.com/..." style={inputStyle} />
+                  </div>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "0.5rem", borderTop: "1px solid #1a1a1a" }}>
+                  <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "0.78rem", color: "#aaa" }}>
+                    <input type="checkbox" checked={r.visible} onChange={(e) => update(r.id, "visible", e.target.checked)} style={{ accentColor: accent }} />
+                    Zichtbaar op de website
+                  </label>
+                  <button onClick={() => removeRelease(r.id)} style={{ background: "none", border: "1px solid #3a1a1a", color: "#c44", borderRadius: 8, padding: "0.35rem 0.85rem", fontSize: "0.75rem", cursor: "pointer" }}>Verwijderen</button>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

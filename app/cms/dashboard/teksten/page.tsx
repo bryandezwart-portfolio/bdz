@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { cmsConfig } from "@/lib/cms-config";
+import { useCmsAccent } from "@/lib/useCmsAccent";
 
 const RichTextEditor = dynamic(() => import("@/components/RichTextEditor"), { ssr: false });
 
@@ -79,6 +80,7 @@ export default function TekstenPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved]   = useState(false);
   const [showPreview, setShowPreview] = useState(true);
+  const accent = useCmsAccent();
 
   useEffect(() => {
     fetch("/api/cms/save").then((r) => r.json()).then((d) => setData(d ?? {}));
@@ -96,8 +98,6 @@ export default function TekstenPage() {
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }
-
-  const accent = cmsConfig.accentColor;
 
   if (FIELDS.length === 0) {
     return (
