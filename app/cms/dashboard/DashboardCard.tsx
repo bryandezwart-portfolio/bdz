@@ -17,7 +17,6 @@ export function DashboardCard({ title, desc, href, accent }: { title: string; de
       href={href}
       style={{
         display: "block",
-        width: 220,
         padding: "1.5rem",
         background: "#111",
         border: "1px solid #222",
