@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
 
     // fromName en fromEmail uit Redis lezen (ingesteld via CMS), fallback op cmsConfig
     const content = ((await redis.get("cms:content")) || {}) as Record<string, string>;
-    const fromName = content.fromName || cmsConfig.fromName;
+    const fromName = content.fromName || "";
     const fromEmail = content.fromEmail || cmsConfig.fromEmail;
 
     // E-mail sturen via Resend
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${resendKey}`,
         },
         body: JSON.stringify({
-          from: `${fromName} <${fromEmail}>`,
+          from: fromName ? `${fromName} <${fromEmail}>` : fromEmail,
           to: [user.email],
           subject: "Wachtwoord resetten",
           html: `
@@ -51,8 +51,6 @@ export async function POST(req: NextRequest) {
                 Wachtwoord instellen
               </a>
               <p style="color:#888;font-size:0.85rem">Als je dit niet hebt aangevraagd, kun je deze e-mail negeren.</p>
-              <hr style="border:none;border-top:1px solid #eee;margin:1.5rem 0"/>
-              <p style="color:#aaa;font-size:0.75rem">${cmsConfig.fromName}</p>
             </div>
           `,
         }),
