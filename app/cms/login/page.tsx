@@ -51,7 +51,7 @@ export default function CmsLoginPage() {
   const accent = cmsConfig.accentColor;
   const hasVideoBg = loginBg && loginBgType === "video";
   // Gebruik vaste fallback achtergrond als er geen custom bg is
-  const bgImage = loginBg && loginBgType === "image" ? loginBg : "/login-bg.jpg";
+  const bgImage = loginBg && loginBgType === "image" ? loginBg : "/login-bg.png";
 
   return (
     <div style={{
