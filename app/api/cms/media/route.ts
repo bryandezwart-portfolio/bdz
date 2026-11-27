@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     const { url } = await put(`cms-media/${file.name}`, file, {
       access: "public",
       addRandomSuffix: false,
+      allowOverwrite: true,
     });
 
     return NextResponse.json({ ok: true, url });
