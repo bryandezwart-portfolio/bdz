@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,6 +13,11 @@ export default function CmsLoginPage() {
   const [loading, setLoading] = useState(false);
   const [loginBg, setLoginBg] = useState<string | null>(null);
   const [loginBgType, setLoginBgType] = useState<"image" | "video">("image");
+  const [orb1Y, setOrb1Y] = useState(0);
+  const [orb2Y, setOrb2Y] = useState(0);
+  const [bgPos, setBgPos] = useState(0);
+  const rafRef = useRef<number>(0);
+  const startRef = useRef<number>(0);
 
   useEffect(() => {
     fetch("/api/cms/save")
@@ -25,6 +30,20 @@ export default function CmsLoginPage() {
         }
       })
       .catch(() => {});
+  }, []);
+
+  // Animate orbs
+  useEffect(() => {
+    const animate = (ts: number) => {
+      if (!startRef.current) startRef.current = ts;
+      const t = (ts - startRef.current) / 1000;
+      setOrb1Y(Math.sin(t * 0.5) * 24);
+      setOrb2Y(Math.sin(t * 0.4 + 2) * 20);
+      setBgPos((t * 2) % 100);
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -49,232 +68,166 @@ export default function CmsLoginPage() {
   }
 
   const accent = cmsConfig.accentColor;
+  const hasCustomBg = loginBg && loginBgType === "image";
+  const hasVideoBg = loginBg && loginBgType === "video";
 
   return (
-    <>
-      <style>{`
-        @keyframes gradientShift {
-          0%   { background-position: 0% 50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) scale(1); }
-          50%       { transform: translateY(-20px) scale(1.05); }
-        }
-        .orb1 {
-          position: absolute;
-          width: 500px;
-          height: 500px;
-          border-radius: 50%;
-          background: radial-gradient(circle, ${accent}33 0%, transparent 70%);
-          top: -100px;
-          left: -100px;
-          animation: float 8s ease-in-out infinite;
-          pointer-events: none;
-        }
-        .orb2 {
-          position: absolute;
-          width: 400px;
-          height: 400px;
-          border-radius: 50%;
-          background: radial-gradient(circle, ${accent}22 0%, transparent 70%);
-          bottom: -80px;
-          right: -80px;
-          animation: float 10s ease-in-out infinite reverse;
-          pointer-events: none;
-        }
-        .orb3 {
-          position: absolute;
-          width: 250px;
-          height: 250px;
-          border-radius: 50%;
-          background: radial-gradient(circle, #ffffff08 0%, transparent 70%);
-          top: 40%;
-          left: 60%;
-          animation: float 12s ease-in-out infinite;
-          pointer-events: none;
-        }
-      `}</style>
-      <div style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: loginBg && loginBgType === "image"
-          ? `url('${loginBg}') center/cover`
-          : "linear-gradient(135deg, #060608 0%, #0d0d14 25%, #080810 50%, #0a0a0d 75%, #060608 100%)",
-        backgroundSize: loginBg && loginBgType === "image" ? "cover" : "400% 400%",
-        animation: !loginBg ? "gradientShift 15s ease infinite" : undefined,
-        fontFamily: "system-ui, sans-serif",
-        position: "relative",
-        overflow: "hidden",
-      }}>
-        {/* Animated orbs — alleen als er geen eigen achtergrond is */}
-        {!loginBg && (
-          <>
-            <div className="orb1" />
-            <div className="orb2" />
-            <div className="orb3" />
-          </>
-        )}
+    <div style={{
+      minHeight: "100vh",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      background: hasCustomBg
+        ? `url('${loginBg}') center/cover`
+        : `radial-gradient(ellipse at ${30 + bgPos * 0.4}% ${40 + orb1Y * 0.3}%, ${accent}18 0%, transparent 55%),
+           radial-gradient(ellipse at ${70 - bgPos * 0.3}% ${60 + orb2Y * 0.3}%, ${accent}0f 0%, transparent 55%),
+           linear-gradient(135deg, #060608 0%, #0c0c14 50%, #060608 100%)`,
+      fontFamily: "system-ui, sans-serif",
+      position: "relative",
+      overflow: "hidden",
+    }}>
+      {/* Video achtergrond */}
+      {hasVideoBg && (
+        <video
+          src={loginBg}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: 0 }}
+        />
+      )}
 
-        {/* Video achtergrond */}
-        {loginBg && loginBgType === "video" && (
-          <video
-            src={loginBg}
-            autoPlay
-            muted
-            loop
-            playsInline
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              zIndex: 0,
-            }}
-          />
-        )}
-
-        {/* Grid overlay voor texture */}
-        {!loginBg && (
+      {/* Floating orbs */}
+      {!loginBg && (
+        <>
+          <div style={{
+            position: "absolute",
+            width: 500,
+            height: 500,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${accent}28 0%, transparent 70%)`,
+            top: -100 + orb1Y,
+            left: -100,
+            pointerEvents: "none",
+            transition: "top 0.05s linear",
+          }} />
+          <div style={{
+            position: "absolute",
+            width: 400,
+            height: 400,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, ${accent}18 0%, transparent 70%)`,
+            bottom: -80 - orb2Y,
+            right: -80,
+            pointerEvents: "none",
+            transition: "bottom 0.05s linear",
+          }} />
+          <div style={{
+            position: "absolute",
+            width: 300,
+            height: 300,
+            borderRadius: "50%",
+            background: `radial-gradient(circle, #ffffff06 0%, transparent 70%)`,
+            top: "50%",
+            left: "65%",
+            transform: `translateY(${orb2Y * 0.5}px)`,
+            pointerEvents: "none",
+          }} />
+          {/* Grid texture */}
           <div style={{
             position: "absolute",
             inset: 0,
-            backgroundImage: `linear-gradient(${accent}08 1px, transparent 1px), linear-gradient(90deg, ${accent}08 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(${accent}09 1px, transparent 1px), linear-gradient(90deg, ${accent}09 1px, transparent 1px)`,
             backgroundSize: "60px 60px",
             pointerEvents: "none",
           }} />
-        )}
+        </>
+      )}
 
-        <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", justifyContent: "center", padding: "1rem" }}>
-          <div style={{
-            width: "100%",
-            maxWidth: 400,
-            padding: "2.5rem",
-            background: "rgba(8,8,12,0.88)",
-            borderRadius: 20,
-            border: `1px solid ${accent}30`,
-            boxShadow: `0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px #ffffff08, inset 0 1px 0 #ffffff0a`,
-            backdropFilter: "blur(20px)",
-          }}>
-            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-              <Image
-                src={cmsConfig.logo.src}
-                alt={cmsConfig.logo.alt}
-                width={240}
-                height={80}
-                style={{ objectFit: "contain" }}
-              />
-            </div>
-
-            <h1 style={{
-              color: "#fff",
-              fontSize: "1.1rem",
-              fontWeight: 600,
-              textAlign: "center",
-              marginBottom: "2rem",
-              letterSpacing: "0.01em",
-            }}>
-              Inloggen
-            </h1>
-
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <input
-                type="text"
-                placeholder="E-mailadres"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                required
-                autoComplete="username"
-                style={{
-                  width: "100%",
-                  padding: "0.75rem 1rem",
-                  background: "#0f0f14",
-                  border: "1px solid #2a2a35",
-                  borderRadius: 10,
-                  color: "#fff",
-                  fontSize: "0.9rem",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  transition: "border-color 0.2s",
-                }}
-                onFocus={(e) => e.target.style.borderColor = accent}
-                onBlur={(e) => e.target.style.borderColor = "#2a2a35"}
-              />
-              <input
-                type="password"
-                placeholder="Wachtwoord"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                autoComplete="current-password"
-                style={{
-                  width: "100%",
-                  padding: "0.75rem 1rem",
-                  background: "#0f0f14",
-                  border: "1px solid #2a2a35",
-                  borderRadius: 10,
-                  color: "#fff",
-                  fontSize: "0.9rem",
-                  outline: "none",
-                  boxSizing: "border-box",
-                  transition: "border-color 0.2s",
-                }}
-                onFocus={(e) => e.target.style.borderColor = accent}
-                onBlur={(e) => e.target.style.borderColor = "#2a2a35"}
-              />
-
-              {error && (
-                <p style={{
-                  color: accent,
-                  fontSize: "0.8rem",
-                  background: `${accent}18`,
-                  border: `1px solid ${accent}44`,
-                  borderRadius: 8,
-                  padding: "0.6rem 0.85rem",
-                  margin: 0,
-                }}>
-                  {error}
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                style={{
-                  padding: "0.78rem",
-                  background: loading ? "#333" : `linear-gradient(135deg, ${accent}, ${accent}bb)`,
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 10,
-                  fontSize: "0.9rem",
-                  fontWeight: 600,
-                  cursor: loading ? "not-allowed" : "pointer",
-                  transition: "opacity 0.2s, transform 0.1s",
-                  boxShadow: loading ? "none" : `0 4px 20px ${accent}44`,
-                  letterSpacing: "0.02em",
-                }}
-                onMouseOver={(e) => { if (!loading) (e.target as HTMLButtonElement).style.opacity = "0.9"; }}
-                onMouseOut={(e) => { (e.target as HTMLButtonElement).style.opacity = "1"; }}
-              >
-                {loading ? "Bezig..." : "Inloggen"}
-              </button>
-
-              <div style={{ textAlign: "center", marginTop: "0.25rem" }}>
-                <Link
-                  href="/cms/login/forgot"
-                  style={{ color: "#555", fontSize: "0.78rem", textDecoration: "none" }}
-                >
-                  Wachtwoord vergeten?
-                </Link>
-              </div>
-            </form>
+      {/* Login kaart */}
+      <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", justifyContent: "center", padding: "1rem" }}>
+        <div style={{
+          width: "100%",
+          maxWidth: 400,
+          padding: "2.5rem",
+          background: "rgba(6,6,10,0.90)",
+          borderRadius: 20,
+          border: `1px solid ${accent}35`,
+          boxShadow: `0 24px 64px rgba(0,0,0,0.8), 0 0 0 1px #ffffff06, inset 0 1px 0 #ffffff08, 0 0 40px ${accent}12`,
+          backdropFilter: "blur(24px)",
+        }}>
+          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <Image
+              src={cmsConfig.logo.src}
+              alt={cmsConfig.logo.alt}
+              width={240}
+              height={80}
+              style={{ objectFit: "contain" }}
+            />
           </div>
+
+          <h1 style={{ color: "#fff", fontSize: "1.1rem", fontWeight: 600, textAlign: "center", marginBottom: "2rem", letterSpacing: "0.01em" }}>
+            Inloggen
+          </h1>
+
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <input
+              type="text"
+              placeholder="E-mailadres"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              autoComplete="username"
+              style={{ width: "100%", padding: "0.75rem 1rem", background: "#0f0f16", border: "1px solid #2a2a38", borderRadius: 10, color: "#fff", fontSize: "0.9rem", outline: "none", boxSizing: "border-box" }}
+              onFocus={(e) => e.target.style.borderColor = accent}
+              onBlur={(e) => e.target.style.borderColor = "#2a2a38"}
+            />
+            <input
+              type="password"
+              placeholder="Wachtwoord"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              style={{ width: "100%", padding: "0.75rem 1rem", background: "#0f0f16", border: "1px solid #2a2a38", borderRadius: 10, color: "#fff", fontSize: "0.9rem", outline: "none", boxSizing: "border-box" }}
+              onFocus={(e) => e.target.style.borderColor = accent}
+              onBlur={(e) => e.target.style.borderColor = "#2a2a38"}
+            />
+
+            {error && (
+              <p style={{ color: accent, fontSize: "0.8rem", background: `${accent}18`, border: `1px solid ${accent}44`, borderRadius: 8, padding: "0.6rem 0.85rem", margin: 0 }}>
+                {error}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                padding: "0.78rem",
+                background: loading ? "#333" : accent,
+                color: "#fff",
+                border: "none",
+                borderRadius: 10,
+                fontSize: "0.9rem",
+                fontWeight: 600,
+                cursor: loading ? "not-allowed" : "pointer",
+                boxShadow: loading ? "none" : `0 4px 24px ${accent}50`,
+                letterSpacing: "0.02em",
+              }}
+            >
+              {loading ? "Bezig..." : "Inloggen"}
+            </button>
+
+            <div style={{ textAlign: "center", marginTop: "0.25rem" }}>
+              <Link href="/cms/login/forgot" style={{ color: "#555", fontSize: "0.78rem", textDecoration: "none" }}>
+                Wachtwoord vergeten?
+              </Link>
+            </div>
+          </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }
