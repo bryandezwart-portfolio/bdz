@@ -37,6 +37,12 @@ export default function BeldenPage() {
     setData((p) => ({ ...p, [key]: value }));
   }
 
+  async function handleAltSave(key: SlotKey, value: string) {
+    const altKey = key + "_alt";
+    await saveField(altKey, value);
+    setMsg(key + "_alt", "Alt-tekst opgeslagen ✓");
+  }
+
   async function handleUpload(slotKey: string, fieldKey: SlotKey, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -70,6 +76,8 @@ export default function BeldenPage() {
         {SECTIONS.map(({ key, label, icon, description, allowToggle }) => {
           const activeUrl  = data[key] ?? "";
           const upload1    = data[key + "_upload1"] ?? "";
+          const altValue   = data[key + "_alt"] ?? "";
+          const altMsg     = status[key + "_alt"] ?? "";
           const maxUploads = cmsConfig.maxClientUploads[key];
           const msg        = status[key] ?? "";
 
@@ -115,11 +123,11 @@ export default function BeldenPage() {
                   ) : key === "profilePhoto" ? (
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: 220 }}>
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={activeUrl} alt={label} style={{ width: 160, height: 160, objectFit: "cover", borderRadius: "50%", border: `3px solid ${accent}`, boxShadow: `0 0 24px ${accent}66` }} />
+                      <img src={activeUrl} alt={altValue || label} style={{ width: 160, height: 160, objectFit: "cover", borderRadius: "50%", border: `3px solid ${accent}`, boxShadow: `0 0 24px ${accent}66` }} />
                     </div>
                   ) : (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={activeUrl} alt={label} style={{ width: "100%", maxHeight: 220, objectFit: "cover", display: "block" }} />
+                    <img src={activeUrl} alt={altValue || label} style={{ width: "100%", maxHeight: 220, objectFit: "cover", display: "block" }} />
                   )
                 ) : (
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: 180, color: "#333", fontSize: "0.8rem" }}>
@@ -127,6 +135,42 @@ export default function BeldenPage() {
                     Nog geen {isVideo ? "video" : "afbeelding"} ingesteld
                   </div>
                 )}
+              </div>
+
+              {/* Alt-tekst veld */}
+              <div style={{ padding: "0.75rem 1.25rem", borderTop: "1px solid #1a1a1a", background: "#0d0d0d" }}>
+                <label style={{ display: "block", fontSize: "0.72rem", color: "#555", marginBottom: "0.4rem", fontWeight: 600 }}>
+                  ALT-TEKST {isVideo ? "(video beschrijving)" : "(afbeelding beschrijving)"}
+                </label>
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                  <input
+                    type="text"
+                    value={altValue}
+                    onChange={(e) => setData((p) => ({ ...p, [key + "_alt"]: e.target.value }))}
+                    placeholder={isVideo ? `Bijv. "Achtergrondvideo van ${label.toLowerCase()}"` : `Bijv. "Foto van ${label.toLowerCase()}"`}
+                    style={{
+                      flex: 1,
+                      background: "#111",
+                      border: "1px solid #2a2a2a",
+                      borderRadius: 6,
+                      color: "#ddd",
+                      padding: "0.45rem 0.75rem",
+                      fontSize: "0.8rem",
+                      outline: "none",
+                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleAltSave(key, (e.target as HTMLInputElement).value); }}
+                  />
+                  <button
+                    onClick={() => handleAltSave(key, altValue)}
+                    style={{ padding: "0.45rem 0.9rem", background: accent, border: "none", borderRadius: 6, color: "#fff", fontSize: "0.78rem", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
+                  >
+                    Opslaan
+                  </button>
+                  {altMsg && <span style={{ fontSize: "0.72rem", color: "#4ade80", whiteSpace: "nowrap" }}>{altMsg}</span>}
+                </div>
+                <div style={{ fontSize: "0.68rem", color: "#3a3a3a", marginTop: "0.3rem" }}>
+                  Alt-tekst wordt gebruikt door zoekmachines en schermleessoftware
+                </div>
               </div>
 
               {/* Acties */}
