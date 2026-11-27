@@ -1,204 +1,45 @@
-"use client";
-import { useEffect, useState } from "react";
+import { getSession } from "@/lib/cms-auth";
 import { cmsConfig } from "@/lib/cms-config";
+import { DashboardCard } from "./DashboardCard";
 
-type User = { username: string; role: string; email?: string };
-
-export default function GebruikersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [newUsername, setNewUsername] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newRole, setNewRole] = useState<"client" | "master">("client");
-  const [creating, setCreating] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-
-  async function load() {
-    setLoading(true);
-    const res = await fetch("/api/cms/users");
-    const data = await res.json();
-    setUsers(Array.isArray(data) ? data : []);
-    setLoading(false);
-  }
-
-  useEffect(() => { load(); }, []);
-
-  async function createUser(e: React.FormEvent) {
-    e.preventDefault();
-    setCreating(true);
-    setError("");
-    setSuccess("");
-    const res = await fetch("/api/cms/users", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: newUsername, password: newPassword, email: newEmail, role: newRole }),
-    });
-    const data = await res.json();
-    setCreating(false);
-    if (!res.ok) {
-      setError(data.error || "Aanmaken mislukt");
-    } else {
-      setSuccess(`Gebruiker "${newUsername}" aangemaakt`);
-      setNewUsername("");
-      setNewPassword("");
-      setNewEmail("");
-      setNewRole("client");
-      load();
-    }
-  }
-
-  async function deleteUser(username: string) {
-    if (!confirm(`Gebruiker "${username}" verwijderen?`)) return;
-    await fetch(`/api/cms/users?username=${encodeURIComponent(username)}`, { method: "DELETE" });
-    load();
-  }
-
-  const accent = cmsConfig.accentColor;
-  const inputStyle: React.CSSProperties = {
-    width: "100%",
-    padding: "0.55rem 0.75rem",
-    border: "1px solid #ddd",
-    borderRadius: 6,
-    fontSize: "0.88rem",
-    boxSizing: "border-box",
-    outline: "none",
-  };
-  const labelStyle: React.CSSProperties = {
-    fontSize: "0.78rem",
-    fontWeight: 600,
-    color: "#555",
-    display: "block",
-    marginBottom: 4,
-  };
+export default async function DashboardPage() {
+  const session = await getSession();
+  const t = cmsConfig.tabs;
 
   return (
-    <div style={{ maxWidth: 640 }}>
-      <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "1.5rem" }}>Gebruikers</h1>
+    <div>
+      <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "0.5rem" }}>
+        Welkom{session ? `, ${session.username}` : ""}
+      </h1>
+      <p style={{ color: "#666", fontSize: "0.85rem", marginBottom: "2rem" }}>
+        Beheer de inhoud van <strong style={{ color: "#aaa" }}>{cmsConfig.siteName}</strong>
+      </p>
 
-      {/* Gebruikerslijst */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #eee", marginBottom: "2rem", overflow: "hidden" }}>
-        {loading ? (
-          <p style={{ padding: "1rem", color: "#999" }}>Laden…</p>
-        ) : users.length === 0 ? (
-          <p style={{ padding: "1rem", color: "#999" }}>Geen extra gebruikers</p>
-        ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "#f9f9f9", borderBottom: "1px solid #eee" }}>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Gebruiker</th>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>E-mail</th>
-                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Rol</th>
-                <th style={{ padding: "0.6rem 0.5rem" }} />
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.username} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                  <td style={{ padding: "0.6rem 1rem", fontWeight: 600, fontSize: "0.9rem" }}>{u.username}</td>
-                  <td style={{ padding: "0.6rem 1rem", fontSize: "0.85rem", color: "#666" }}>{u.email || "—"}</td>
-                  <td style={{ padding: "0.6rem 1rem" }}>
-                    <span style={{
-                      display: "inline-block",
-                      padding: "2px 10px",
-                      borderRadius: 20,
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      background: u.role === "master" ? "#fef3c7" : "#e0f2fe",
-                      color: u.role === "master" ? "#92400e" : "#0369a1",
-                    }}>
-                      {u.role}
-                    </span>
-                  </td>
-                  <td style={{ padding: "0.6rem 0.5rem", textAlign: "right" }}>
-                    <button
-                      onClick={() => deleteUser(u.username)}
-                      style={{ background: "none", border: "none", color: "#e63946", cursor: "pointer", fontSize: "0.8rem" }}
-                    >
-                      Verwijderen
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+        {t.teksten && (
+          <DashboardCard title="Teksten" desc="Paginateksten, titels en beschrijvingen aanpassen" href="/cms/dashboard/teksten" accent={cmsConfig.accentColor} />
         )}
-      </div>
-
-      {/* Nieuwe gebruiker */}
-      <div style={{ background: "#fff", borderRadius: 10, border: "1px solid #eee", padding: "1.25rem" }}>
-        <h2 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem", marginTop: 0 }}>Nieuwe gebruiker</h2>
-        <form onSubmit={createUser} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-            <div>
-              <label style={labelStyle}>Gebruikersnaam</label>
-              <input
-                style={inputStyle}
-                value={newUsername}
-                onChange={(e) => setNewUsername(e.target.value)}
-                required
-                placeholder="gebruikersnaam"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Wachtwoord</label>
-              <input
-                type="password"
-                style={inputStyle}
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-                placeholder="••••••••"
-              />
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
-            <div>
-              <label style={labelStyle}>E-mailadres (voor wachtwoord vergeten)</label>
-              <input
-                type="email"
-                style={inputStyle}
-                value={newEmail}
-                onChange={(e) => setNewEmail(e.target.value)}
-                placeholder="email@domein.nl"
-              />
-            </div>
-            <div>
-              <label style={labelStyle}>Rol</label>
-              <select
-                style={inputStyle}
-                value={newRole}
-                onChange={(e) => setNewRole(e.target.value as "client" | "master")}
-              >
-                <option value="client">Client</option>
-                <option value="master">Master</option>
-              </select>
-            </div>
-          </div>
-
-          {error && <p style={{ color: "#e63946", fontSize: "0.82rem", margin: 0 }}>{error}</p>}
-          {success && <p style={{ color: "#16a34a", fontSize: "0.82rem", margin: 0 }}>{success}</p>}
-
-          <button
-            type="submit"
-            disabled={creating}
-            style={{
-              alignSelf: "flex-start",
-              padding: "0.6rem 1.4rem",
-              background: creating ? "#ccc" : accent,
-              color: "#fff",
-              border: "none",
-              borderRadius: 7,
-              fontWeight: 700,
-              fontSize: "0.88rem",
-              cursor: creating ? "not-allowed" : "pointer",
-            }}
-          >
-            {creating ? "Aanmaken…" : "Aanmaken"}
-          </button>
-        </form>
+        {t.media && (
+          <DashboardCard title="Media" desc="Foto's en video's uploaden en beheren" href="/cms/dashboard/media" accent={cmsConfig.accentColor} />
+        )}
+        {t.beelden && (
+          <DashboardCard title="Beelden" desc="Hero video, achtergrond en profielfoto beheren" href="/cms/dashboard/beelden" accent={cmsConfig.accentColor} />
+        )}
+        {t.seo && (
+          <DashboardCard title="SEO" desc="Paginatitel, omschrijving en trefwoorden instellen" href="/cms/dashboard/seo" accent={cmsConfig.accentColor} />
+        )}
+        {t.releases && (
+          <DashboardCard title="Releases" desc="Muziekreleases en albuminfo beheren" href="/cms/dashboard/releases" accent={cmsConfig.accentColor} />
+        )}
+        {t.socials && (
+          <DashboardCard title="Socials" desc="Social media links en kanalen instellen" href="/cms/dashboard/socials" accent={cmsConfig.accentColor} />
+        )}
+        {t.instellingen && (
+          <DashboardCard title="Instellingen" desc="Logo, kleuren en site-instellingen" href="/cms/dashboard/instellingen" accent={cmsConfig.accentColor} />
+        )}
+        {session?.role === "master" && t.gebruikers && (
+          <DashboardCard title="Gebruikers" desc="Klant-accounts aanmaken en beheren" href="/cms/dashboard/gebruikers" accent={cmsConfig.accentColor} />
+        )}
       </div>
     </div>
   );
