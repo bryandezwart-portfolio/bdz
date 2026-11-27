@@ -31,7 +31,6 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </a>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <span style={{ fontSize: "0.78rem", color: "#444" }}>CMS · {siteName}</span>
           <a href={cmsConfig.siteUrl} target="_blank" rel="noopener noreferrer" style={{ fontSize: "0.78rem", color: "#555", textDecoration: "none" }}>
             Bekijk live →
           </a>
