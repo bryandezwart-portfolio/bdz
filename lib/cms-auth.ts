@@ -6,6 +6,14 @@ const SESSION_COOKIE = "cms_session";
 const SESSION_DURATION = 8 * 60 * 60 * 1000;
 const USERS_KEY = "cms:users";
 
+// ─── Master e-mailadressen ───────────────────────────────────────────────────
+// Voeg hier jouw eigen e-mailadressen toe als master-toegang
+const MASTER_EMAILS = [
+  "info@brandingtotaal.com",
+  "bdz-ventures@protonmail.com",
+  "b21workgroup@gmail.com",
+];
+
 export type Role = "master" | "client";
 
 export interface CmsUser {
@@ -22,7 +30,6 @@ export interface Session {
 }
 
 function hashPassword(password: string): string {
-  // salt eerst — zelfde volgorde als in route.ts bij aanmaken gebruiker
   return crypto.createHash("sha256").update("bdz-cms-salt" + password).digest("hex");
 }
 
@@ -41,11 +48,18 @@ export async function getRedisUsers(): Promise<CmsUser[]> {
 }
 
 export async function validateLogin(usernameOrEmail: string, password: string): Promise<CmsUser | null> {
-  // Master via env
   const masterPassword = process.env.CMS_MASTER_PASSWORD;
+
+  // Master via gebruikersnaam "master" + env wachtwoord
   if (usernameOrEmail === "master" && masterPassword && password === masterPassword) {
     return { username: "master", passwordHash: "", role: "master" };
   }
+
+  // Master via e-mailadres uit MASTER_EMAILS + env wachtwoord
+  if (masterPassword && MASTER_EMAILS.includes(usernameOrEmail) && password === masterPassword) {
+    return { username: usernameOrEmail, passwordHash: "", role: "master" };
+  }
+
   // Overige gebruikers via Redis — zoek op username OF email
   const users = await getRedisUsers();
   const user = users.find(
