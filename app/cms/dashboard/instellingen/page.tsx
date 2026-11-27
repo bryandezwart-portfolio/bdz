@@ -2,193 +2,205 @@
 import { useEffect, useState } from "react";
 import { cmsConfig } from "@/lib/cms-config";
 
-const ef = cmsConfig.enabledFields;
+type User = { username: string; role: string; email?: string };
 
-export default function InstellingenPage() {
-  const [logoSrc,          setLogoSrc]          = useState("");
-  const [logoAlt,          setLogoAlt]          = useState("");
-  const [siteName,         setSiteName]         = useState("");
-  const [footerPartner,    setFooterPartner]    = useState("");
-  const [footerCredit,     setFooterCredit]     = useState("");
-  const [footerCopyright,  setFooterCopyright]  = useState("");
-  const [footerSubtitle,   setFooterSubtitle]   = useState("");
-  const [footerLink1Label, setFooterLink1Label] = useState("");
-  const [footerLink1Url,   setFooterLink1Url]   = useState("");
-  const [footerLink2Label, setFooterLink2Label] = useState("");
-  const [footerLink2Url,   setFooterLink2Url]   = useState("");
-  const [footerLink3Label, setFooterLink3Label] = useState("");
-  const [footerLink3Url,   setFooterLink3Url]   = useState("");
-  const [footerLink4Label, setFooterLink4Label] = useState("");
-  const [footerLink4Url,   setFooterLink4Url]   = useState("");
-  const [footerLink5Label, setFooterLink5Label] = useState("");
-  const [footerLink5Url,   setFooterLink5Url]   = useState("");
-  const [spotifyPlaylistId,setSpotifyPlaylistId]= useState("");
-  const [msg,              setMsg]              = useState("");
-  const [uploading,        setUploading]        = useState(false);
+export default function GebruikersPage() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newRole, setNewRole] = useState<"client" | "master">("client");
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    fetch("/api/cms/settings").then((r) => r.json()).then((d) => {
-      if (d.settings) {
-        const s = d.settings;
-        setLogoSrc(s.logoSrc || "");
-        setLogoAlt(s.logoAlt || "");
-        setSiteName(s.siteName || "");
-        setFooterPartner(s.footerPartner || "");
-        setFooterCredit(s.footerCredit || "");
-        setFooterCopyright(s.footerCopyright || "");
-        setFooterSubtitle(s.footerSubtitle || "");
-        setFooterLink1Label(s.footerLink1Label || "");
-        setFooterLink1Url(s.footerLink1Url || "");
-        setFooterLink2Label(s.footerLink2Label || "");
-        setFooterLink2Url(s.footerLink2Url || "");
-        setFooterLink3Label(s.footerLink3Label || "");
-        setFooterLink3Url(s.footerLink3Url || "");
-        setFooterLink4Label(s.footerLink4Label || "");
-        setFooterLink4Url(s.footerLink4Url || "");
-        setFooterLink5Label(s.footerLink5Label || "");
-        setFooterLink5Url(s.footerLink5Url || "");
-        setSpotifyPlaylistId(s.spotifyPlaylistId || "");
-      }
-    });
-  }, []);
+  async function load() {
+    setLoading(true);
+    const res = await fetch("/api/cms/users");
+    const data = await res.json();
+    setUsers(Array.isArray(data) ? data : []);
+    setLoading(false);
+  }
 
-  const save = async () => {
-    const body: Record<string, string> = { siteName };
-    if (ef.logo)    Object.assign(body, { logoSrc, logoAlt });
-    if (ef.spotify) Object.assign(body, { spotifyPlaylistId });
-    if (ef.footer)  Object.assign(body, {
-      footerPartner, footerCredit, footerCopyright, footerSubtitle,
-      footerLink1Label, footerLink1Url,
-      footerLink2Label, footerLink2Url,
-      footerLink3Label, footerLink3Url,
-      footerLink4Label, footerLink4Url,
-      footerLink5Label, footerLink5Url,
-    });
-    const r = await fetch("/api/cms/settings", {
+  useEffect(() => { load(); }, []);
+
+  async function createUser(e: React.FormEvent) {
+    e.preventDefault();
+    setCreating(true);
+    setError("");
+    setSuccess("");
+    const res = await fetch("/api/cms/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ username: newUsername, password: newPassword, email: newEmail, role: newRole }),
     });
-    const d = await r.json();
-    setMsg(d.ok ? "Instellingen opgeslagen ✓" : d.error);
+    const data = await res.json();
+    setCreating(false);
+    if (!res.ok) {
+      setError(data.error || "Aanmaken mislukt");
+    } else {
+      setSuccess(`Gebruiker "${newUsername}" aangemaakt`);
+      setNewUsername("");
+      setNewPassword("");
+      setNewEmail("");
+      setNewRole("client");
+      load();
+    }
+  }
+
+  async function deleteUser(username: string) {
+    if (!confirm(`Gebruiker "${username}" verwijderen?`)) return;
+    await fetch(`/api/cms/users?username=${encodeURIComponent(username)}`, { method: "DELETE" });
+    load();
+  }
+
+  const accent = cmsConfig.accentColor;
+  const inputStyle: React.CSSProperties = {
+    width: "100%",
+    padding: "0.55rem 0.75rem",
+    border: "1px solid #333",
+    borderRadius: 6,
+    fontSize: "0.88rem",
+    boxSizing: "border-box",
+    outline: "none",
+    background: "#1a1a1a",
+    color: "#fff",
   };
-
-  const uploadLogo = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    const form = new FormData();
-    form.append("file", file);
-    const r = await fetch("/api/cms/media", { method: "POST", body: form });
-    const d = await r.json();
-    setUploading(false);
-    if (d.url) { setLogoSrc(d.url); setMsg("Logo geüpload ✓"); }
-    else setMsg("Upload mislukt");
+  const labelStyle: React.CSSProperties = {
+    fontSize: "0.78rem",
+    fontWeight: 600,
+    color: "#999",
+    display: "block",
+    marginBottom: 4,
   };
-
-  const inp     = { background: "#1a1a1a", border: "1px solid #333", borderRadius: 6, color: "#fff", padding: "0.45rem 0.75rem", fontSize: "0.85rem", width: "100%" } as React.CSSProperties;
-  const inpHalf = { ...inp, width: "calc(50% - 0.3rem)" } as React.CSSProperties;
-
-  const spotifyPreviewId = spotifyPlaylistId.includes("spotify.com")
-    ? spotifyPlaylistId.split("/playlist/")[1]?.split("?")[0] ?? spotifyPlaylistId
-    : spotifyPlaylistId;
-
-  const linkRows = [
-    { label: footerLink1Label, setLabel: setFooterLink1Label, url: footerLink1Url, setUrl: setFooterLink1Url },
-    { label: footerLink2Label, setLabel: setFooterLink2Label, url: footerLink2Url, setUrl: setFooterLink2Url },
-    { label: footerLink3Label, setLabel: setFooterLink3Label, url: footerLink3Url, setUrl: setFooterLink3Url },
-    { label: footerLink4Label, setLabel: setFooterLink4Label, url: footerLink4Url, setUrl: setFooterLink4Url },
-    { label: footerLink5Label, setLabel: setFooterLink5Label, url: footerLink5Url, setUrl: setFooterLink5Url },
-  ];
 
   return (
-    <div>
-      <h1 style={{ fontSize: "1.3rem", fontWeight: 700, marginBottom: "0.4rem" }}>Instellingen</h1>
-      <p style={{ color: "#666", fontSize: "0.82rem", marginBottom: "2rem" }}>Logo, sitenaam en site-instellingen</p>
-      {msg && <div style={{ background: "#1a2a1a", border: "1px solid #2a4a2a", borderRadius: 8, padding: "0.6rem 1rem", marginBottom: "1.5rem", fontSize: "0.82rem", color: "#6f6" }}>{msg}</div>}
+    <div style={{ maxWidth: 640 }}>
+      <h1 style={{ fontSize: "1.4rem", fontWeight: 700, marginBottom: "1.5rem" }}>Gebruikers</h1>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", maxWidth: 520 }}>
-
-        <div style={{ background: "#111", border: "1px solid #222", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Logo & sitenaam</h2>
-          <div>
-            <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Sitenaam</label>
-            <input value={siteName} onChange={(e) => setSiteName(e.target.value)} placeholder="Mijn Website" style={inp} />
-          </div>
-          {ef.logo && (<>
-            <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo URL</label>
-              <input value={logoSrc} onChange={(e) => setLogoSrc(e.target.value)} placeholder="/logo.png" style={inp} />
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo uploaden</label>
-              <input type="file" accept="image/*" onChange={uploadLogo} style={{ fontSize: "0.82rem", color: "#aaa" }} />
-              {uploading && <p style={{ fontSize: "0.78rem", color: "#888", marginTop: "0.3rem" }}>Uploading...</p>}
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Logo alt-tekst</label>
-              <input value={logoAlt} onChange={(e) => setLogoAlt(e.target.value)} placeholder="Mijn Website" style={inp} />
-            </div>
-            {logoSrc && (
-              <div>
-                <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Voorbeeld</label>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={logoSrc} alt={logoAlt} style={{ maxHeight: 50, maxWidth: 200, objectFit: "contain", background: "#222", padding: "0.5rem", borderRadius: 6 }} />
-              </div>
-            )}
-          </>)}
-        </div>
-
-        {ef.spotify && (
-          <div style={{ background: "#111", border: "1px solid #222", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Spotify playlist</h2>
-            <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Playlist ID of URL</label>
-              <input value={spotifyPlaylistId} onChange={(e) => setSpotifyPlaylistId(e.target.value)} placeholder="37i9dQZF1DXcBWIGoYBM5M of volledige Spotify-link" style={inp} />
-            </div>
-            {spotifyPreviewId && (
-              <iframe src={`https://open.spotify.com/embed/playlist/${spotifyPreviewId}?utm_source=generator&theme=0`} width="100%" height="152" frameBorder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style={{ borderRadius: 8 }} />
-            )}
-          </div>
-        )}
-
-        {ef.footer && (
-          <div style={{ background: "#111", border: "1px solid #333", borderRadius: 12, padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <h2 style={{ fontSize: "0.9rem", fontWeight: 600, color: "#aaa", margin: 0 }}>Footer</h2>
-              <span style={{ background: "#2a2a2a", border: "1px solid #444", borderRadius: 4, padding: "1px 6px", fontSize: "0.68rem", color: "#888", letterSpacing: "0.05em" }}>MASTER</span>
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Subtitel</label>
-              <input value={footerSubtitle} onChange={(e) => setFooterSubtitle(e.target.value)} placeholder="Radio DJ · Label Owner · Bookings" style={inp} />
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.6rem" }}>Footer links <span style={{ color: "#555", fontWeight: 400 }}>(max 5)</span></label>
-              {linkRows.map((row, i) => (
-                <div key={i} style={{ display: "flex", gap: "0.6rem", marginBottom: "0.6rem" }}>
-                  <input value={row.label} onChange={(e) => row.setLabel(e.target.value)} placeholder={`Link ${i + 1}`} style={inpHalf} />
-                  <input value={row.url}   onChange={(e) => row.setUrl(e.target.value)}   placeholder="https://..."   style={inpHalf} />
-                </div>
+      {/* Gebruikerslijst */}
+      <div style={{ background: "#111", borderRadius: 10, border: "1px solid #222", marginBottom: "2rem", overflow: "hidden" }}>
+        {loading ? (
+          <p style={{ padding: "1rem", color: "#666" }}>Laden…</p>
+        ) : users.length === 0 ? (
+          <p style={{ padding: "1rem", color: "#666" }}>Geen extra gebruikers</p>
+        ) : (
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr style={{ background: "#1a1a1a", borderBottom: "1px solid #222" }}>
+                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Gebruiker</th>
+                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>E-mail</th>
+                <th style={{ padding: "0.6rem 1rem", textAlign: "left", fontSize: "0.78rem", color: "#666" }}>Rol</th>
+                <th style={{ padding: "0.6rem 0.5rem" }} />
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.username} style={{ borderBottom: "1px solid #1e1e1e" }}>
+                  <td style={{ padding: "0.6rem 1rem", fontWeight: 600, fontSize: "0.9rem", color: "#fff" }}>{u.username}</td>
+                  <td style={{ padding: "0.6rem 1rem", fontSize: "0.85rem", color: "#888" }}>{u.email || "—"}</td>
+                  <td style={{ padding: "0.6rem 1rem" }}>
+                    <span style={{
+                      display: "inline-block",
+                      padding: "2px 10px",
+                      borderRadius: 20,
+                      fontSize: "0.75rem",
+                      fontWeight: 600,
+                      background: u.role === "master" ? "#fef3c7" : "#e0f2fe",
+                      color: u.role === "master" ? "#92400e" : "#0369a1",
+                    }}>
+                      {u.role}
+                    </span>
+                  </td>
+                  <td style={{ padding: "0.6rem 0.5rem", textAlign: "right" }}>
+                    <button
+                      onClick={() => deleteUser(u.username)}
+                      style={{ background: "none", border: "none", color: "#e63946", cursor: "pointer", fontSize: "0.8rem" }}
+                    >
+                      Verwijderen
+                    </button>
+                  </td>
+                </tr>
               ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Nieuwe gebruiker */}
+      <div style={{ background: "#111", borderRadius: 10, border: "1px solid #222", padding: "1.25rem" }}>
+        <h2 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "1rem", marginTop: 0, color: "#fff" }}>Nieuwe gebruiker</h2>
+        <form onSubmit={createUser} style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <div>
+              <label style={labelStyle}>Gebruikersnaam</label>
+              <input
+                style={inputStyle}
+                value={newUsername}
+                onChange={(e) => setNewUsername(e.target.value)}
+                required
+                placeholder="gebruikersnaam"
+              />
             </div>
             <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Copyright regel</label>
-              <input value={footerCopyright} onChange={(e) => setFooterCopyright(e.target.value)} placeholder="© 2026 Mijn Website" style={inp} />
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Partner regel</label>
-              <input value={footerPartner} onChange={(e) => setFooterPartner(e.target.value)} placeholder="Hosted by ..." style={inp} />
-            </div>
-            <div>
-              <label style={{ display: "block", fontSize: "0.8rem", color: "#888", marginBottom: "0.4rem" }}>Credit regel</label>
-              <input value={footerCredit} onChange={(e) => setFooterCredit(e.target.value)} placeholder="Designed by Branding Totaal ®" style={inp} />
+              <label style={labelStyle}>Wachtwoord</label>
+              <input
+                type="password"
+                style={inputStyle}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+                placeholder="••••••••"
+              />
             </div>
           </div>
-        )}
 
-        <button onClick={save} style={{ background: cmsConfig.accentColor, border: "none", color: "#fff", borderRadius: 8, padding: "0.6rem 1.25rem", fontSize: "0.85rem", fontWeight: 600, cursor: "pointer", alignSelf: "flex-start" }}>
-          Opslaan
-        </button>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+            <div>
+              <label style={labelStyle}>E-mailadres (voor wachtwoord vergeten)</label>
+              <input
+                type="email"
+                style={inputStyle}
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="email@domein.nl"
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Rol</label>
+              <select
+                style={inputStyle}
+                value={newRole}
+                onChange={(e) => setNewRole(e.target.value as "client" | "master")}
+              >
+                <option value="client">Client</option>
+                <option value="master">Master</option>
+              </select>
+            </div>
+          </div>
+
+          {error && <p style={{ color: "#e63946", fontSize: "0.82rem", margin: 0 }}>{error}</p>}
+          {success && <p style={{ color: "#16a34a", fontSize: "0.82rem", margin: 0 }}>{success}</p>}
+
+          <button
+            type="submit"
+            disabled={creating}
+            style={{
+              alignSelf: "flex-start",
+              padding: "0.6rem 1.4rem",
+              background: creating ? "#ccc" : accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: 7,
+              fontWeight: 700,
+              fontSize: "0.88rem",
+              cursor: creating ? "not-allowed" : "pointer",
+            }}
+          >
+            {creating ? "Aanmaken…" : "Aanmaken"}
+          </button>
+        </form>
       </div>
     </div>
   );
