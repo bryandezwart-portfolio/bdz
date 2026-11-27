@@ -22,6 +22,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const logoSrc = content.logoUrl ?? cmsConfig.logo.src;
   const siteName = content.siteName ?? cmsConfig.siteName;
 
+  const role: "master" | "client" = (session as any).role === "master" ? "master" : "client";
+
   return (
     <div style={{ minHeight: "100vh", background: "#0a0a0a", fontFamily: "system-ui, sans-serif", color: "#fff" }}>
       {/* Topbar */}
@@ -75,7 +77,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           padding: "1.5rem 0",
           flexShrink: 0,
         }}>
-          <DashboardNav tabs={cmsConfig.tabs} accent={accent} />
+          <DashboardNav role={role} tabs={cmsConfig.tabs} accent={accent} />
         </aside>
 
         {/* Content */}
