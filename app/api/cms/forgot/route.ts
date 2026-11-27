@@ -25,6 +25,11 @@ export async function POST(req: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://bryandezwart.nl";
     const resetUrl = `${baseUrl}/cms/login/reset?token=${token}`;
 
+    // fromName en fromEmail uit Redis lezen (ingesteld via CMS), fallback op cmsConfig
+    const content = ((await redis.get("cms:content")) || {}) as Record<string, string>;
+    const fromName = content.fromName || cmsConfig.fromName;
+    const fromEmail = content.fromEmail || cmsConfig.fromEmail;
+
     // E-mail sturen via Resend
     const resendKey = process.env.RESEND_API_KEY;
     if (resendKey) {
@@ -35,14 +40,13 @@ export async function POST(req: NextRequest) {
           Authorization: `Bearer ${resendKey}`,
         },
         body: JSON.stringify({
-          from: `${cmsConfig.fromName} <${cmsConfig.fromEmail}>`,
+          from: `${fromName} <${fromEmail}>`,
           to: [user.email],
           subject: "Wachtwoord resetten",
           html: `
             <div style="font-family:system-ui,sans-serif;max-width:480px;margin:0 auto;padding:2rem">
               <h2 style="margin-bottom:1rem">Wachtwoord resetten</h2>
-              <p>Je hebt een reset aangevraagd voor je account bij <strong>${cmsConfig.siteName}</strong>.</p>
-              <p>Klik op de knop hieronder om een nieuw wachtwoord in te stellen. De link is <strong>1 uur</strong> geldig.</p>
+              <p>Beste klant, je hebt een reset aangevraagd voor je website. Klik op de knop hieronder om een nieuw wachtwoord in te stellen. De link is <strong>1 uur</strong> geldig.</p>
               <a href="${resetUrl}" style="display:inline-block;margin:1.5rem 0;padding:0.75rem 1.5rem;background:${cmsConfig.accentColor};color:#fff;border-radius:8px;text-decoration:none;font-weight:600">
                 Wachtwoord instellen
               </a>

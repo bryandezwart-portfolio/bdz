@@ -8,6 +8,8 @@ type Settings = {
   accentColor?: string;
   logoUrl?: string;
   loginBackground?: string;
+  fromName?: string;
+  fromEmail?: string;
 };
 
 export default function InstellingenPage() {
@@ -31,6 +33,8 @@ export default function InstellingenPage() {
           accentColor: data.accentColor ?? cmsConfig.accentColor,
           logoUrl: data.logoUrl ?? cmsConfig.logo.src,
           loginBackground: data.loginBackground ?? null,
+          fromName: data.fromName ?? cmsConfig.fromName ?? "",
+          fromEmail: data.fromEmail ?? cmsConfig.fromEmail ?? "",
         });
       });
   }, []);
@@ -216,6 +220,40 @@ export default function InstellingenPage() {
               maxLength={7}
             />
             <span style={{ fontSize: "0.78rem", color: "#555" }}>CMS + website</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── E-mail instellingen ── */}
+      <div style={cardStyle}>
+        <h2 style={{ fontSize: "1rem", fontWeight: 700, color: "#fff", marginTop: 0, marginBottom: "0.4rem" }}>
+          E-mail instellingen
+        </h2>
+        <p style={{ fontSize: "0.82rem", color: "#666", marginTop: 0, marginBottom: "1.25rem" }}>
+          Afzender van de wachtwoord-reset e-mail die klanten ontvangen.
+        </p>
+        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div>
+            <label style={labelStyle}>Afzendernaam</label>
+            <input
+              style={inputStyle}
+              value={settings.fromName ?? ""}
+              onChange={(e) => update("fromName", e.target.value)}
+              placeholder="Studio Jan"
+            />
+          </div>
+          <div>
+            <label style={labelStyle}>Afzender e-mailadres</label>
+            <input
+              style={inputStyle}
+              type="email"
+              value={settings.fromEmail ?? ""}
+              onChange={(e) => update("fromEmail", e.target.value)}
+              placeholder="noreply@studiojan.nl"
+            />
+            <p style={{ fontSize: "0.75rem", color: "#555", marginTop: 6, marginBottom: 0 }}>
+              Zorg dat dit domein geverifieerd is in Resend, anders worden e-mails geblokkeerd.
+            </p>
           </div>
         </div>
       </div>
