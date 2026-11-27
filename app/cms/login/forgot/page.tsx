@@ -43,6 +43,7 @@ export default function ForgotPage() {
           </div>
           <h1 style={{ fontSize: "1.4rem", fontWeight: 700, margin: 0, color: "#111" }}>Wachtwoord vergeten</h1>
         </div>
+
         {status === "done" ? (
           <div style={{ textAlign: "center" }}>
             <div style={{ width: 48, height: 48, borderRadius: "50%", background: "#22c55e", display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: "1rem" }}>
