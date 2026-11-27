@@ -53,7 +53,7 @@ export default function SeoPage() {
     // Check of master via session
     fetch("/api/cms/session")
       .then((r) => r.json())
-      .then((s) => { if (s?.role === "master") setIsMaster(true); })
+      .then((s) => { if (s?.role === "master" || s?.role === "seo") setIsMaster(true); })
       .catch(() => {});
   }, []);
 

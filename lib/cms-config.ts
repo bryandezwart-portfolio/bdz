@@ -5,7 +5,7 @@
 export const cmsConfig = {
   // Logo op de loginpagina (zet bestand in /public)
   logo: {
-    src: "/logo-brandingtotaal.png", // ← verander naar klant-logo
+    src: "/branding-totaal-logo.png", // ← verander naar klant-logo
     alt: "Branding Totaal",
     width: 180,
   },
@@ -17,7 +17,7 @@ export const cmsConfig = {
   siteUrl: "https://www.bryandezwart.nl",
 
   // Kleur van de knop / accenten
-  accentColor: "#1e61e6",
+  accentColor: "#e63946",
 
   // E-mailadressen voor de master (wachtwoord vergeten)
   // Reset-link gaat naar ALLE adressen hieronder
@@ -43,6 +43,11 @@ export const cmsConfig = {
       username: "klant",
       passwordEnvKey: "CMS_CLIENT_PASSWORD",
       role: "client" as const,
+    },
+    {
+      username: "seo",
+      passwordEnvKey: "CMS_SEO_PASSWORD",
+      role: "seo" as const,
     },
   ],
 

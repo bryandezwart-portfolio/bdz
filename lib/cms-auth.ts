@@ -1,91 +1,70 @@
 import { cookies } from "next/headers";
-import { Redis } from "@upstash/redis";
-import crypto from "crypto";
+import { cmsConfig } from "./cms-config";
 
 const SESSION_COOKIE = "cms_session";
-const SESSION_DURATION = 8 * 60 * 60 * 1000;
-const USERS_KEY = "cms:users";
+const SESSION_MAX_AGE = 60 * 60 * 8; // 8 uur
 
-// ─── Master e-mailadressen ───────────────────────────────────────────────────
-// Voeg hier jouw eigen e-mailadressen toe als master-toegang
-const MASTER_EMAILS = [
-  "info@brandingtotaal.com",
-  "bdz-ventures@protonmail.com",
-  "b21workgroup@gmail.com",
-];
-
-export type Role = "master" | "client";
-
-export interface CmsUser {
-  username: string;
-  passwordHash: string;
-  role: Role;
-  email?: string;
+export function getCmsUsers() {
+  return cmsConfig.users.map((u) => ({
+    username: u.username,
+    password: process.env[u.passwordEnvKey] ?? "",
+    role: u.role,
+  }));
 }
 
-export interface Session {
-  username: string;
-  role: Role;
-  expires: number;
+export function validateLogin(username: string, password: string) {
+  const users = getCmsUsers();
+  return users.find(
+    (u) =>
+      u.username === username &&
+      u.password !== "" &&
+      u.password === password
+  ) ?? null;
 }
 
-function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update("bdz-cms-salt" + password).digest("hex");
-}
-
-export function verifyPassword(password: string, hash: string): boolean {
-  return hashPassword(password) === hash;
-}
-
-export function createPasswordHash(password: string): string {
-  return hashPassword(password);
-}
-
-export async function getRedisUsers(): Promise<CmsUser[]> {
-  const redis = Redis.fromEnv();
-  const users = await redis.get<CmsUser[]>(USERS_KEY);
-  return Array.isArray(users) ? users : [];
-}
-
-export async function validateLogin(usernameOrEmail: string, password: string): Promise<CmsUser | null> {
-  const masterPassword = process.env.CMS_MASTER_PASSWORD;
-
-  // Master via gebruikersnaam "master" + env wachtwoord
-  if (usernameOrEmail === "master" && masterPassword && password === masterPassword) {
-    return { username: "master", passwordHash: "", role: "master" };
-  }
-
-  // Master via e-mailadres uit MASTER_EMAILS + env wachtwoord
-  if (masterPassword && MASTER_EMAILS.includes(usernameOrEmail) && password === masterPassword) {
-    return { username: usernameOrEmail, passwordHash: "", role: "master" };
-  }
-
-  // Overige gebruikers via Redis — zoek op username OF email
-  const users = await getRedisUsers();
-  const user = users.find(
-    (u) => u.username === usernameOrEmail || u.email === usernameOrEmail
-  );
-  if (!user) return null;
-  if (!verifyPassword(password, user.passwordHash)) return null;
-  return user;
-}
-
-export function createSessionToken(username: string, role: Role): string {
-  const session: Session = { username, role, expires: Date.now() + SESSION_DURATION };
-  return Buffer.from(JSON.stringify(session)).toString("base64");
-}
-
-export async function getSession(): Promise<Session | null> {
+export async function getSession() {
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE)?.value;
-  if (!token) return null;
+  const raw = cookieStore.get(SESSION_COOKIE)?.value;
+  if (!raw) return null;
   try {
-    const session: Session = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
-    if (Date.now() > session.expires) return null;
-    return session;
+    const data = JSON.parse(Buffer.from(raw, "base64").toString("utf8"));
+    if (data.expires < Date.now()) return null;
+    return data as { username: string; role: "master" | "client" | "seo"; expires: number };
   } catch {
     return null;
   }
 }
 
+export function createSessionToken(username: string, role: string) {
+  const data = {
+    username,
+    role,
+    expires: Date.now() + SESSION_MAX_AGE * 1000,
+  };
+  return Buffer.from(JSON.stringify(data)).toString("base64");
+}
+
+export const SESSION_COOKIE_NAME = SESSION_COOKIE;
+export const SESSION_COOKIE_MAX_AGE = SESSION_MAX_AGE;
+
+// Alias zodat andere routes SESSION_COOKIE direct kunnen importeren
 export { SESSION_COOKIE };
+
+// Redis gebruikers ophalen (voor forgot/reset routes)
+import { Redis } from "@upstash/redis";
+const redis = Redis.fromEnv();
+
+export async function getRedisUsers(): Promise<Array<{ username: string; email?: string; passwordHash: string; role: string }>> {
+  try {
+    const users = await redis.get<Array<{ username: string; email?: string; passwordHash: string; role: string }>>("cms:users");
+    return users ?? [];
+  } catch {
+    return [];
+  }
+}
+
+// Wachtwoord hash (SHA-256 met salt)
+import crypto from "crypto";
+export function createPasswordHash(password: string): string {
+  return crypto.createHash("sha256").update("bdz-cms-salt" + password).digest("hex");
+}
