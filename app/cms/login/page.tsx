@@ -88,20 +88,20 @@ export default function CmsLoginPage() {
         .login-btn {
           width: 100%;
           padding: 0.78rem;
-          background: ${accent};
+          background: #2a2a2a;
           color: #fff;
-          border: none;
+          border: 1px solid #3a3a3a;
           border-radius: 10px;
           font-size: 0.9rem;
           font-weight: 600;
           cursor: pointer;
-          box-shadow: 0 4px 24px ${accent}50;
+          box-shadow: 0 4px 16px rgba(0,0,0,0.4);
           letter-spacing: 0.02em;
           font-family: system-ui, sans-serif;
-          transition: opacity 0.2s;
+          transition: background 0.2s;
         }
-        .login-btn:hover { opacity: 0.88; }
-        .login-btn:disabled { background: #333; box-shadow: none; cursor: not-allowed; }
+        .login-btn:hover { background: #333; }
+        .login-btn:disabled { background: #1a1a1a; color: #555; box-shadow: none; cursor: not-allowed; }
       `}</style>
 
       <div className="login-page">
@@ -109,9 +109,9 @@ export default function CmsLoginPage() {
         <div className="login-card">
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <Image
-              src={cmsConfig.logo.src}
-              alt={cmsConfig.logo.alt}
-              width={240}
+              src="/logo-seo-login.png"
+              alt="SEO"
+              width={120}
               height={80}
               style={{ objectFit: "contain" }}
             />
