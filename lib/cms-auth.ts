@@ -12,6 +12,7 @@ export interface CmsUser {
   username: string;
   passwordHash: string;
   role: Role;
+  email?: string;
 }
 
 export interface Session {
@@ -21,7 +22,8 @@ export interface Session {
 }
 
 function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update(password + "bdz-cms-salt").digest("hex");
+  // salt eerst — zelfde volgorde als in route.ts bij aanmaken gebruiker
+  return crypto.createHash("sha256").update("bdz-cms-salt" + password).digest("hex");
 }
 
 export function verifyPassword(password: string, hash: string): boolean {
@@ -38,15 +40,17 @@ export async function getRedisUsers(): Promise<CmsUser[]> {
   return Array.isArray(users) ? users : [];
 }
 
-export async function validateLogin(username: string, password: string): Promise<CmsUser | null> {
+export async function validateLogin(usernameOrEmail: string, password: string): Promise<CmsUser | null> {
   // Master via env
   const masterPassword = process.env.CMS_MASTER_PASSWORD;
-  if (username === "master" && masterPassword && password === masterPassword) {
+  if (usernameOrEmail === "master" && masterPassword && password === masterPassword) {
     return { username: "master", passwordHash: "", role: "master" };
   }
-  // Overige gebruikers via Redis
+  // Overige gebruikers via Redis — zoek op username OF email
   const users = await getRedisUsers();
-  const user = users.find((u) => u.username === username);
+  const user = users.find(
+    (u) => u.username === usernameOrEmail || u.email === usernameOrEmail
+  );
   if (!user) return null;
   if (!verifyPassword(password, user.passwordHash)) return null;
   return user;

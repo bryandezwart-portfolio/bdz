@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/cms-auth";
 import { Redis } from "@upstash/redis";
 
-const redis = Redis.fromEnv();
-
 export async function GET() {
+  const redis = Redis.fromEnv();
   const session = await getSession();
   if (!session || session.role !== "master")
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });
@@ -14,6 +13,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const redis = Redis.fromEnv();
   const session = await getSession();
   if (!session || session.role !== "master")
     return NextResponse.json({ error: "Geen toegang" }, { status: 403 });

@@ -92,7 +92,6 @@ export default function CmsLoginPage() {
         boxShadow: "0 24px 64px rgba(0,0,0,0.6)",
         backdropFilter: "blur(12px)",
       }}>
-        {/* Logo */}
         <div style={{ textAlign: "center", marginBottom: "2rem" }}>
           <Image
             src={cmsConfig.logo.src}
@@ -119,7 +118,7 @@ export default function CmsLoginPage() {
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
           <input
             type="text"
-            placeholder="Gebruikersnaam"
+            placeholder="E-mailadres"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required

@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
 import crypto from "crypto";
 
-const redis = Redis.fromEnv();
 const SALT = "bdz-cms-salt";
 
 function hashPassword(password: string): string {
@@ -17,6 +16,7 @@ type StoredUser = {
 };
 
 export async function POST(req: Request) {
+  const redis = Redis.fromEnv();
   try {
     const { token, password } = await req.json();
     if (!token || !password) {
@@ -33,14 +33,12 @@ export async function POST(req: Request) {
     }
 
     if (username === "master") {
-      // Master wachtwoord staat in env — kan niet via Redis gereset worden
       return NextResponse.json(
         { error: "Master wachtwoord kan alleen via Vercel environment variables gewijzigd worden." },
         { status: 400 }
       );
     }
 
-    // Update gebruiker in Redis
     const users = await redis.get<StoredUser[]>("cms:users");
     const list = Array.isArray(users) ? users : [];
     const idx = list.findIndex((u) => u.username === username);
@@ -50,8 +48,6 @@ export async function POST(req: Request) {
 
     list[idx].passwordHash = hashPassword(password);
     await redis.set("cms:users", list);
-
-    // Verwijder token
     await redis.del(key);
 
     return NextResponse.json({ ok: true });

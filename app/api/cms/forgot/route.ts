@@ -1,93 +1,174 @@
-import { NextResponse } from "next/server";
-import { Redis } from "@upstash/redis";
-import { Resend } from "resend";
-import crypto from "crypto";
+"use client";
+import { useState } from "react";
+import Link from "next/link";
 import { cmsConfig } from "@/lib/cms-config";
 
-const redis = Redis.fromEnv();
-const resend = new Resend(process.env.RESEND_API_KEY);
-const TOKEN_TTL = 60 * 60; // 1 uur in seconden
+export default function ForgotPage() {
+  const [username, setUsername] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [error, setError] = useState("");
 
-type StoredUser = {
-  username: string;
-  passwordHash: string;
-  role: "master" | "client";
-  email?: string;
-};
-
-export async function POST(req: Request) {
-  try {
-    const { username } = await req.json();
-    if (!username) {
-      return NextResponse.json({ error: "Gebruikersnaam verplicht" }, { status: 400 });
-    }
-
-    const origin = new URL(req.url).origin;
-
-    // Bepaal e-mailadressen op basis van gebruiker
-    let emails: string[] = [];
-
-    if (username === "master") {
-      emails = cmsConfig.masterEmails;
-    } else {
-      const users = await redis.get<StoredUser[]>("cms:users");
-      const user = Array.isArray(users) ? users.find((u) => u.username === username) : null;
-      if (!user) {
-        // Geen fout tonen — security: altijd zelfde response
-        return NextResponse.json({ ok: true });
-      }
-      if (!user.email) {
-        return NextResponse.json(
-          { error: "Geen e-mailadres bekend voor deze gebruiker. Neem contact op met de beheerder." },
-          { status: 400 }
-        );
-      }
-      emails = [user.email];
-    }
-
-    // Genereer token
-    const token = crypto.randomBytes(32).toString("hex");
-    const key = `cms:reset:${token}`;
-    await redis.set(key, username, { ex: TOKEN_TTL });
-
-    const resetUrl = `${origin}/cms/login/reset?token=${token}`;
-
-    // Stuur email naar alle adressen
-    for (const email of emails) {
-      await resend.emails.send({
-        from: `${cmsConfig.fromName} <${cmsConfig.fromEmail}>`,
-        to: email,
-        subject: "Wachtwoord herstellen – CMS",
-        html: `
-          <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-            <h2 style="color: #333;">Wachtwoord herstellen</h2>
-            <p>Er is een wachtwoordherstel aangevraagd voor gebruiker <strong>${username}</strong>.</p>
-            <p>Klik op de knop hieronder om een nieuw wachtwoord in te stellen. Deze link is <strong>1 uur</strong> geldig.</p>
-            <a href="${resetUrl}" style="
-              display: inline-block;
-              margin: 24px 0;
-              padding: 12px 24px;
-              background: #e63946;
-              color: white;
-              text-decoration: none;
-              border-radius: 6px;
-              font-weight: bold;
-            ">Nieuw wachtwoord instellen</a>
-            <p style="color: #666; font-size: 0.85rem;">
-              Of kopieer deze link in je browser:<br>
-              <a href="${resetUrl}" style="color: #e63946;">${resetUrl}</a>
-            </p>
-            <p style="color: #999; font-size: 0.8rem;">
-              Heb je dit niet aangevraagd? Dan kun je deze e-mail negeren.
-            </p>
-          </div>
-        `,
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus("loading");
+    setError("");
+    try {
+      const res = await fetch("/api/cms/forgot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: username.trim() }),
       });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Er is iets misgegaan");
+        setStatus("error");
+      } else {
+        setStatus("done");
+      }
+    } catch {
+      setError("Kan geen verbinding maken");
+      setStatus("error");
     }
-
-    return NextResponse.json({ ok: true });
-  } catch (err) {
-    console.error("forgot error:", err);
-    return NextResponse.json({ error: "Er is iets misgegaan" }, { status: 500 });
   }
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f5f5f5",
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          borderRadius: 12,
+          padding: "2.5rem",
+          width: "100%",
+          maxWidth: 420,
+          boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: "50%",
+              background: cmsConfig.accentColor,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              marginBottom: "1rem",
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+          </div>
+          <h1 style={{ fontSize: "1.4rem", fontWeight: 700, margin: 0, color: "#111" }}>
+            Wachtwoord vergeten
+          </h1>
+        </div>
+
+        {status === "done" ? (
+          <div style={{ textAlign: "center" }}>
+            <div
+              style={{
+                width: 48,
+                height: 48,
+                borderRadius: "50%",
+                background: "#22c55e",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                marginBottom: "1rem",
+              }}
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            </div>
+            <p style={{ color: "#333", marginBottom: "0.5rem", fontWeight: 600 }}>
+              E-mail verstuurd!
+            </p>
+            <p style={{ color: "#666", fontSize: "0.9rem", marginBottom: "1.5rem" }}>
+              Als er een account bestaat voor <strong>{username}</strong>, is er een reset-link verstuurd.
+              Controleer ook je spam.
+            </p>
+            <Link
+              href="/cms/login"
+              style={{ color: cmsConfig.accentColor, fontWeight: 600, textDecoration: "none" }}
+            >
+              ← Terug naar inloggen
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit}>
+            <p style={{ color: "#555", fontSize: "0.9rem", marginBottom: "1.5rem", textAlign: "center" }}>
+              Vul je e-mailadres in. We sturen een reset-link naar dat adres.
+            </p>
+
+            <label style={{ display: "block", fontWeight: 600, marginBottom: "0.4rem", fontSize: "0.9rem" }}>
+              E-mailadres
+            </label>
+            <input
+              type="email"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              autoFocus
+              placeholder="jouw@emailadres.nl"
+              style={{
+                width: "100%",
+                padding: "0.75rem 1rem",
+                border: "1.5px solid #ddd",
+                borderRadius: 8,
+                fontSize: "1rem",
+                outline: "none",
+                boxSizing: "border-box",
+                marginBottom: "1rem",
+              }}
+            />
+
+            {status === "error" && (
+              <p style={{ color: "#e63946", fontSize: "0.85rem", marginBottom: "1rem" }}>{error}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={status === "loading"}
+              style={{
+                width: "100%",
+                padding: "0.8rem",
+                background: cmsConfig.accentColor,
+                color: "#fff",
+                border: "none",
+                borderRadius: 8,
+                fontWeight: 700,
+                fontSize: "1rem",
+                cursor: status === "loading" ? "not-allowed" : "pointer",
+                opacity: status === "loading" ? 0.7 : 1,
+                marginBottom: "1rem",
+              }}
+            >
+              {status === "loading" ? "Versturen…" : "Reset-link sturen"}
+            </button>
+
+            <div style={{ textAlign: "center" }}>
+              <Link
+                href="/cms/login"
+                style={{ color: "#666", fontSize: "0.85rem", textDecoration: "none" }}
+              >
+                ← Terug naar inloggen
+              </Link>
+            </div>
+          </form>
+        )}
+      </div>
+    </div>
+  );
 }
