@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Redis } from "@upstash/redis";
-import { getRedisUsers, hashPassword } from "@/lib/cms-auth";
+import { getRedisUsers, createPasswordHash } from "@/lib/cms-auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Wachtwoord hashen en opslaan
-    users[userIndex].passwordHash = hashPassword(password);
+    users[userIndex].passwordHash = createPasswordHash(password);
     await redis.set("cms:users", users);
 
     // Token verwijderen (eenmalig gebruik)
