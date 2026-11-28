@@ -5,7 +5,7 @@
 export const cmsConfig = {
   // Logo op de loginpagina (zet bestand in /public)
   logo: {
-    src: "/bryan-logo.png", // ← verander naar klant-logo
+    src: "/bryandezwart-official.avif", // ← verander naar klant-logo
     alt: "Bryan de Zwart",
     width: 180,
   },
