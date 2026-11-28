@@ -5,8 +5,8 @@
 export const cmsConfig = {
   // Logo op de loginpagina (zet bestand in /public)
   logo: {
-    src: "/branding-totaal-logo.png", // ← verander naar klant-logo
-    alt: "Branding Totaal",
+    src: "/bryan-logo.png", // ← verander naar klant-logo
+    alt: "Bryan de Zwart",
     width: 180,
   },
 
@@ -19,7 +19,7 @@ export const cmsConfig = {
   },
 
   // Naam van de site (zichtbaar in dashboard)
-  siteName: "Mijn Website",
+  siteName: "Bryan de Zwart",
 
   // URL van de live site (knop "Bekijk live" in dashboard)
   siteUrl: "https://www.bryandezwart.nl",
