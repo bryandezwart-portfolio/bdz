@@ -10,6 +10,14 @@ export const cmsConfig = {
     width: 180,
   },
 
+  // Login pagina instellingen (whitelabel)
+  login: {
+    logo: "/logo-seo-login.png",   // ← logo op loginpagina
+    logoWidth: 120,
+    logoHeight: 80,
+    bgImage: "/login-bg.png",      // ← achtergrondafbeelding loginpagina
+  },
+
   // Naam van de site (zichtbaar in dashboard)
   siteName: "Mijn Website",
 

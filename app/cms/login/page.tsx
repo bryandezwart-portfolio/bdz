@@ -44,7 +44,7 @@ export default function CmsLoginPage() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background-image: url('/login-bg.png');
+          background-image: url('${cmsConfig.login.bgImage}');
           background-size: cover;
           background-position: center;
           font-family: system-ui, sans-serif;
@@ -109,10 +109,10 @@ export default function CmsLoginPage() {
         <div className="login-card">
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <Image
-              src="/logo-seo-login.png"
-              alt="SEO"
-              width={120}
-              height={80}
+              src={cmsConfig.login.logo}
+              alt={cmsConfig.logo.alt}
+              width={cmsConfig.login.logoWidth}
+              height={cmsConfig.login.logoHeight}
               style={{ objectFit: "contain" }}
             />
           </div>
