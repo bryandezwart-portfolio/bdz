@@ -48,6 +48,7 @@ export async function generateMetadata(): Promise<Metadata> {
     robots: robotsIndex ? "index, follow" : "noindex, nofollow",
     alternates: canonicalUrl ? { canonical: canonicalUrl } : undefined,
     openGraph: {
+      siteName: "Bryan de Zwart",
       title: ogTitle,
       description: ogDescription,
       images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
