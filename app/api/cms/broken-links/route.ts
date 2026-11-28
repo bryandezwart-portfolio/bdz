@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
           const r = result.value;
           // 404, 410, 500+ zijn broken; timeout ook
           if (!r.status || r.status === 404 || r.status === 410 || r.status >= 500) {
-            brokenLinks.push({ url: r.url, status: r.status, text: r.text, error: r.error });
+            brokenLinks.push({ url: r.url, status: r.status, text: r.text, error: "error" in r ? r.error : undefined });
           }
         }
       }
